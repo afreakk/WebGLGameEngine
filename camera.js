@@ -27,7 +27,7 @@ function Camera(position, look, viewMatrix)
         var up = vec3.fromValues(0.0, 1.0, 0.0);
         mat4.lookAt(tempMat,this.pos,center,up);
         this.rot = quatFromMatrix(tempMat);
-        setMatrix(tempMat,this.viewMatrix);
+        setMatrix(tempMat,this.vMat);
     }
     this.lookAtFrom = function(center,position)
     {

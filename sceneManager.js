@@ -13,7 +13,7 @@ function SceneManager()
         if(index<this.sceneArray.length && index>=0)
         {
             this.currentScene = this.sceneArray[index];
-            this.currentScene.init();
+            this.currentScene.init(index);
         }
         else
         {
@@ -28,6 +28,29 @@ function SceneManager()
             this.currentScene.update();
         else
             this.setLvl(this.currentScene.nextLevel);
+    }
+    return this;
+}
+function initSceneMgr()
+{
+    this.sceneMgr=null;
+    this.init = function(startLvlIndex,sceneArr)
+    {
+        this.sceneMgr = SceneManager();
+        this.sceneMgr.init(sceneArr);
+        this.sceneMgr.setLvl(startLvlIndex);
+    }
+    this.animFrame = function()
+    {
+        if(!this.sceneMgr.endGame)
+        {
+            this.sceneMgr.update();
+            window.requestAnimFrame(this.animFrame, canvas);
+        }
+        else
+        {
+            alert("thanks for playing.");
+        }
     }
     return this;
 }

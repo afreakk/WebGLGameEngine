@@ -48,7 +48,9 @@ function webGLStart(document)
         glMatrix.setMatrixArrayType(Float32Array);
         var mgr = initSceneMgr();
         var startLvl = 0;
-        var sceneArr = [SceneOne(), SceneTwo()];
+        var lvlOne = SceneOne();
+        var lvlTwo = SceneTwo();
+        var sceneArr = [lvlOne, lvlTwo];
         mgr.init(startLvl,sceneArr);
         mgr.animFrame();
     }
