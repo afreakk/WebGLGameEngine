@@ -9,11 +9,9 @@ function SceneOne()
     this.init = function()
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
-        shaderStruct = new getShaderLocations(shader);
-        gl.useProgram(shaderStruct.shader);
+        shaderStruct = new getShaderStruct(shader);
+        setShader(shaderStruct.shader);
         setAttribs([shaderStruct.vPos,shaderStruct.vCol]);
-//        gl.enableVertexAttribArray(shaderStruct.vPos);
-  //      gl.enableVertexAttribArray(shaderStruct.vCol);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.viewport(0, 0,scrW , scrH);
@@ -34,7 +32,7 @@ function SceneOne()
         obj1 = new ParticleIndexed(new iSquare(), shaderStruct);
         obj1.pos = pos2;
         obj1.draw();
-        console.error("sceneOne init");
+        console.log("sceneOne initiated");
     }
     this.update = function()
     {
@@ -43,7 +41,7 @@ function SceneOne()
         obj0.draw();
         obj1.draw();
         this.time += 0.1;
-        console.error("sceneOne Update");
+        console.log("sceneOne update");
 
     }
 }

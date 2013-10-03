@@ -1,20 +1,3 @@
-function setShader(shader)
-{
-    if(shader != setShader.lastUsed)
-    {
-        setShader.lastUsed=shader;
-        gl.useProgram(shader);
-    }
-}
-setShader.lastUsed;
-function setMatrixPRS(posV, rotQ, scaleV, matLoc) 
-{
-    var modelMatrix= mat4.create();
-    modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
-    modelMatrix = mat4.scale(modelMatrix,modelMatrix,scaleV);
-    gl.uniformMatrix4fv(matLoc, false, modelMatrix);
-}
-
 function ParticleIndexed(product,shaderProgram)
 {
     this.pos    = vec3.create();
@@ -29,7 +12,7 @@ function ParticleIndexed(product,shaderProgram)
     this.shader  = shaderProgram.shader;
     this.draw = function() 
 	{
-        //setShader(this.shader);
+        setShader(this.shader);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(this.vPosLoc, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -54,7 +37,7 @@ function ParticleNoIndex(product, shaderProgram)
     this.shader  = shaderProgram.shader;
     this.draw = function() 
 	{
-        //setShader(this.shader);
+        setShader(this.shader);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(this.vPosLoc, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 

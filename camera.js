@@ -44,6 +44,5 @@ function Camera(position, look, viewMatrix)
     }
     
     this.lookAt(look);
-    return this;
 
 }

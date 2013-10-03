@@ -13,7 +13,7 @@ function SceneManager()
     }
     this.setLvl = function(index)
     {
-        console.error("setLvl: "+index);
+        console.log("setLvlIndex: "+index);
         if(index<this.sceneArray.length && index>=0)
         {
             this.currentScene = this.sceneArray[index];
