@@ -3,28 +3,27 @@ function triangle()
     this.vB = gl.createBuffer();
     this.cB = gl.createBuffer();
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, vB);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vB);
         var vertices = [
 			 -1.0, 	-1.0, 	0.0,
 			 1.0, 	-1.0,  	0.0,
 			 0.0, 	1.0, 	0.0,
          ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        vB.itemSize = 3;
-        vB.numItems = 3;
+        this.vB.itemSize = 3;
+        this.vB.numItems = 3;
     }
     {
-       gl.bindBuffer(gl.ARRAY_BUFFER, cB);
+       gl.bindBuffer(gl.ARRAY_BUFFER, this.cB);
        var colors = [
 			1.0, 0.0, 0.0, 1.0,
 			1.0, 0.0, 0.0, 1.0,
 			0.0, 1.0, 0.0, 1.0,
        ];
        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-       cB.itemSize = 4;
-       cB.numItems = 3;
+       this.cB.itemSize = 4;
+       this.cB.numItems = 3;
     }
-    return this;
 }
 function iSquare()
 {
@@ -32,7 +31,7 @@ function iSquare()
     this.cB = gl.createBuffer();
     this.iB = gl.createBuffer();
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, vB);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vB);
         var vertices = [
 			 -1.0, 	-1.0, 	0.0,
 			 1.0, 	-1.0,  	0.0,
@@ -40,11 +39,11 @@ function iSquare()
             -1.0,   1.0,    0.0,
          ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        vB.itemSize = 3;
-        vB.numItems = 4;
+        this.vB.itemSize = 3;
+        this.vB.numItems = 4;
     }
     {
-       gl.bindBuffer(gl.ARRAY_BUFFER, cB);
+       gl.bindBuffer(gl.ARRAY_BUFFER, this.cB);
        var colors = [
 			1.0, 0.0, 0.0, 1.0,
 			1.0, 0.0, 0.0, 1.0,
@@ -52,16 +51,15 @@ function iSquare()
             0.0, 0.0, 1.0, 1.0,
        ];
        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-       cB.itemSize = 4;
-       cB.numItems = 4;
+       this.cB.itemSize = 4;
+       this.cB.numItems = 4;
    }
    {
-       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iB);
+       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iB);
        var indexes = [
        0,1,2, 3,0,2
        ];
        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes),gl.STATIC_DRAW);
-       iB.numItems = 6;
+       this.iB.numItems = 6;
    }
-   return this;
 }

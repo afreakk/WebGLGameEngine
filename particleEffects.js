@@ -38,9 +38,8 @@ function ParticleIndexed(product,shaderProgram)
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         setMatrixPRS(this.pos,this.rot,this.scale,this.mMatLoc);
-        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
-    return this;
 }
 function ParticleNoIndex(product, shaderProgram)
 {
@@ -64,5 +63,4 @@ function ParticleNoIndex(product, shaderProgram)
         setMatrixPRS(this.pos,this.rot,this.scale,this.mMatLoc);
 		gl.drawArrays(gl.TRIANGLES , 0, this.vertexBuffer.numItems);
 	}
-    return this;
 }

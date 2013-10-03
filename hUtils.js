@@ -23,7 +23,6 @@ function getShaderLocations(shaderProgram)
         this.shader = shaderProgram;
     }
     this.init();
-    return this;
 }
 
 function setAttribs(attribLocArray)
