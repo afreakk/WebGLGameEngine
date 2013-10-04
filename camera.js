@@ -1,8 +1,13 @@
-function setMatrix(matrix,matLoc)
+function setProjection(fov,near,far,matLoc,canvas) 
 {
-    gl.uniformMatrix4fv(matLoc,false,matrix);
+    var pMatrix = mat4.create();
+    mat4.identity(pMatrix);
+    pMatrix = mat4.perspective(pMatrix, fov, canvas.width/canvas.height, near, far);
+    gl.uniformMatrix4fv(matLoc, false, pMatrix);
 }
-function quatFromMatrix(matrix) {
+
+
+function matToQuat(matrix) {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
 	var w4 = (4.0 * w);
 	var x = (matrix[6] - matrix[9]) / w4 ;
@@ -21,12 +26,13 @@ function Camera(position, look, viewMatrix)
     this.pos    = position;
     this.rot    = quat.create();
     this.vMat   = viewMatrix;
+
     this.lookAt = function(center)
     {
         var tempMat = mat4.create();
         var up = vec3.fromValues(0.0, 1.0, 0.0);
         mat4.lookAt(tempMat,this.pos,center,up);
-        this.rot = quatFromMatrix(tempMat);
+        this.rot = matToQuat(tempMat);
         setMatrix(tempMat,this.vMat);
     }
     this.lookAtFrom = function(center,position)
@@ -35,7 +41,7 @@ function Camera(position, look, viewMatrix)
         var tempMat = mat4.create();
         var up = vec3.fromValues(0.0, 1.0, 0.0);
         mat4.lookAt(tempMat,this.pos,center,up);
-        this.rot = quatFromMatrix(tempMap);
+        this.rot = matToQuat(tempMap);
         setMatrix(tempMat,vMat);
     }
     this.update = function()

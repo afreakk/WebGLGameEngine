@@ -1,11 +1,3 @@
-function setProjection(fov,near,far,matLoc) 
-{
-    var pMatrix = mat4.create();
-    mat4.identity(pMatrix);
-    pMatrix = mat4.perspective(pMatrix, fov, scrW/scrH, near, far);
-    gl.uniformMatrix4fv(matLoc, false, pMatrix);
-}
-
 function getShaderStruct(shaderProgram)
 {
     this.vPos= gl.getAttribLocation(shaderProgram, "vPos");
@@ -56,10 +48,13 @@ function setAttribs(attribLocArray)
     }
 }
 setAttribs.aLocArr= new Array();
-
-function initGL(document) 
+function getCanvas(document)
+{
+    var canvas = document.getElementById("lerret");
+    return canvas;
+}
+function initGL(canvas) 
 {    
-    canvas = document.getElementById("lerret");
     var gli=null;
     try
     {
@@ -72,8 +67,6 @@ function initGL(document)
         alert(rainbow);
         return null;
     }
-    scrW = canvas.width;
-    scrH = canvas.height;
     return gli;
 }
 
@@ -89,7 +82,6 @@ function setMatrix(matrix,matLoc)
 {
     gl.uniformMatrix4fv(matLoc,false,matrix);
 }
-
 function quatFromMatrix(matrix) {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
 	var w4 = (4.0 * w);

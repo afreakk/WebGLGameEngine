@@ -1,4 +1,24 @@
+function particleManager(product,shaderProgram,numParticles,centerPos,mode)
+{
+    this.prtcls = new Array();
+    this.numPrt = numParticles;
+    this.cPos = centerPos;
+    for(var i=0; i<this.numPrt; i++)
+        this.prtcls[i]= new particleIndexed(product,shaderProgram);
+    this.update = function()
+    {
+        for(var i=0; i<this.numPrt; i++)
+        {
+            this.prtcls[i].position =this.cPos; 
+        }
+    }
+    this.draw = function()
+    {
+        for(var i=0; i<this.numPrt; i++)
+            this.prtcls[i].draw();
+    }
 
+}
 function ParticleIndexed(product,shaderProgram)
 {
     this.pos    = vec3.create();

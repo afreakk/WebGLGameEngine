@@ -6,7 +6,8 @@ function SceneOne()
     this.obj0=null;
     this.obj1=null;
     this.time=0;
-    this.init = function()
+    this.canvas=null;
+    this.GLSettings= function()
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
@@ -14,10 +15,14 @@ function SceneOne()
         setAttribs([shaderStruct.vPos,shaderStruct.vCol]);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0,scrW , scrH);
-        setProjection(45.0, 0.1, 100.0,shaderStruct.pMat);
+        gl.viewport(0, 0,this.canvas.width , this.canvas.height);
+        setProjection(45.0, 0.1, 100.0,shaderStruct.pMat,this.canvas);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    }
+    this.init = function()
+    {
+        this.GLSettings(); 
         var cPos = vec3.fromValues(0.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-10.0);
         var cam = new Camera(cPos,cLookAt,shaderStruct.vMat); 
@@ -36,6 +41,7 @@ function SceneOne()
     }
     this.update = function()
     {
+        gl.viewport(0,0,this.canvas.width, this.canvas.height);
         gl.clearColor(this.time, 0.0, 0.0, 1.0)
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         obj0.draw();

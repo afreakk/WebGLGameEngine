@@ -1,8 +1,10 @@
-function SceneManager()
+function SceneManager(Canvas)
 {
     this.currentScene = null;
     this.sceneArray = new Array();
     this.endGame = false;
+    this.canvas = Canvas;
+    this.resizeH = new resizeHandling(this.canvas); 
     this.run = function()
     {
         return !this.endGame;
@@ -17,7 +19,8 @@ function SceneManager()
         if(index<this.sceneArray.length && index>=0)
         {
             this.currentScene = this.sceneArray[index];
-            this.currentScene.init(index);
+            this.resizeH.setScene(this.currentScene);
+            this.currentScene.init();
         }
         else
         {
@@ -33,9 +36,9 @@ function SceneManager()
             this.setLvl(this.currentScene.nextLevel);
     }
 }
-function Manager()
+function Manager(Canvas)
 {
-    this.sceneMgr=new SceneManager();
+    this.sceneMgr=new SceneManager(Canvas);
     this.addScene = function(whatScene)
     {
         this.sceneMgr.addScene(whatScene);
@@ -49,7 +52,7 @@ function Manager()
         if(this.sceneMgr.run())
         {
             this.sceneMgr.update();
-            window.requestAnimFrame(this.animFrame.bind(this), canvas);
+            window.requestAnimFrame(this.animFrame.bind(this), this.canvas);
         }
         else
         {

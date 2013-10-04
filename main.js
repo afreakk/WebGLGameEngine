@@ -1,10 +1,10 @@
 function webGLStart(document)
 {
-    alert("wtf");
-    if(gl = initGL(document))
+    var canvas = getCanvas(document); 
+    if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        var mgr = new Manager();
+        var mgr = new Manager(canvas);
         var startLvl = 0;
         var lvlOne = new SceneOne();
         var lvlTwo = new SceneTwo();
@@ -21,6 +21,10 @@ function webGLStart(document)
 }
 
 
+$(this).click(function()
+{
+    alert("clicked");
+});
 
 
 
