@@ -3,8 +3,8 @@ function resizeHandling(Canvas)
     this.setScene= function(Scene)
     {
         this.scene = Scene;
-        this.scene.canvas = this.canvas;
         this.crz();
+        this.scene.canvas = this.canvas;
     }
     this.crz= function()
     {
@@ -15,11 +15,6 @@ function resizeHandling(Canvas)
     {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-
-            /**
-             * Your drawings need to be inside this function otherwise they will be reset when 
-             * you resize the browser window and the canvas goes will be cleared.
-             */
         this.scene.update(); 
     }    
     this.canvas = Canvas;

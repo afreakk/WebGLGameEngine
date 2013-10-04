@@ -20,6 +20,7 @@ function SceneManager(Canvas)
         {
             this.currentScene = this.sceneArray[index];
             this.resizeH.setScene(this.currentScene);
+            this.currentScene.GLSettings();
             this.currentScene.init();
         }
         else

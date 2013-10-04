@@ -34,14 +34,13 @@ $(document).ready(function()
     })
     ).done(function()
     {
-    $(lerret).slideDown("slow");
-    $(lerret).animate( { left:'+=100px', opacity:'1.0', height:'500', width:'500'});
+        $(lerret).slideDown("slow");
         webGLStart(document);
     });
 });
 </script>
 </head>
 <body>
-<canvas id="lerret" style="border: none; position: relative; left: 0px" width="screen.width/2.0" height="screen.height/2.0" ></canvas>
+<canvas id="lerret" style="border: none; position: relative; left: 0px" width="window.innerWidth" height="window.innerHeigdht" ></canvas>
 </body>
 </html>

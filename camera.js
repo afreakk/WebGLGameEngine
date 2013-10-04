@@ -5,8 +5,6 @@ function setProjection(fov,near,far,matLoc,canvas)
     pMatrix = mat4.perspective(pMatrix, fov, canvas.width/canvas.height, near, far);
     gl.uniformMatrix4fv(matLoc, false, pMatrix);
 }
-
-
 function matToQuat(matrix) {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
 	var w4 = (4.0 * w);
@@ -21,19 +19,36 @@ function setMatrixPR(posV, rotQ, matLoc)
     modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
     gl.uniformMatrix4fv(matLoc, false, modelMatrix);
 }
-function Camera(position, look, viewMatrix)
+function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY)
 {
     this.pos    = position;
     this.rot    = quat.create();
-    this.vMat   = viewMatrix;
-
+    this.vMatL   = vMatLoc;
+    this.pMatL   = pMatLoc;
+    this.fov = Fov;
+    this.near = Near;
+    this.far = Far;
+    this.canvas = Canvas;
+    this.vprtSizeX = vportSizeX;
+    this.vprtSizeY = vportSizeY;
+    this.setPerspective = function()
+    {
+        var pMatrix = mat4.create();
+        mat4.identity(pMatrix);
+        pMatrix = mat4.perspective(pMatrix, this.fov, (this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), this.near, this.far);
+        setMatrix(pMatrix,this.pMatL);
+    }
+    this.updateViewport = function()
+    {
+        gl.viewport(0, 0,this.canvas.width*this.vprtSizeX , this.canvas.height*this.vprtSizeY);
+    }
     this.lookAt = function(center)
     {
         var tempMat = mat4.create();
         var up = vec3.fromValues(0.0, 1.0, 0.0);
         mat4.lookAt(tempMat,this.pos,center,up);
         this.rot = matToQuat(tempMat);
-        setMatrix(tempMat,this.vMat);
+        setMatrix(tempMat,this.vMatL);
     }
     this.lookAtFrom = function(center,position)
     {
@@ -42,13 +57,19 @@ function Camera(position, look, viewMatrix)
         var up = vec3.fromValues(0.0, 1.0, 0.0);
         mat4.lookAt(tempMat,this.pos,center,up);
         this.rot = matToQuat(tempMap);
-        setMatrix(tempMat,vMat);
+        setMatrix(tempMat,vMatL);
     }
     this.update = function()
     {
-        setMatrixPR(this.pos,this.rot,vMat);
+        setMatrixPR(this.pos,this.rot,vMatL);
     }
-    
+    this.setViewport= function(x,y)
+    {
+        this.vprtSizeX=x;
+        this.vprtSizeY=y;
+    }
+    this.updateViewport();
+    this.setPerspective(); 
     this.lookAt(look);
 
 }
