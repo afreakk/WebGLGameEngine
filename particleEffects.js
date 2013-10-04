@@ -1,3 +1,4 @@
+
 function ParticleIndexed(product,shaderProgram)
 {
     this.pos    = vec3.create();

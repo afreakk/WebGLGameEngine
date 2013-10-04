@@ -1,5 +1,6 @@
 function webGLStart(document)
 {
+    alert("wtf");
     if(gl = initGL(document))
     {
         glMatrix.setMatrixArrayType(Float32Array);
