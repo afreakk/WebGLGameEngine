@@ -1,27 +1,6 @@
-function particleManager(product,shaderProgram,numParticles,centerPos,mode)
+function ObjectIndexed(drawObjects, product,shaderProgram,x,y,z)
 {
-    this.prtcls = new Array();
-    this.numPrt = numParticles;
-    this.cPos = centerPos;
-    for(var i=0; i<this.numPrt; i++)
-        this.prtcls[i]= new particleIndexed(product,shaderProgram);
-    this.update = function()
-    {
-        for(var i=0; i<this.numPrt; i++)
-        {
-            this.prtcls[i].position =this.cPos+i*10.0; 
-        }
-    }
-    this.draw = function()
-    {
-        for(var i=0; i<this.numPrt; i++)
-            this.prtcls[i].draw();
-    }
-
-}
-function ParticleIndexed(product,shaderProgram)
-{
-    this.pos    = vec3.create();
+    this.pos    = vec3.fromValues(x,y,z);
     this.rot    = quat.create();
     this.scale  = vec3.fromValues(1.0, 1.0, 1.0);
     this.vertexBuffer   =   product.vB;  
@@ -44,10 +23,12 @@ function ParticleIndexed(product,shaderProgram)
         setMatrixPRS(this.pos,this.rot,this.scale,this.mMatLoc);
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
+    drawObjects.add(this);
+    
 }
-function ParticleNoIndex(product, shaderProgram)
+function ObjectNoIndex(drawObjects, product, shaderProgram,x,y,z)
 {
-    this.pos    = vec3.create();
+    this.pos    = vec3.fromValues(x,y,z);
     this.rot    = quat.create();
     this.scale  = vec3.fromValues(1.0, 1.0, 1.0);
     this.vertexBuffer   =product.vB;
@@ -67,4 +48,18 @@ function ParticleNoIndex(product, shaderProgram)
         setMatrixPRS(this.pos,this.rot,this.scale,this.mMatLoc);
 		gl.drawArrays(gl.TRIANGLES , 0, this.vertexBuffer.numItems);
 	}
+    drawObjects.add(this);
+}
+function DrawableObjects()
+{
+    var objects = new Array();
+    this.add=function(obj)
+    {
+        objects.push(obj);
+    }
+    this.draw=function()
+    {
+        for(var i=0; i<objects.length; i++)
+            objects[i].draw();
+    }
 }

@@ -8,6 +8,8 @@ function SceneOne()
     this.time=0;
     this.canvas=null;
     this.camera0=null;
+    this.camera1=null;
+    this.drawObjs = new DrawableObjects();
     this.GLSettings= function()
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -16,36 +18,39 @@ function SceneOne()
         setAttribs([shaderStruct.vPos,shaderStruct.vCol]);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
     this.init = function()
     {
         this.GLSettings(); 
-        var cPos = vec3.fromValues(0.0,0.0,0.0);
-        var cLookAt = vec3.fromValues(0.0,0.0,-10.0);
-        this.camera0 = new Camera(cPos,      cLookAt,    shaderStruct.vMat,  shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0); 
-        var pos1 = vec3.fromValues(-2.5,0.0,-10.0);
+        var cPos0    = vec3.fromValues(5.0,0.0,0.0);
+        var cPos1   = vec3.fromValues(-5.0,0.0,0.0);
+        var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
+        this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,0.5,0.0,0.5);
+        this.camera1 = new Camera(this.drawObjs, cPos1,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,0.5);
+ 
         var tri = new triangle();
-        obj0 = new ParticleNoIndex(tri,shaderStruct);
-        obj0.pos = pos1;
-        obj0.draw();
+        obj0 = new ObjectNoIndex(this.drawObjs, tri,shaderStruct,-1.0,0.0,-0.0);
         
-        var pos2 = vec3.fromValues(2.0,0.0,-10.0);
-        obj1 = new ParticleIndexed(new iSquare(), shaderStruct);
-        obj1.pos = pos2;
-        obj1.draw();
+        var square = new iSquare();
+        obj1 = new ObjectIndexed(this.drawObjs, square, shaderStruct,1.0,0.0,-0.0);
         console.log("sceneOne initiated");
     }
     this.update = function()
     {
-        this.camera0.updateViewport();
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(0.2, 0.2, 0.1, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        obj0.draw();
-        obj1.draw();
-        this.time += 0.001;
-        console.log("sceneOne update");
-
+//        obj0.pos[0] = Math.sin(this.time)*3.0;
+        var range = 10.0;
+        var cPos0 = vec3.fromValues(Math.sin(this.time)*range,0.0,Math.cos(this.time)*range);
+        var cPos1 = vec3.fromValues(Math.cos(this.time)*range,0.0,Math.sin(this.time)*range);
+        var cLook = vec3.fromValues(0.0,0.0,-0.0);
+        this.camera0.lookAtFrom(cLook,cPos0);
+        this.camera1.lookAtFrom(cLook,cPos1);
+        this.camera0.update();
+        this.camera0.draw();
+        this.camera1.update();
+        this.camera1.draw();
+        this.time += 0.01;
     }
 }
 

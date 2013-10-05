@@ -3,44 +3,35 @@
 <title>W</title>
 <meta http-equiv="content-type"     content="text/html; charset=ISO-8859-1">
 <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
-    <script type="application/javascript">
-$(document).ready(function()
-{
-    $(lerret).hide();
-    var gl;
-    $.when(
-    $.getScript('gl-matrix/common.js'),
-    $.getScript('gl-matrix/vec2.js'),
-    $.getScript('gl-matrix/vec3.js'),
-    $.getScript('gl-matrix/vec4.js'),
-    $.getScript('gl-matrix/mat2.js'),
-    $.getScript('gl-matrix/mat2d.js'),
-    $.getScript('gl-matrix/mat3.js'),
-    $.getScript('gl-matrix/mat4.js'),
-    $.getScript('gl-matrix/quat.js'),
-    $.getScript('webgl-utils.js'),
-    $.getScript('main.js'),   
-    $.getScript('shaderLoader.js'),
-    $.getScript('particleEffects.js'),
-    $.getScript('shapes.js'),
-    $.getScript('camera.js'),
-    $.getScript('sceneManager.js'),
-    $.getScript('scene0.js'),
-    $.getScript('hUtils.js'),
-    $.getScript('resizeHandling.js'),
-    $.Deferred(function( deferred )
-    {
-        $( deferred.resolve );
-    })
-    ).done(function()
-    {
-        $(lerret).slideDown("slow");
-        webGLStart(document);
-    });
-});
-</script>
+    <script src='gl-matrix/common.js'></script>
+    <script src='gl-matrix/vec2.js'></script>
+    <script src='gl-matrix/vec3.js'></script>
+    <script src='gl-matrix/vec4.js'></script>
+    <script src='gl-matrix/mat2.js'></script>
+    <script src='gl-matrix/mat2d.js'></script>
+    <script src='gl-matrix/mat3.js'></script>
+    <script src='gl-matrix/mat4.js'></script>
+    <script src='gl-matrix/quat.js'></script>
+    <script src='webgl-utils.js'></script>
+    <script src='main.js'></script>
+    <script src='shaderLoader.js'></script>
+    <script src='particleEffects.js'></script>
+    <script src='shapes.js'></script>
+    <script src='camera.js'></script>
+    <script src='sceneManager.js'></script>
+    <script src='scene0.js'></script>
+    <script src='hUtils.js'></script>
+    <script src='resizeHandling.js'></script>
+    <script src='drawObject.js'></script>
+    <script>
+        var gl;
+        window.onload=function()
+        {
+            webGLStart(document);
+        }
+    </script>
 </head>
 <body>
-<canvas id="lerret" style="border: none; position: relative; left: 0px" width="window.innerWidth" height="window.innerHeigdht" ></canvas>
+<canvas id="lerret" style="border: none; position: relative; left: 0px" width="window.innerWidth" height="window.innerHeight" ></canvas>
 </body>
 </html>

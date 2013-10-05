@@ -1,25 +1,4 @@
-function setProjection(fov,near,far,matLoc,canvas) 
-{
-    var pMatrix = mat4.create();
-    mat4.identity(pMatrix);
-    pMatrix = mat4.perspective(pMatrix, fov, canvas.width/canvas.height, near, far);
-    gl.uniformMatrix4fv(matLoc, false, pMatrix);
-}
-function matToQuat(matrix) {
-	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
-	var w4 = (4.0 * w);
-	var x = (matrix[6] - matrix[9]) / w4 ;
-	var y = (matrix[8] - matrix[2]) / w4 ;
-	var z = (matrix[1] - matrix[4]) / w4 ;
-    return quat.fromValues(x, y, z, w);
-}
-function setMatrixPR(posV, rotQ, matLoc) 
-{
-    var modelMatrix= mat4.create();
-    modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
-    gl.uniformMatrix4fv(matLoc, false, modelMatrix);
-}
-function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
+function Camera(drawObjects, position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
 {
     this.pos    = position;
     this.rot    = quat.create();
@@ -31,29 +10,16 @@ function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportS
     this.canvas = Canvas;
     this.vprtSizeX = vportSizeX;
     this.vprtSizeY = vportSizeY;
-//    if(vportOffsetX)
-  //  {
- //       this.vprtOffX = vportOffsetX;
-//        this.vprtOffY vportOffsetY;
- /*   }
-    else
-    {
-        this.vprtOffX = 0;
-        this.vprtOffY = 0;
-    }*/
     this.vprtOffX = vportOffsetX;
     this.vprtOffY = vportOffsetY;
+    this.drawObjs = drawObjects;
+    this.mtrx = mat4.create();
     this.setPerspective = function()
     {
         var pMatrix = mat4.create();
         mat4.identity(pMatrix);
         pMatrix = mat4.perspective(pMatrix, this.fov, (this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), this.near, this.far);
         setMatrix(pMatrix,this.pMatL);
-    }
-    this.updateViewport = function()
-    {
- //       gl.viewport(0, 0, this.vprtSizeX,this.vprtSizeY);
-        gl.viewport(this.vprtOffX, this.vprtOffY,this.canvas.width*this.vprtSizeX, this.canvas.height*this.vprtSizeY);
     }
     this.lookAt = function(center)
     {
@@ -68,20 +34,23 @@ function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportS
         this.pos = position;
         var tempMat = mat4.create();
         var up = vec3.fromValues(0.0, 1.0, 0.0);
-        mat4.lookAt(tempMat,this.pos,center,up);
-        this.rot = matToQuat(tempMap);
-        setMatrix(tempMat,vMatL);
-    }
+        tempMat = mat4.lookAt(tempMat,this.pos,center,up);
+        this.rot = matToQuat(tempMat);
+        setMatrix(tempMat,this.vMatL);
+        this.mtrx = tempMat;               //enten saa funker ikek setMatrixPR som den skal ELLER så funker ikke matToQuat som den skal, noe er galt iaf
+    }                                      //overrider setmatrixPR med setmatrix this.mtrx,, ta tak i det !! todooo i morra
     this.update = function()
     {
-        setMatrixPR(this.pos,this.rot,vMatL);
+        this.setPerspective();
+        gl.viewport(this.vprtOffX*this.canvas.width, this.vprtOffY*this.canvas.height,this.canvas.width*this.vprtSizeX, this.canvas.height*this.vprtSizeY);
+        setMatrixPR(this.pos,this.rot,this.vMatL);
+        setMatrix(this.mtrx,this.vMatL);
     }
-    this.setViewport= function(x,y)
+    this.draw = function()
     {
-        this.vprtSizeX=x;
-        this.vprtSizeY=y;
+        this.drawObjs.draw();
     }
-    this.updateViewport();
+    this.update();
     this.setPerspective(); 
     this.lookAt(look);
 

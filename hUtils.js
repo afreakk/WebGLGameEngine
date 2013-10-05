@@ -1,3 +1,18 @@
+function matToQuat(matrix) 
+{
+	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
+	var w4 = (4.0 * w);
+	var x = (matrix[6] - matrix[9]) / w4 ;
+	var y = (matrix[8] - matrix[2]) / w4 ;
+	var z = (matrix[1] - matrix[4]) / w4 ;
+    return quat.fromValues(x, y, z, w);
+}
+function setMatrixPR(posV, rotQ, matLoc) 
+{
+    var modelMatrix= mat4.create();
+    modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
+    gl.uniformMatrix4fv(matLoc, false, modelMatrix);
+}
 function getShaderStruct(shaderProgram)
 {
     this.vPos= gl.getAttribLocation(shaderProgram, "vPos");
