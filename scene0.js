@@ -39,11 +39,11 @@ function SceneOne()
     this.update = function()
     {
         this.camera0.updateViewport();
-        gl.clearColor(this.time, 0.0, 0.0, 1.0)
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         obj0.draw();
         obj1.draw();
-        this.time += 0.1;
+        this.time += 0.001;
         console.log("sceneOne update");
 
     }

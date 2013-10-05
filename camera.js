@@ -19,7 +19,7 @@ function setMatrixPR(posV, rotQ, matLoc)
     modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
     gl.uniformMatrix4fv(matLoc, false, modelMatrix);
 }
-function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY)
+function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
 {
     this.pos    = position;
     this.rot    = quat.create();
@@ -31,6 +31,18 @@ function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportS
     this.canvas = Canvas;
     this.vprtSizeX = vportSizeX;
     this.vprtSizeY = vportSizeY;
+//    if(vportOffsetX)
+  //  {
+ //       this.vprtOffX = vportOffsetX;
+//        this.vprtOffY vportOffsetY;
+ /*   }
+    else
+    {
+        this.vprtOffX = 0;
+        this.vprtOffY = 0;
+    }*/
+    this.vprtOffX = vportOffsetX;
+    this.vprtOffY = vportOffsetY;
     this.setPerspective = function()
     {
         var pMatrix = mat4.create();
@@ -40,7 +52,8 @@ function Camera(position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportS
     }
     this.updateViewport = function()
     {
-        gl.viewport(0, 0,this.canvas.width*this.vprtSizeX , this.canvas.height*this.vprtSizeY);
+ //       gl.viewport(0, 0, this.vprtSizeX,this.vprtSizeY);
+        gl.viewport(this.vprtOffX, this.vprtOffY,this.canvas.width*this.vprtSizeX, this.canvas.height*this.vprtSizeY);
     }
     this.lookAt = function(center)
     {
