@@ -1,3 +1,4 @@
+
 function matToQuat(matrix) 
 {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
@@ -7,10 +8,9 @@ function matToQuat(matrix)
 	var z = (matrix[1] - matrix[4]) / w4 ;
     return quat.fromValues(x, y, z, w);
 }
-function setMatrixPR(posV, rotQ, matLoc) 
+function setMatrixPR(matrix, posV, rotQ, matLoc) 
 {
-    var modelMatrix= mat4.create();
-    modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
+    mat4.fromRotationTranslation(matrix, rotQ, posV);
     gl.uniformMatrix4fv(matLoc, false, modelMatrix);
 }
 function getShaderStruct(shaderProgram)
@@ -53,12 +53,12 @@ function setAttribs(attribLocArray)
     // not 100% sure this is working as intended,, we'll see...
     for(var i=0; i<tempStatic.length; i++)
     {
-        if(tempStatic[i] != null)
+        if(tempStatic[i] !== null)
             gl.disableVertexAttribArray(tempStatic[i]);
     }
     for(var i=0; i<attribLocArray.length; i++)
     {
-        if(attribLocArray[i] != null)
+        if(attribLocArray[i] !== null)
             gl.enableVertexAttribArray(attribLocArray[i]);
     }
 }

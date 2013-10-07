@@ -4,14 +4,8 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        var mgr = new Manager(canvas);
-        var startLvl = 0;
-        var lvlOne = new SceneOne();
-        var lvlTwo = new SceneTwo();
-        mgr.addScene(lvlOne);
-        mgr.addScene(lvlTwo);
-        mgr.init(startLvl);
-        mgr.animFrame();
+        ObjLoader({'cat': 'models/cat.obj'},startApp,canvas);
+
     }
     else
     {
@@ -19,15 +13,14 @@ function webGLStart(document)
         return 0;
     }
 }
-
-
-$(this).click(function()
+function startApp(objs, canvas)
 {
-    alert("clicked");
-});
-
-
-
-
-
-  
+    var mgr = new Manager(canvas);
+    var startLvl = 0;
+    var lvlOne = new SceneOne(objs);
+    var lvlTwo = new SceneTwo();
+    mgr.addScene(lvlOne);
+    mgr.addScene(lvlTwo);
+    mgr.init(startLvl);
+    mgr.animFrame();
+}
