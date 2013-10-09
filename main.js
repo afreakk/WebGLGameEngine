@@ -4,7 +4,7 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat.obj'},startApp,canvas);
+        ObjLoader({'cat': 'models/cat.obj', 'cobble': 'models/cobble.obj' , 'tree':'models/tree.obj' },startApp,canvas);
 
     }
     else

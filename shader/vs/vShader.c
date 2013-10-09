@@ -1,6 +1,5 @@
 attribute vec3 vPos;
 attribute vec4 vCol;
-
 uniform mat4 pMat;
 uniform mat4 mMat;
 uniform mat4 vMat;

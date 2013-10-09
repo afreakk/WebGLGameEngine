@@ -1,11 +1,13 @@
 function SceneOne(Objs)
 {
+    this.initiated=false;
     this.endScene=false;
     this.nextLvl=1;
     this.shaderStruct=null;
-    this.obj0=null;
-    this.obj1=null;
-    this.time=0;
+    var cobble=null;
+    var cat=null;
+    var tree=null;
+    var time=0;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -27,27 +29,44 @@ function SceneOne(Objs)
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cPos1   = vec3.fromValues(-5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
-        this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,0.5,0.0,0.5);
-        this.camera1 = new Camera(this.drawObjs, cPos1,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,0.5);
-        var cat = this.objs['cat'];
-        var catB = cat.generateBuffers();
-        obj1 = new iRenderObject(this.drawObjs, catB, shaderStruct,0.0,-0.5,-0.5);
+        this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
+        var catM = this.objs['cat'];
+        var cobbleM = this.objs['cobble'];
+        var treeM = this.objs['tree'];
+        cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,0.0,-0.5,-0.5);
+        cobble = new iRenderObject(this.drawObjs, cobbleM.generateBuffers(), shaderStruct, 0.0, -1.0, 0.0);
+        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 0.0,0.0,0.0);
+        var turn = quat.fromValues(0,1,0,0);
+        cat.global.rotate(turn);
         console.log("sceneOne initiated");
+        this.initiated=true;
     }                                  
     this.update = function()
     {
         glClear();
-        var range = 1.5;
-        var cPos0 = vec3.fromValues(Math.sin(this.time)*range,0.0,Math.cos(this.time)*range);
-        var cPos1 = vec3.fromValues(Math.cos(this.time)*range,0.0,Math.sin(this.time)*range);
-        var cLook = vec3.fromValues(0.0,0.0,-0.0);
+        this.catPut();
+        var distance = vec3.fromValues(0,5.0,5.0);
+        var cPos0=vec3.create();
+        cPos0 = vec3.add(cPos0,cat.global.getPos(),distance);
+        var cLook = cat.global.getPos();
         this.camera0.lookAtFrom(cLook,cPos0);
-        this.camera1.lookAtFrom(cLook,cPos1);
         this.camera0.update();
         this.camera0.draw();
-        this.camera1.update();
-        this.camera1.draw();
-        this.time += 0.01;
+        cat.global.setScale(10.0,10.0,10.0);
+        time += 0.01;
+    }
+    this.catPut = function() 
+    {
+        var speed = 0.01;
+        if(key.Up)
+           cat.global.translate(0,0,-speed); 
+        if(key.Down)
+            cat.global.translate(0,0,speed);
+        if(key.Left)
+            cat.global.translate(-speed,0,0);
+        if(key.Right)
+            cat.global.translate(speed,0,0);
+
     }
     function glClear()
     {

@@ -1,4 +1,4 @@
-
+/*
 function matToQuat(matrix) 
 {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
@@ -7,6 +7,10 @@ function matToQuat(matrix)
 	var y = (matrix[8] - matrix[2]) / w4 ;
 	var z = (matrix[1] - matrix[4]) / w4 ;
     return quat.fromValues(x, y, z, w);
+}*/
+function toRad(a)
+{
+     return a * (Math.PI / 180);
 }
 function setMatrixPR(matrix, posV, rotQ, matLoc) 
 {
@@ -68,22 +72,7 @@ function getCanvas(document)
     var canvas = document.getElementById("lerret");
     return canvas;
 }
-function initGL(canvas) 
-{    
-    var gli=null;
-    try
-    {
-        if(!canvas) throw "couldnt get canvas";
-        else gli =WebGLUtils.setupWebGL(canvas); 
-        if(!gli) throw "couldnt get context";
-    }
-    catch(rainbow)
-    {
-        alert(rainbow);
-        return null;
-    }
-    return gli;
-}
+
 
 function setMatrixPRS(posV, rotQ, scaleV, matLoc) 
 {
@@ -96,6 +85,12 @@ function setMatrixPRS(posV, rotQ, scaleV, matLoc)
 function setMatrix(matrix,matLoc)
 {
     gl.uniformMatrix4fv(matLoc,false,matrix);
+}
+function setVector(vector,vecLoc)
+{
+    var lol = vector;
+    var meh = vecLoc;
+    gl.uniform3f(meh,lol[0],lol[1],lol[2]);
 }
 function quatFromMatrix(matrix) {
 	var w = Math.sqrt(1.0 + matrix[0] + matrix[5] + matrix[10]) / 2.0;
@@ -111,4 +106,20 @@ function setMatrixPR(posV, rotQ, matLoc)
     var modelMatrix= mat4.create();
     modelMatrix = mat4.fromRotationTranslation(modelMatrix, rotQ, posV);
     gl.uniformMatrix4fv(matLoc, false, modelMatrix);
+}
+function initGL(canvas) 
+{    
+    var gli=null;
+    try
+    {
+        if(!canvas) throw "couldnt get canvas";
+        else gli =WebGLUtils.setupWebGL(canvas); 
+        if(!gli) throw "couldnt get context";
+    }
+    catch(rainbow)
+    {
+        alert(rainbow);
+        return null;
+    }
+    return gli;
 }

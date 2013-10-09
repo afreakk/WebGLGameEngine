@@ -1,4 +1,4 @@
-function huh ( m ) 
+function matToQuat ( m ) 
 {
 
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm

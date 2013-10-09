@@ -25,16 +25,26 @@
     <script src='renderObjects.js'></script>
     <script src='renderList.js'></script>
     <script src='meshParser.js'></script>
-    <script src='matToQuat.js'></script>
+    <script src='matToQuat.js'></script>    
+    <script src='keyInput.js'></script>
     <script>
         var gl;
         window.onload=function()
         {
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
             webGLStart(document);
         }
     </script>
+    <style>
+        body 
+        {
+            background: #000000;
+            margin:0;
+        }
+</style>
 </head>
 <body>
-<canvas id="lerret" style="border: none; position: relative; left: 0px" width="window.innerWidth" height="window.innerHeight" ></canvas>
+<canvas id="lerret" style="border: none; position: relative; left: 0" width="window.innerWidth" height="window.innerHeight" ></canvas>
 </body>
 </html>
