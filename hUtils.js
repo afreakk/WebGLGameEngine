@@ -20,10 +20,11 @@ function setMatrixPR(matrix, posV, rotQ, matLoc)
 function getShaderStruct(shaderProgram)
 {
     this.vPos= gl.getAttribLocation(shaderProgram, "vPos");
-    this.vCol= gl.getAttribLocation(shaderProgram, "vCol");
+    this.uvMap = gl.getAttribLocation(shaderProgram, "uvMap");
     this.pMat= gl.getUniformLocation(shaderProgram, "pMat");
     this.mMat= gl.getUniformLocation(shaderProgram, "mMat");
     this.vMat= gl.getUniformLocation(shaderProgram, "vMat");
+    this.texSampler = gl.getUniformLocation(shaderProgram, "texSampler");
     this.shader = shaderProgram;
 }
 

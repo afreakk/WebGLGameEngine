@@ -3,10 +3,12 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
     this.global = new Translations();
     this.global.translate(x,y,z);
     this.vertexBuffer   =   product.vB;  
-    this.colorBuffer    =   product.cB;
     this.indexBuffer    =   product.iB;
+    this.uvBuffer       =   product.uvB;
+    this.textures       =   product.textureBuffers;
     this.vPosLoc = shaderProgram.vPos;
-    this.vColLoc = shaderProgram.vCol;
+    this.uvLoc   = shaderProgram.uvMap;
+    this.texSampler= shaderProgram.texSampler;
     this.mMatLoc = shaderProgram.mMat;
     this.shader  = shaderProgram.shader;
     this.draw = function() 
@@ -15,11 +17,17 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(this.vPosLoc, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(this.vColLoc, this.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        
-        setMatrix(this.global.calcMatrix(),this.mMatLoc);
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.uvBuffer);
+        gl.vertexAttribPointer(this.uvLoc,   this.uvBuffer.itemSize,     gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.textures[0]);
+        gl.uniform1i(this.texSampler,0);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
+        setMatrix(this.global.calcMatrix(),this.mMatLoc);
+
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
     drawObjects.add(this);

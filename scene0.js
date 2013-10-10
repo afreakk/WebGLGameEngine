@@ -6,20 +6,18 @@ function SceneOne(Objs)
     this.shaderStruct=null;
     var cobble=null;
     var cat=null;
-    var tree=null;
     var time=0;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
     this.drawObjs = new DrawableObjects();
     this.objs = Objs;
-    this.party = null;
     this.GLSettings= function()
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
-        setAttribs([shaderStruct.vPos,shaderStruct.vCol]);
+        setAttribs([shaderStruct.vPos,shaderStruct.uvMap]);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
     }
@@ -32,10 +30,10 @@ function SceneOne(Objs)
         this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
         var catM = this.objs['cat'];
         var cobbleM = this.objs['cobble'];
-        var treeM = this.objs['tree'];
+        //var treeM = this.objs['tree'];
         cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,0.0,-0.5,-0.5);
-        cobble = new iRenderObject(this.drawObjs, cobbleM.generateBuffers(), shaderStruct, 0.0, -1.0, 0.0);
-        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 0.0,0.0,0.0);
+        //cobble = new iRenderObject(this.drawObjs, cobbleM.generateBuffers(), shaderStruct, 0.0, -1.0, 0.0);
+        //tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 0.0,0.0,0.0);
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         console.log("sceneOne initiated");
@@ -45,7 +43,7 @@ function SceneOne(Objs)
     {
         glClear();
         this.catPut();
-        var distance = vec3.fromValues(0,5.0,5.0);
+        var distance = vec3.fromValues(0,0.7,1.2);
         var cPos0=vec3.create();
         cPos0 = vec3.add(cPos0,cat.global.getPos(),distance);
         var cLook = cat.global.getPos();
@@ -58,6 +56,11 @@ function SceneOne(Objs)
     this.catPut = function() 
     {
         var speed = 0.01;
+        var rotAmntP = quat.create();
+        var rotAmntM = quat.create();
+        var axis = vec3.fromValues(0,1,0);
+        quat.setAxisAngle(rotAmntP,axis,toRad(1.0));
+        quat.setAxisAngle(rotAmntM,axis,toRad(-1.0));
         if(key.Up)
            cat.global.translate(0,0,-speed); 
         if(key.Down)
@@ -66,6 +69,10 @@ function SceneOne(Objs)
             cat.global.translate(-speed,0,0);
         if(key.Right)
             cat.global.translate(speed,0,0);
+        if(key.Q)
+            cat.global.rotate(rotAmntP);
+        if(key.E)
+            cat.global.rotate(rotAmntM);
 
     }
     function glClear()

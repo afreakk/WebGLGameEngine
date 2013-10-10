@@ -4,8 +4,7 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat.obj', 'cobble': 'models/cobble.obj' , 'tree':'models/tree.obj' },startApp,canvas);
-
+        ObjLoader({'cat': 'models/cat/cat.obj', 'cobble': 'models/cobble/cobble.obj' },startApp,canvas);
     }
     else
     {
@@ -13,11 +12,11 @@ function webGLStart(document)
         return 0;
     }
 }
-function startApp(objs, canvas)
+function startApp(meshes, canvas)
 {
     var mgr = new Manager(canvas);
     var startLvl = 0;
-    var lvlOne = new SceneOne(objs);
+    var lvlOne = new SceneOne(meshes);
     var lvlTwo = new SceneTwo();
     mgr.addScene(lvlOne);
     mgr.addScene(lvlTwo);
