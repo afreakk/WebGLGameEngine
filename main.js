@@ -3,8 +3,11 @@ function webGLStart(document)
     var canvas = getCanvas(document); 
     if(gl = initGL(canvas))
     {
+        var vertexUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        var fragmentUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        var combinedUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat/cat.obj', 'cobble': 'models/cobble/cobble.obj' },startApp,canvas);
+        ObjLoader({'cat': 'models/cat/cat.obj'},startApp,canvas);
     }
     else
     {

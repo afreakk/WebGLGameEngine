@@ -2,38 +2,38 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
 {
     this.global = new Translations();
     this.global.translate(x,y,z);
-    this.vertexBuffer   =   product.vB;  
-    this.indexBuffer    =   product.iB;
-    this.uvBuffer       =   product.uvB;
-    this.textures       =   product.textureBuffers;
-    this.vPosLoc = shaderProgram.vPos;
-    this.uvLoc   = shaderProgram.uvMap;
-    this.texSampler= shaderProgram.texSampler;
-    this.mMatLoc = shaderProgram.mMat;
-    this.shader  = shaderProgram.shader;
+    this.model = product;
+    this.shader  = shaderProgram;
     this.draw = function() 
 	{
-        setShader(this.shader);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.vertexAttribPointer(this.vPosLoc, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        setShader(this.shader.shader);
+        setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        for(var i=0; i<this.model.numMeshes; i++)
+        {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB[i]);
+            gl.vertexAttribPointer(this.shader.vPos, this.model.vB[i].itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER,this.uvBuffer);
-        gl.vertexAttribPointer(this.uvLoc,   this.uvBuffer.itemSize,     gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB[i]);
+            gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB[i].itemSize,     gl.FLOAT, false, 0, 0);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.textures[0]);
-        gl.uniform1i(this.texSampler,0);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+            if(this.model.mNames[i] in this.model.tB)
+                activateTexture(gl.TEXTURE0,this.model.tB[this.model.mNames[i]],this.shader.texSamplers,0);
+            else
+                console.error("if obj has textures: missmatch materialName in obj/mtl file.");
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-        setMatrix(this.global.calcMatrix(),this.mMatLoc);
-
-        gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+        }
 	}
     drawObjects.add(this);
     
 }
-
+function activateTexture(texturecount,texture,textureSamplers, index)
+{
+    gl.activeTexture(texturecount);
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.uniform1i(textureSamplers[index],index);
+}
 function Translations()
 {
     this.pos = vec3.create();
