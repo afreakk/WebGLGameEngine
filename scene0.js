@@ -6,6 +6,8 @@ function SceneOne(Objs)
     this.shaderStruct=null;
     var time=0;
     var light=null;
+    var cat=null;
+    var tree=null;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -31,11 +33,9 @@ function SceneOne(Objs)
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
         this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
         var catM = this.objs['cat'];
-        var cobbleM = this.objs['cobble'];
-        //var treeM = this.objs['tree'];
+        var treeM = this.objs['tree'];
         cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,0.0,-0.5,-0.5);
-        //cobble = new iRenderObject(this.drawObjs, cobbleM.generateBuffers(), shaderStruct, 0.0, -1.0, 0.0);
-        //tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 0.0,0.0,0.0);
+        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 2.0,0.0,0.0);
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         console.log("sceneOne initiated");
@@ -49,14 +49,13 @@ function SceneOne(Objs)
         glClear();
         light.update();
         this.catPut();
-        var distance = vec3.fromValues(0,0.7,1.2);
+        var distance = vec3.fromValues(0,3.7,2.2);
         var cPos0=vec3.create();
         cPos0 = vec3.add(cPos0,cat.global.getPos(),distance);
         var cLook = cat.global.getPos();
         this.camera0.lookAtFrom(cLook,cPos0);
         this.camera0.update();
         this.camera0.draw();
-        cat.global.setScale(10.0,10.0,10.0);
         time += 0.01;
     }
     this.catPut = function() 

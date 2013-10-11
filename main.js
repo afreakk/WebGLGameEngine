@@ -7,7 +7,7 @@ function webGLStart(document)
         var fragmentUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         var combinedUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat/cat.obj'},startApp,canvas);
+        ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj'},startApp,canvas);
     }
     else
     {
