@@ -4,9 +4,8 @@ function SceneOne(Objs)
     this.endScene=false;
     this.nextLvl=1;
     this.shaderStruct=null;
-    var cobble=null;
-    var cat=null;
     var time=0;
+    var light=null;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -17,7 +16,10 @@ function SceneOne(Objs)
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
-        setAttribs([shaderStruct.vPos,shaderStruct.uvMap]);
+//        setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals]);
+        gl.enableVertexAttribArray(shaderStruct.vPos);
+        gl.enableVertexAttribArray(shaderStruct.uvMap);
+        gl.enableVertexAttribArray(shaderStruct.normals);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
     }
@@ -37,11 +39,15 @@ function SceneOne(Objs)
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         console.log("sceneOne initiated");
+        var lightColor = vec3.fromValues(1.0,1.0,1.0);
+        var lightPos = vec3.fromValues(1.0, 1.0, 0.0);
+        light = new Light(shaderStruct, 1.0,lightColor, lightPos);
         this.initiated=true;
     }                                  
     this.update = function()
     {
         glClear();
+        light.update();
         this.catPut();
         var distance = vec3.fromValues(0,0.7,1.2);
         var cPos0=vec3.create();

@@ -4,6 +4,7 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
     this.global.translate(x,y,z);
     this.model = product;
     this.shader  = shaderProgram;
+    this.ambien
     this.draw = function() 
 	{
         setShader(this.shader.shader);
@@ -22,6 +23,10 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
             else
                 console.error("if obj has textures: missmatch materialName in obj/mtl file.");
 
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB[i]);
+            gl.vertexAttribPointer(this.shader.normals, this.model.nB[i].itemSize, gl.FLOAT, false, 0,0);
+
+            gl.uniform3fv(this.shader.MaterialDiffuseColor, this.model.materialNames[i].diffuse);
             gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
         }
 	}

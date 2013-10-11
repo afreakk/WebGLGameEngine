@@ -13,9 +13,10 @@ function parseMtl(data, model,URL)
     {
         if(lines[i][0]+lines[i][1]+lines[i][2]+lines[i][3]+lines[i][4]+lines[i][5]===('newmtl'))
         {
-            var line = lines[i].slice(7);
-            model.materialNames.push(line);
             index ++;
+            var line = lines[i].slice(7);
+            model.materialNames[index]= new Object()
+            model.materialNames[index].name = line;
         }
         else if(lines[i][0]+lines[i][1]==('Ka'))
         {
@@ -27,7 +28,8 @@ function parseMtl(data, model,URL)
         {
             var line = lines[i].slice(3);
             line = line.split(' ');
-            model.materialNames[index].diffuse = vec3.fromValues(line[0],line[1],line[2]);
+            var diffuseX = vec3.fromValues(line[0],line[1],line[2]);
+            model.materialNames[index].diffuse= diffuseX;
         }
         else if(lines[i][0]+lines[i][1]==('Ks'))
         {
@@ -38,7 +40,7 @@ function parseMtl(data, model,URL)
         else if(lines[i][0]+lines[i][1]==('Ns'))
         {
             var line = lines[i].slice(3);
-            model.materialNames[index].ambientWeight = line;
+            model.materialNames[index].specularWeight = line;
 
         }
         else if(lines[i][0]+lines[i][1]+lines[i][2]+lines[i][3]+lines[i][4]==('illum'))
@@ -50,7 +52,7 @@ function parseMtl(data, model,URL)
         else if(lines[i][0]+lines[i][1]+lines[i][2]+lines[i][3]+lines[i][4]+lines[i][5]===('map_Kd'))
         {
             var line = lines[i].slice(7,lines[i].length);
-            model.textureURLS[model.materialNames[index]]=texURL+line;
+            model.textureURLS[model.materialNames[index].name]=texURL+line;
         }
     }
     return model;
@@ -150,9 +152,9 @@ function ModelHolder()
         for(var i=0; i<this.materialNames.length; i++)
         {
             numTextures++;
-            this.textures[this.materialNames[i]] = new Image();
-            this.textures[this.materialNames[i]].src = this.textureURLS[this.materialNames[i]];
-            this.textures[this.materialNames[i]].onload = (function() 
+            this.textures[this.materialNames[i].name] = new Image();
+            this.textures[this.materialNames[i].name].src = this.textureURLS[this.materialNames[i].name];
+            this.textures[this.materialNames[i].name].onload = (function() 
             {
                 numTexturesLoaded++; 
                 if(numTexturesLoaded == numTextures)
@@ -167,28 +169,29 @@ function ModelHolder()
             var tBuffer=gl.createTexture();    
             gl.bindTexture(gl.TEXTURE_2D, tBuffer);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textures[this.materialNames[i]]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textures[this.materialNames[i].name]);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.bindTexture(gl.TEXTURE_2D, null);
-            this.textureBuffers[this.materialNames[i]] = tBuffer;
-            alert('START'+this.textureBuffers[ this.materialNames[i] ]+'END');;
+            this.textureBuffers[this.materialNames[i].name] = tBuffer;
         }
     }
     this.generateBuffers=function()
     {
         this.generateTextureBuffers();
-        return new iModel(this.meshes,this.textureBuffers);
+        return new iModel(this.meshes,this.textureBuffers,this.materialNames); //materialNames has diffuse, spec color etc
     }
 }
 
-function iModel(meshes,textureBuffers)
+function iModel(meshes,textureBuffers, materialNamesAndInfo)
 {
+    this.materialNames = materialNamesAndInfo;
     this.tB = textureBuffers;
     this.numMeshes=meshes.length;
     this.vB = new Array();
     this.iB = new Array();
     this.uvB = new Array();
+    this.nB = new Array();
     this.mNames= new Array();
     for(var i=0; i<meshes.length; i++)
     {
@@ -196,6 +199,7 @@ function iModel(meshes,textureBuffers)
         this.vB[i] = gl.createBuffer();
         this.iB[i] = gl.createBuffer();
         this.uvB[i] = gl.createBuffer();
+        this.nB[i] = gl.createBuffer();
             
         gl.bindBuffer(gl.ARRAY_BUFFER,this.uvB[i])
         gl.bufferData(gl.ARRAY_BUFFER,new Float32Array( meshes[i].textCord),gl.STATIC_DRAW);
@@ -206,6 +210,11 @@ function iModel(meshes,textureBuffers)
         gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(meshes[i].vertexes),gl.STATIC_DRAW);
         this.vB[i].itemSize = 3;
         this.vB[i].numItems = meshes[i].vertexes.length/this.vB[i].itemSize;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.nB[i]);
+        gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(meshes[i].normals), gl.STATIC_DRAW);
+        this.nB[i].itemSize = 3;
+        this.nB[i].numItems = meshes[i].normals.length/this.nB[i].itemSize;
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,this.iB[i]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(meshes[i].indexes),gl.STATIC_DRAW);
