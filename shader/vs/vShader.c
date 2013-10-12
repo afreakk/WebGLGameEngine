@@ -1,6 +1,7 @@
 attribute vec3 vPos;
 attribute vec2 uvMap;
 attribute vec3 normals;
+attribute float materialIndex;
 uniform mat4 pMat;
 uniform mat4 mMat;
 uniform mat4 vMat;
@@ -11,6 +12,8 @@ varying vec3 LightDirection_cameraspace;
 varying vec3 EyeDirection_cameraspace;
 varying float lightVertDistance;
 varying vec3 help;
+varying vec3 diffColor;
+varying float matIndexF;
 void main(void) {
     gl_Position = pMat*vMat*mMat*vec4(vPos, 1.0);
     // Position of the vertex, in worldspace : M * position
@@ -28,6 +31,6 @@ void main(void) {
     // Normal of the the vertex, in camera space
     Normal_cameraspace = ( vMat * mMat * vec4(normals,0.0)).xyz; 
     // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
-
     uvCoords = uvMap;
+    matIndexF = materialIndex;
 }

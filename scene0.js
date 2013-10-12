@@ -8,6 +8,7 @@ function SceneOne(Objs)
     var light=null;
     var cat=null;
     var tree=null;
+    var ironMan=null;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -22,8 +23,12 @@ function SceneOne(Objs)
         gl.enableVertexAttribArray(shaderStruct.vPos);
         gl.enableVertexAttribArray(shaderStruct.uvMap);
         gl.enableVertexAttribArray(shaderStruct.normals);
+        gl.enableVertexAttribArray(shaderStruct.materialIndex);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendFunc (gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthFunc(gl.LESS);
     }
     this.init = function()
     {
@@ -34,32 +39,35 @@ function SceneOne(Objs)
         this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
         var catM = this.objs['cat'];
         var treeM = this.objs['tree'];
+        var ironManM = this.objs['ironMan'];
         cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,0.0,-0.5,-0.5);
-        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 2.0,0.0,0.0);
+        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 2.0,-2.0,-15.0);
+        ironMan = new iRenderObject(this.drawObjs, ironManM.generateBuffers(), shaderStruct, -5,-2,-5.0);
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         console.log("sceneOne initiated");
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
-        var lightPos = vec3.fromValues(1.0, 1.0, 0.0);
-        light = new Light(shaderStruct, 1.0,lightColor, lightPos);
+        var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
+        light = new Light(shaderStruct, 20.0,lightColor, lightPos);
         this.initiated=true;
     }                                  
     this.update = function()
     {
         glClear();
         light.update();
-        this.catPut();
-        var distance = vec3.fromValues(0,3.7,2.2);
-        var cPos0=vec3.create();
-        cPos0 = vec3.add(cPos0,cat.global.getPos(),distance);
-        var cLook = cat.global.getPos();
-        this.camera0.lookAtFrom(cLook,cPos0);
+        this.catPut(ironMan);
         this.camera0.update();
         this.camera0.draw();
         time += 0.01;
     }
-    this.catPut = function() 
+    this.catPut = function(model) 
     {
+        var distance = 10.0;
+        var sensitivity = 1000.0;
+        var cPos0=vec3.fromValues(Math.sin(mouse.x/sensitivity)*distance, mouse.y/distance, Math.cos(mouse.x/sensitivity)*distance);
+        vec3.add(cPos0,cPos0,model.global.getPos());
+        var cLook = model.global.getPos();
+        this.camera0.lookAtFrom(cLook,cPos0);
         var speed = 0.01;
         var rotAmntP = quat.create();
         var rotAmntM = quat.create();
@@ -67,17 +75,17 @@ function SceneOne(Objs)
         quat.setAxisAngle(rotAmntP,axis,toRad(1.0));
         quat.setAxisAngle(rotAmntM,axis,toRad(-1.0));
         if(key.Up)
-           cat.global.translate(0,0,-speed); 
+           model.global.translate(0,0,-speed); 
         if(key.Down)
-            cat.global.translate(0,0,speed);
+            model.global.translate(0,0,speed);
         if(key.Left)
-            cat.global.translate(-speed,0,0);
+            model.global.translate(-speed,0,0);
         if(key.Right)
-            cat.global.translate(speed,0,0);
+            model.global.translate(speed,0,0);
         if(key.Q)
-            cat.global.rotate(rotAmntP);
+            model.global.rotate(rotAmntP);
         if(key.E)
-            cat.global.rotate(rotAmntM);
+            model.global.rotate(rotAmntM);
 
     }
     function glClear()

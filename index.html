@@ -28,10 +28,12 @@
     <script src='matToQuat.js'></script>    
     <script src='keyInput.js'></script>
     <script src='lights.js'></script>
+    <script src='mouseListener.js'></script>
     <script>
         var gl;
         window.onload=function()
         {
+            window.onmousemove = MouseListener;
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);
             webGLStart(document);
