@@ -5,10 +5,6 @@ function webGLStart(document)
     mouse.y = 0;
     if(gl = initGL(canvas))
     {
-        initTextures();
-        var vertexUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        var fragmentUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        var combinedUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         glMatrix.setMatrixArrayType(Float32Array);
         ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ironMan' : 'models/ted/ted.obj' },startApp,canvas);
     }

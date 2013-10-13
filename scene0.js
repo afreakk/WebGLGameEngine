@@ -1,6 +1,5 @@
 function SceneOne(Objs)
 {
-    this.initiated=false;
     this.endScene=false;
     this.nextLvl=1;
     this.shaderStruct=null;
@@ -19,11 +18,11 @@ function SceneOne(Objs)
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
-//        setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals]);
+        setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex]); /*testing this seems to be workign
         gl.enableVertexAttribArray(shaderStruct.vPos);
         gl.enableVertexAttribArray(shaderStruct.uvMap);
         gl.enableVertexAttribArray(shaderStruct.normals);
-        gl.enableVertexAttribArray(shaderStruct.materialIndex);
+        gl.enableVertexAttribArray(shaderStruct.materialIndex);*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
@@ -45,16 +44,16 @@ function SceneOne(Objs)
         ironMan = new iRenderObject(this.drawObjs, ironManM.generateBuffers(), shaderStruct, -5,-2,-5.0);
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
-        console.log("sceneOne initiated");
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new Light(shaderStruct, 20.0,lightColor, lightPos);
-        this.initiated=true;
+        console.log("sceneOne initiated");
     }                                  
     this.update = function()
     {
         glClear();
         light.update();
+        cat.global.lookAt(ironMan.global.getPos());
         this.catPut(ironMan);
         this.camera0.update();
         this.camera0.draw();
@@ -68,7 +67,7 @@ function SceneOne(Objs)
         vec3.add(cPos0,cPos0,model.global.getPos());
         var cLook = model.global.getPos();
         this.camera0.lookAtFrom(cLook,cPos0);
-        var speed = 0.01;
+        var speed = 0.1;
         var rotAmntP = quat.create();
         var rotAmntM = quat.create();
         var axis = vec3.fromValues(0,1,0);

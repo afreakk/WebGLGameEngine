@@ -32,10 +32,7 @@ function SceneManager(Canvas)
     this.update = function()
     {
         if(!this.currentScene.endScene)
-        {
-            if(this.currentScene.initiated===true)
-                this.currentScene.update();
-        }
+            this.currentScene.update();
         else
             this.setLvl(this.currentScene.nextLevel);
     }

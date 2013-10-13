@@ -4,39 +4,28 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
     this.global.translate(x,y,z);
     this.model = product;
     this.shader  = shaderProgram;
-    this.ambien
     this.draw = function() 
 	{
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
-            gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
+        gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB);
-            gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB);
+        gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
-            gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
-            var d = Array();
-            var tl = Array();
-            for(var i=0; i<this.model.diffuseColors.length; i++)
-                d[i] = this.model.diffuseColors[i];
-            for(var i=0; i<this.model.texGLSLlocs.length; i++)
-            {
-                tl[i] = this.model.texGLSLlocs[i];
-            }
-            gl.uniform3fv(this.shader.diffuseColor, new Float32Array(d));
-            gl.uniform1iv(this.shader.samplerCount, tl );
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
-            gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
-        var k=0;
-        for(var j=0; j<this.model.materialNamesX.length; j++)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
+        gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
+        gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
+
+        gl.uniform3fv(this.shader.diffuseColor, new Float32Array(this.model.diffuseColors));
+        gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
+        for(var j=0, k=0; j<this.model.indexedMaterialNames.length; j++)
         {
-            if(this.model.materialNamesX[j] in this.model.tB)
-            {
-                activateTexture(gl.TEXTURE0+k,this.model.tB[this.model.materialNamesX[j]],this.shader.texSamplers,k);
-                k++;
-            }
+            if(this.model.indexedMaterialNames[j] in this.model.tB)
+                activateTexture(gl.TEXTURE0+k,this.model.tB[this.model.indexedMaterialNames[j]],this.shader.texSamplers,k++);
         }
         for(var i=0; i<this.model.numMeshes; i++)
         {
@@ -47,23 +36,6 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
     drawObjects.add(this);
     
 }
-var voidTexture=null;
-function initTextures() 
-{
-  white = new Image();
-  white.onload = function() { generateVoidTexture(white); }
-  white.src = "white.png";
-}
-function generateVoidTexture(white)
-{
-    voidTexture=gl.createTexture();    
-    gl.bindTexture(gl.TEXTURE_2D, voidTexture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, white);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-}
 function activateTexture(texturecount,texture,textureSamplers, index)
 {
     gl.activeTexture(texturecount);
@@ -73,7 +45,6 @@ function activateTexture(texturecount,texture,textureSamplers, index)
 function Translations()
 {
     this.pos = vec3.create();
-    this.scale = vec3.fromValues(1.0, 1.0, 1.0);
     this.rot = quat.create();
     this.translate = function(x,y,z)
     {
@@ -81,7 +52,7 @@ function Translations()
     }
     this.setPosition = function(x,y,z)
     {
-        this.pos = vec.fromValues(x,y,z);
+        this.pos = vec3.fromValues(x,y,z);
     }
     this.rotate = function(q)
     {
@@ -91,13 +62,13 @@ function Translations()
     {
         this.rot = q;
     }
-    this.scale = function(x,y,z)
+    this.lookAt = function(vec)
     {
-        vec3.add(this.scale,this.scale,vec3.fromValues(x,y,z));
-    }
-    this.setScale = function(x,y,z)
-    {
-        this.scale = vec3.fromValues(x,y,z);
+        var nVec = vec3.create();
+        var nPos = vec3.create();
+        vec3.normalize(nVec,vec);
+        vec3.normalize(nPos,this.pos);
+        this.rot = quat.rotationTo(this.rot,nVec,nPos);
     }
     this.calcMatrix = function()
     {
@@ -109,16 +80,13 @@ function Translations()
     {
         return this.pos;
     }
-    this.getScale = function()
-    {
-        return this.scale;
-    }
     this.getRot = function()
     {
         return this.rot;
     }
 }
-/*function RenderObject(drawObjects, product, shaderProgram,x,y,z)
+/*unIndexed objects,, dont know when ill ever use them also very outdated,needs revamp before using
+function RenderObject(drawObjects, product, shaderProgram,x,y,z)
 {
     this.translate(x,y,z);
     var vertexBuffer   =product.vB;
