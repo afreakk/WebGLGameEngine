@@ -7,6 +7,7 @@ function SceneOne(Objs)
     var light=null;
     var cat=null;
     var tree=null;
+    var ted=null;
     var ironMan=null;
     this.canvas=null;
     this.camera0=null;
@@ -18,11 +19,7 @@ function SceneOne(Objs)
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
-        setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex]); /*testing this seems to be workign
-        gl.enableVertexAttribArray(shaderStruct.vPos);
-        gl.enableVertexAttribArray(shaderStruct.uvMap);
-        gl.enableVertexAttribArray(shaderStruct.normals);
-        gl.enableVertexAttribArray(shaderStruct.materialIndex);*/
+        setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex,shaderStruct.diffColor, shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
@@ -38,10 +35,12 @@ function SceneOne(Objs)
         this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
         var catM = this.objs['cat'];
         var treeM = this.objs['tree'];
-        var ironManM = this.objs['ironMan'];
+        var tedM = this.objs['ted'];
+        var ironManM= this.objs['amy']; 
         cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,0.0,-0.5,-0.5);
         tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, 2.0,-2.0,-15.0);
-        ironMan = new iRenderObject(this.drawObjs, ironManM.generateBuffers(), shaderStruct, -5,-2,-5.0);
+        ted = new iRenderObject(this.drawObjs, tedM.generateBuffers(), shaderStruct, -5,-2,-5.0);
+        ironMan = new iRenderObject(this.drawObjs, ironManM.generateBuffers(), shaderStruct, 5.0, -0.0, -10.0);
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
@@ -53,8 +52,8 @@ function SceneOne(Objs)
     {
         glClear();
         light.update();
-        cat.global.lookAt(ironMan.global.getPos());
-        this.catPut(ironMan);
+        cat.global.lookAt(ted.global.getPos());
+        this.catPut(ted);
         this.camera0.update();
         this.camera0.draw();
         time += 0.01;

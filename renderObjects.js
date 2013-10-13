@@ -17,10 +17,18 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
         gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.diffColor);
+        gl.vertexAttribPointer(this.shader.diffColor, this.model.diffColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.ambColor);
+        gl.vertexAttribPointer(this.shader.ambColor, this.model.ambColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.specColor);
+        gl.vertexAttribPointer(this.shader.specColor, this.model.specColor.itemSize, gl.FLOAT, false, 0, 0);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
         gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
 
-        gl.uniform3fv(this.shader.diffuseColor, new Float32Array(this.model.diffuseColors));
         gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
         for(var j=0, k=0; j<this.model.indexedMaterialNames.length; j++)
         {

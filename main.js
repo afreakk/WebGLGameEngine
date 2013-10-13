@@ -6,7 +6,8 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ironMan' : 'models/ted/ted.obj' },startApp,canvas);
+        ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ted' : 'models/ted/ted.obj' ,
+                    'amy' : 'models/amy/amyrose.obj' },startApp,canvas);
     }
     else
     {

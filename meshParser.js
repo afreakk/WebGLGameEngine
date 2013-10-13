@@ -126,7 +126,10 @@ function parseObj(obj,model)
                     model.vertexes.push( vertexes[ (indices[0]-1)*3+2]);
 
                     if(isNaN(textCord[(indices[1]-1)*2]))
-                        model.textCord = null;
+                    {
+                        model.textCord.push(0.0);
+                        model.textCord.push(0.0);
+                    }
                     else
                     {
                         model.textCord.push( textCord[ (indices[1]-1)*2  ]);
@@ -135,6 +138,7 @@ function parseObj(obj,model)
                     if(isNaN(normals[ (indices[2]-1)*3 ]))
                     {
                         model.normals= null;
+                        alert('no normals in line: '+line[j]);
                     }
                     else
                     {
@@ -202,31 +206,36 @@ function ModelHolder()
     this.vertexes= new Array();
     this.textCord= new Array();
     this.normals = new Array();
-    this.diffColor = new Array();
+    this.diffuseArray = new Array();
+    this.ambientArray = new Array();
+    this.specularArray = new Array();
     this.textures= new Array();
     this.textureBuffers = new Array();
     this.textureGLSLLocations = new Array();
     this.generateDiffColor=function()
     {
-        for(var i=0,k = 0; i<this.indexedMaterialNames.length*3; i+=3)
+        for(var i=0,k=0; i<this.materialIndex.length; i++,k+=3)
+        {   
+            var name = this.indexedMaterialNames[this.materialIndex[i]];
+            this.diffuseArray[k] = this.materialInfo[name].diffuse[0];
+            this.diffuseArray[k+1] = this.materialInfo[name].diffuse[1];
+            this.diffuseArray[k+2] = this.materialInfo[name].diffuse[2];
+
+            this.ambientArray[k] = this.materialInfo[name].ambient[0];
+            this.ambientArray[k+1] = this.materialInfo[name].ambient[1];
+            this.ambientArray[k+2] = this.materialInfo[name].ambient[2];
+
+            this.specularArray[k] = this.materialInfo[name].specular[0];
+            this.specularArray[k+1] = this.materialInfo[name].specular[1];
+            this.specularArray[k+2] = this.materialInfo[name].specular[2];
+        }
+        for(var k=0; k<this.materialNames.length; k++)
         {
-            this.diffColor[i] =this.materialInfo[this.indexedMaterialNames[k] ].diffuse[0];
-            this.diffColor[i+1] =this.materialInfo[this.indexedMaterialNames[k] ].diffuse[1];
-            this.diffColor[i+2] =this.materialInfo[this.indexedMaterialNames[k] ].diffuse[2];
-            if(this.materialInfo[this.indexedMaterialNames[k] ].url !== null)
+            if(this.materialInfo[this.materialNames[k].name ].url !== null)
             {
                 this.textureGLSLLocations.push(k);
             }
-            k++;
         }
-        while(this.diffColor.length<12*3)
-        {
-            this.diffColor.push(1.0);
-            this.diffColor.push(0.0); // if the model gets this color something is wrong (attrib material index is out of range of the models materials)
-            this.diffColor.push(0.0);
-        }
-        if(this.diffColor.length>12*3)
-            alert('max 12 materials per mesh at the moment');
         while(this.textureGLSLLocations.length<4)
             this.textureGLSLLocations.push(100); //100 so were sure materialIndex isnt mistakenly thinking it has a texture when it doesnt
         if(this.textureGLSLLocations.length>4)
@@ -279,13 +288,14 @@ function iModel(bufferData)
     this.indexedMaterialNames =   bufferData.indexedMaterialNames;
     this.tB =               bufferData.textureBuffers;
     this.numMeshes=         bufferData.meshes.length;
-    this.diffuseColors =    bufferData.diffColor;
     this.texGLSLlocs =      bufferData.textureGLSLLocations;
 
     this.vB=            gl.createBuffer();
     this.uvB =          gl.createBuffer();
     this.nB =           gl.createBuffer();
     this.diffColor =    gl.createBuffer();
+    this.ambColor =     gl.createBuffer();
+    this.specColor =    gl.createBuffer();
     this.matIndex =     gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER,this.uvB);
@@ -302,6 +312,21 @@ function iModel(bufferData)
     gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(bufferData.normals), gl.STATIC_DRAW);
     this.nB.itemSize = 3;
     this.nB.numItems = bufferData.normals.length/this.nB.itemSize;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.diffColor);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bufferData.diffuseArray),gl.STATIC_DRAW);
+    this.diffColor.itemSize = 3;
+    this.diffColor.numItems = bufferData.diffuseArray.length/this.diffColor.itemSize;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.ambColor);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bufferData.ambientArray),gl.STATIC_DRAW);
+    this.ambColor.itemSize = 3;
+    this.ambColor.numItems = bufferData.ambientArray.length/this.ambColor.itemSize;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.specColor);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bufferData.ambientArray),gl.STATIC_DRAW);
+    this.specColor.itemSize = 3;
+    this.specColor.numItems = bufferData.ambientArray.length/this.specColor.itemSize;
 
     gl.bindBuffer(gl.ARRAY_BUFFER,this.matIndex);
     gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(bufferData.materialIndex),gl.STATIC_DRAW);

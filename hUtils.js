@@ -22,6 +22,9 @@ function getShaderStruct(shaderProgram)
     this.vPos= gl.getAttribLocation(shaderProgram, "vPos");
     this.uvMap = gl.getAttribLocation(shaderProgram, "uvMap");
     this.normals = gl.getAttribLocation(shaderProgram, "normals");
+    this.diffColor = gl.getAttribLocation(shaderProgram, "diffColor");
+    this.ambColor = gl.getAttribLocation(shaderProgram, "ambColor");
+    this.specColor = gl.getAttribLocation(shaderProgram, "specColor");
     this.materialIndex = gl.getAttribLocation(shaderProgram, "materialIndex");
     this.pMat= gl.getUniformLocation(shaderProgram, "pMat");
     this.mMat= gl.getUniformLocation(shaderProgram, "mMat");
@@ -29,7 +32,6 @@ function getShaderStruct(shaderProgram)
     this.lightPosition = gl.getUniformLocation(shaderProgram, "lightPosition");
     this.LightColor= gl.getUniformLocation(shaderProgram, "LightColor");
     this.LightPower= gl.getUniformLocation(shaderProgram, "LightPower");
-    this.diffuseColor = gl.getUniformLocation(shaderProgram, "diffColor");
     this.samplerCount = gl.getUniformLocation(shaderProgram, "samplerCount");
     this.texSamplers = new Array();
     this.texSamplers[0] = gl.getUniformLocation(shaderProgram, "texSampler0");
