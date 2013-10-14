@@ -116,8 +116,8 @@ function parseObj(obj,model)
                 var indices = line[j].split('/');
                 if(line[j] in duplicateCheck)
                 {
-                    model.materialIndex.push(matIndex);
                     model.meshes[meshIndex].indexes.push(duplicateCheck[line [j] ]);
+                    model.materialIndex.push(model.indexedMaterialNames[matIndex]);
                 }
                 else
                 {
@@ -149,7 +149,7 @@ function parseObj(obj,model)
 
                     duplicateCheck[line[j]] = index;
                     model.meshes[meshIndex].indexes.push(index);
-                    model.materialIndex.push(matIndex);
+                    model.materialIndex.push(model.indexedMaterialNames[matIndex]);
                     index++;
                 }
             }
@@ -214,9 +214,19 @@ function ModelHolder()
     this.textureGLSLLocations = new Array();
     this.generateDiffColor=function()
     {
+        var currentMat = 0;
         for(var i=0,k=0; i<this.materialIndex.length; i++,k+=3)
         {   
-            var name = this.indexedMaterialNames[this.materialIndex[i]];
+            if(this.materialIndex[i] === this.materialNames[currentMat].name)
+                this.materialIndex[i] = currentMat;
+            else
+            {
+                var j=0;
+                while(this.materialIndex[i]!== this.materialNames[j].name)
+                    j++;
+                currentMat = j;
+            }
+            var name = this.materialNames[currentMat].name;
             this.diffuseArray[k] = this.materialInfo[name].diffuse[0];
             this.diffuseArray[k+1] = this.materialInfo[name].diffuse[1];
             this.diffuseArray[k+2] = this.materialInfo[name].diffuse[2];
@@ -229,17 +239,6 @@ function ModelHolder()
             this.specularArray[k+1] = this.materialInfo[name].specular[1];
             this.specularArray[k+2] = this.materialInfo[name].specular[2];
         }
-        for(var k=0; k<this.materialNames.length; k++)
-        {
-            if(this.materialInfo[this.materialNames[k].name ].url !== null)
-            {
-                this.textureGLSLLocations.push(k);
-            }
-        }
-        while(this.textureGLSLLocations.length<4)
-            this.textureGLSLLocations.push(100); //100 so were sure materialIndex isnt mistakenly thinking it has a texture when it doesnt
-        if(this.textureGLSLLocations.length>4)
-            alert('max textures per mesh is set to 4, can easily be fixed');
     }
     this.loadTextures=function(completionCallback,meshes,canvas)
     {
@@ -260,6 +259,7 @@ function ModelHolder()
     }
     this.generateTextureBuffers=function()
     {
+        var mipMaps = true; 
         for(var i=0; i<this.materialNames.length; i++)
         {
             if(this.materialInfo[this.materialNames[i].name].url=== null)
@@ -269,10 +269,27 @@ function ModelHolder()
             gl.bindTexture(gl.TEXTURE_2D, tBuffer);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textures[this.materialNames[i].name]);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipMaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+            if(mipMaps)
+                gl.generateMipmap(gl.TEXTURE_2D);
             gl.bindTexture(gl.TEXTURE_2D, null);
-            this.textureBuffers[this.materialNames[i].name] = tBuffer;
+            this.textureBuffers.push( tBuffer) ;
+            for(var j=0; j<this.materialIndex.length; j++)
+            {
+                if(this.materialIndex[j] === this.materialNames[i].name)
+                    this.materialIndex[j] = i;
+            }
+            this.textureGLSLLocations.push(i);
+        }
+        while(this.textureGLSLLocations.length<4)
+            this.textureGLSLLocations.push(100); //100 so were sure materialIndex isnt mistakenly thinking it has a texture when it doesnt
+        if(this.textureGLSLLocations.length>4)
+            alert('max textures per mesh is set to 4, can easily be fixed');
+        for(var j=0; j<this.materialIndex.length; j++)
+        {
+            if(this.materialIndex[j].isNaN)
+                this.materialIndex = 200;
         }
     }
     this.generateBuffers=function()
@@ -289,6 +306,7 @@ function iModel(bufferData)
     this.tB =               bufferData.textureBuffers;
     this.numMeshes=         bufferData.meshes.length;
     this.texGLSLlocs =      bufferData.textureGLSLLocations;
+    this.materialNames =    bufferData.materialNames;
 
     this.vB=            gl.createBuffer();
     this.uvB =          gl.createBuffer();

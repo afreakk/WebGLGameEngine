@@ -1,11 +1,16 @@
-function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
+function iRenderObject(drawObjects, product,shaderProgram,pos,scale,mass)
 {
     this.global = new Translations();
-    this.global.translate(x,y,z);
+    this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    this.rigidBody = pWorld.addBody(mass,pos,scale); 
+    var motionState = this.rigidBody.getMotionState();
+    var transform = new Ammo.btTransform();
     this.draw = function() 
 	{
+        motionState.getWorldTransform(transform);
+        this.global.physicsUpdate(transform);
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
@@ -30,11 +35,8 @@ function iRenderObject(drawObjects, product,shaderProgram,x,y,z)
         gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
 
         gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
-        for(var j=0, k=0; j<this.model.indexedMaterialNames.length; j++)
-        {
-            if(this.model.indexedMaterialNames[j] in this.model.tB)
-                activateTexture(gl.TEXTURE0+k,this.model.tB[this.model.indexedMaterialNames[j]],this.shader.texSamplers,k++);
-        }
+        for(var j=0; j<this.model.tB.length; j++)
+            activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
         for(var i=0; i<this.model.numMeshes; i++)
         {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
@@ -54,13 +56,20 @@ function Translations()
 {
     this.pos = vec3.create();
     this.rot = quat.create();
-    this.translate = function(x,y,z)
+    this.physicsUpdate= function(transform)
     {
-        vec3.add(this.pos,this.pos,vec3.fromValues(x,y,z));
+        var pos = transform.getOrigin();
+        this.pos = vec3.fromValues(pos.x().toFixed(2),pos.y().toFixed(2),pos.z().toFixed(2));
+        var rot = transform.getRotation();
+        this.rot = quat.fromValues(rot.x().toFixed(2),rot.y().toFixed(2),rot.z().toFixed(2),rot.w().toFixed(2));
     }
-    this.setPosition = function(x,y,z)
+    this.translate = function(trans)
     {
-        this.pos = vec3.fromValues(x,y,z);
+        vec3.add(this.pos,this.pos,trans);
+    }
+    this.setPosition = function(pos)
+    {
+        this.pos = pos;
     }
     this.rotate = function(q)
     {

@@ -1,4 +1,4 @@
-function Light(shaderStruct, power, color,pos)
+function PointLight(shaderStruct, power, color,pos)
 {
     this.global = new vecTranslations();
     this.global.translate(pos[0],pos[1],pos[2]);
@@ -12,6 +12,19 @@ function Light(shaderStruct, power, color,pos)
         gl.uniform3fv(this.shader.lightPosition, this.global.getPos() );
     }
 }
+function DirectionalLight(shaderStruct,vec,power)
+{
+    this.direction;
+    this.power = power;
+    this.shader = shaderStruct;
+    this.updateDirection=function(vec)
+    {
+        this.direction = vec;
+        gl.uniform1f(this.shader.DirectionalPower, this.power);
+        gl.uniform3fv(this.shader.DirectionalLight, this.direction);
+    }
+    this.updateDirection(vec);
+}
 function vecTranslations()
 {
     this.pos = vec3.create();
@@ -21,7 +34,7 @@ function vecTranslations()
     }
     this.setPosition = function(x,y,z)
     {
-        this.pos = vec.fromValues(x,y,z);
+        this.pos = vec3.fromValues(x,y,z);
     }
     this.getPos = function()
     {

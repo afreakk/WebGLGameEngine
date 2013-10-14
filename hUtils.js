@@ -32,6 +32,8 @@ function getShaderStruct(shaderProgram)
     this.lightPosition = gl.getUniformLocation(shaderProgram, "lightPosition");
     this.LightColor= gl.getUniformLocation(shaderProgram, "LightColor");
     this.LightPower= gl.getUniformLocation(shaderProgram, "LightPower");
+    this.DirectionalLight = gl.getUniformLocation(shaderProgram, "DirectionalLight");
+    this.DirectionalPower = gl.getUniformLocation(shaderProgram, "DirectionalPower");
     this.samplerCount = gl.getUniformLocation(shaderProgram, "samplerCount");
     this.texSamplers = new Array();
     this.texSamplers[0] = gl.getUniformLocation(shaderProgram, "texSampler0");

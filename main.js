@@ -7,7 +7,7 @@ function webGLStart(document)
     {
         glMatrix.setMatrixArrayType(Float32Array);
         ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ted' : 'models/ted/ted.obj' ,
-                    'amy' : 'models/amy/amyrose.obj' },startApp,canvas);
+                    'amy' : 'models/amy/amyrose.obj', 'cube' : 'models/cube/cube.obj', 'sand' : 'models/sand/sand.obj' },startApp,canvas);
     }
     else
     {
