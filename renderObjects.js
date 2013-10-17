@@ -1,10 +1,14 @@
-function iRenderObject(drawObjects, product,shaderProgram,pos,scale,mass)
+function gObject(drawObjects, product,shaderProgram,pos,mass,oblig)
 {
     this.global = new Translations();
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
-    this.rigidBody = pWorld.addBody(mass,pos,scale); 
+    this.oblig = oblig;
+    if(oblig)
+        this.rigidBody = pWorld.oblig2Shape(oblig,pos,mass);
+    else
+        this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
     var motionState = this.rigidBody.getMotionState();
     var transform = new Ammo.btTransform();
     this.draw = function() 
@@ -39,9 +43,18 @@ function iRenderObject(drawObjects, product,shaderProgram,pos,scale,mass)
             activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
         for(var i=0; i<this.model.numMeshes; i++)
         {
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
-            gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+            if(this.model.strip)
+            {
+                gl.drawArrays(gl.TRIANGLE_STRIP,0,this.model.vB.numItems);
+            }
+            else
+            {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+                gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+            }
         }
+       // debugDraw.global.setPosition(this.global.getPos());
+       // debugDraw.draw();
 	}
     drawObjects.add(this);
     

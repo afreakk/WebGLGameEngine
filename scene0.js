@@ -8,11 +8,16 @@ function SceneOne(Objs)
     var cat=null;
     var tree=null;
     var ted=null;
-    var ironMan=null;
+    var amy=null;
     var hill=null;
     var cube= null;
     var sand = null;
     var dirLight = null;
+    var obligTerning = null;
+    var obliHus = null;
+    var obliDor = null;
+    var obliStrip = null;
+    var obliStripTop= null;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -26,7 +31,7 @@ function SceneOne(Objs)
         setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex,shaderStruct.diffColor, shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
-        /*gl.enable(gl.BLEND);
+    /*    gl.enable(gl.BLEND);
         gl.blendFunc (gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
         gl.depthFunc(gl.LESS);*/
     }
@@ -37,20 +42,28 @@ function SceneOne(Objs)
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cPos1   = vec3.fromValues(-5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
-        this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  100.0,    this.canvas,1.0,1.0,0.0,0.0);
+        this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct.vMat,shaderStruct.pMat,  45.0,   0.1,  300.0,    this.canvas,1.0,1.0,0.0,0.0);
         var catM = this.objs['cat'];
         var treeM = this.objs['tree'];
         var tedM = this.objs['ted'];
-        var ironManM= this.objs['amy']; 
+        var amyM= this.objs['amy']; 
         var hillM = this.objs['hill'];
         var cubeM = this.objs['cube'];
         var sandM = this.objs['sand'];
-        cat = new iRenderObject(this.drawObjs, catM.generateBuffers(), shaderStruct,vec3.fromValues(0.0,10.5,-0.5),vec3.fromValues(1.0,1.0,1.0),1);
-        tree = new iRenderObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, vec3.fromValues(2.0,10.0,-15.0),vec3.fromValues(1.0,1.0,1.0),15);
-        ted = new iRenderObject(this.drawObjs, tedM.generateBuffers(), shaderStruct, vec3.fromValues(-5,12,-5.0),vec3.fromValues(1.0,1.0,1.0),10);
-        ironMan = new iRenderObject(this.drawObjs, ironManM.generateBuffers(), shaderStruct, vec3.fromValues(5.0, 10.0, -10.0),vec3.fromValues(1,1,1),10);
-        cube = new iRenderObject(this.drawObjs, cubeM.generateBuffers(), shaderStruct, vec3.fromValues(2.0, 10.0, 1.0),vec3.fromValues(1,1,1),10);
-        sand = new iRenderObject(this.drawObjs, sandM.generateBuffers(), shaderStruct, vec3.fromValues(0.0, -9.0, 0.0),vec3.fromValues(100,1,100),0);
+        cat = new gObject(this.drawObjs, catM.generateBuffers(), shaderStruct,vec3.fromValues(10.0,20.0,-5.0),11);
+        tree = new gObject(this.drawObjs, treeM.generateBuffers(), shaderStruct, vec3.fromValues(30.0,10.0,-15.0),150);
+        ted = new gObject(this.drawObjs, tedM.generateBuffers(), shaderStruct, vec3.fromValues(-5,42,40.0),20);
+        amy = new gObject(this.drawObjs, amyM.generateBuffers(), shaderStruct, vec3.fromValues(5.0, 10.0, -10.0),10);
+        cube = new gObject(this.drawObjs, cubeM.generateBuffers(), shaderStruct, vec3.fromValues(2.0, 10.0, 1.0),10);
+        sand = new gObject(this.drawObjs, sandM.generateBuffers(), shaderStruct, vec3.fromValues(0.0, -9.0, 0.0),0);
+        var ob= 5.0;
+        obligTerning = new gObject(this.drawObjs,new ObligTerning(ob),shaderStruct,vec3.fromValues(10.0,0.0, -45.0),0);
+        var oh= 20.0;
+        obliHus = new gObject(this.drawObjs,new ObligHus(oh),shaderStruct,vec3.fromValues(10.0, 15.0, -45.0), 10000,oh);
+        obliDor = new gObject(this.drawObjs, new ObligDor(oh),shaderStruct,vec3.fromValues(10.0,20.0-oh/2.0,-45.0+oh), 200);
+        obliStrip = new DebugDraw(this.drawObjs,new obligTriangleStrip(10000.0,100.0,100), shaderStruct, vec3.fromValues(0,10,0));
+        obliStripTop = new DebugDraw(this.drawObjs,new obligTriangleStrip(100.0,5.0,10), shaderStruct, vec3.fromValues(10.0,8,-45.0 ));
+        debugDraw = new DebugDraw(this.drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137));
         var turn = quat.fromValues(0,1,0,0);
         cat.global.rotate(turn);
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
@@ -67,7 +80,9 @@ function SceneOne(Objs)
         pWorld.update();
         glClear();
         light.update();
-        cat.global.lookAt(ted.global.getPos());
+        var rotateZ = quat.create();
+        quat.setAxisAngle(rotateZ,vec3.fromValues(0,0,1),time);
+        obliStripTop.global.setRotation(rotateZ);
         this.catPut(ted);
         this.camera0.update();
         this.camera0.draw();
@@ -88,6 +103,8 @@ function SceneOne(Objs)
         quat.setAxisAngle(rotAmntP,axis,toRad(1.0));
         quat.setAxisAngle(rotAmntM,axis,toRad(-1.0));
         ted.rigidBody.activate();
+        if(model.global.getPos()[1]<10.0&&key.SPACE)
+            model.rigidBody.applyCentralForce(new Ammo.btVector3(0,speed,0))
         if(key.Up)
            model.rigidBody.applyCentralForce(new Ammo.btVector3(0,0,-speed)); 
         if(key.Down)
@@ -104,7 +121,7 @@ function SceneOne(Objs)
     }
     function glClear()
     {
-        gl.clearColor(0.2, 0.2, 0.1, 1.0);
+        gl.clearColor(0.2, 0.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 }

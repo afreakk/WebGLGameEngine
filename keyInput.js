@@ -7,6 +7,7 @@ function key()
     this.Down=new Boolean();
     this.Q=new Boolean();
     this.E=new Boolean();
+    this.SPACE = new Boolean();
 }
 key.Left=false;
 key.Right=false;
@@ -14,6 +15,7 @@ key.Up=false;
 key.Down=false;
 key.Q=false;
 key.E=false;
+key.SPACE=false;
 function onKeyDown(event)
 {
     if(event.keyCode == 37||event.keyCode == 65) 
@@ -28,6 +30,8 @@ function onKeyDown(event)
         key.Q=true;
     else if(event.keyCode == 69)
         key.E=true;
+    else if(event.keyCode == 32)
+        key.SPACE=true;
 }
 function onKeyUp(event)
 {    
@@ -43,4 +47,6 @@ function onKeyUp(event)
         key.Q=false;
     else if(event.keyCode == 69)
         key.E=false;
+    else if(event.keyCode == 32)
+        key.SPACE=false;
 }
