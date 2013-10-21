@@ -6,7 +6,7 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'brick': 'models/brick/brick.obj' , 'plane': 'models/plane/plane.obj' ,
+        ObjLoader({'brick': 'models/brick/brick.obj' , 'ground': 'models/ground/ground.obj' ,
                     'cannon':'models/cannon/cannon.obj','cannonBall':'models/cannonball/cannonBall.obj'},startApp,canvas);
 
     }

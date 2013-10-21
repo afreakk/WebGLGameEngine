@@ -15,8 +15,8 @@ function SceneOne(Objs)
     var objs = Objs;
     var bricks = new Array();
     var groundPlane= null;
-    var cannon = null;
     var startTime = new Date().getTime();
+    var cannon = null;
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -30,9 +30,7 @@ function SceneOne(Objs)
     function initGroundPlane()
     {
         var pos = vec3.fromValues(0,-4,0);
-        groundPlane = new gObject(drawObjs,objs['plane'].generateBuffers(),shaderStruct,pos,0);
-        var cannPos = vec3.fromValues(0,10,15);
-        cannon = new gObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos,10);
+        groundPlane = new gObject(drawObjs,objs['ground'].generateBuffers(),shaderStruct,pos,0,"triMesh");
     }
     function initCastle()
     {
@@ -54,9 +52,9 @@ function SceneOne(Objs)
         var localInertia = new Ammo.btVector3(0, 0, 0);
         shape.calculateLocalInertia(mass, localInertia);
         var i=0;
-        var sX=1.3,sY=2.0,sZ=0.68;
+        var sX=1.3,sY=0.8,sZ=0.68;
         var xOff = sX*xElements/2.0;
-        var yOff = 0.0; 
+        var yOff = 2.0; 
         var zOff = sZ*zElements/2.0;
         for(var y=0; y<yElements; y++)
         {
@@ -73,7 +71,7 @@ function SceneOne(Objs)
                 }
             }
         }
-        console.log(i+"cubes initialized");
+        console.log(i+" cubes initialized");
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
@@ -81,28 +79,26 @@ function SceneOne(Objs)
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
         camera0 = new Camera(drawObjs, cPos0,cLookAt,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
-        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
+//        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 1000.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,0.1);
+        dirLight = new DirectionalLight(shaderStruct,direction,2.0);
         console.log("sceneOne initiated");
         initCastle();
         initGroundPlane();
+        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0);
     }                                  
     this.update = function()
     {
-        var lDistance = 10.0;
+        var lDistance = 15.0;
         light.setPosition(Math.sin(time)*lDistance, 0.0, Math.cos(time)*lDistance);
         glClear(); //clears the screen
         generalUpdate();//
-        lookAt(vec3.fromValues(0.0,-2.0,0.0));
+        cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime);
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
-    }
-    function shootCannonBalls()
-    {
     }
     function generalUpdate()
     {
@@ -112,11 +108,46 @@ function SceneOne(Objs)
         lastTime = now;
         pWorld.update(deltaTime); //and this
     }
+    function glClear()
+    {
+        gl.clearColor(0.2, 0.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
+}
+function CannonControl(drawObjs,objs,shaderStruct,Camera)
+{
     var cPos=vec3.fromValues(0,0,0);
-    function lookAt(vector) 
+    var cDistance = 30.0;
+    var cannon = null;
+    var camera = Camera;
+    var cannonBallShape = null;
+    var cannonBalls = new Array();
+    var buffer = null;
+    var mass = 1;
+    function init(drawObjs,objs,shaderStruct)
+    {
+        var cannPos = vec3.fromValues(0,10,15);
+        cannon = new rObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos);
+        initCannonBallShape(objs);
+    }
+    this.update=function(vector,deltaTime) 
+    {
+        updatePos();
+        steerCannon(vector,deltaTime);
+        shootCannonBalls();
+        updateCannonBalls();
+    }
+    function initCannonBallShape(objs)
+    {
+        buffer = objs['cannonBall'].generateBuffers();
+        var localInertia = new Ammo.btVector3(0,0,0);
+        var radius = 0.5;
+        cannonBallShape = new Ammo.btSphereShape(radius);
+        cannonBallShape.calculateLocalInertia(mass, localInertia);
+    }
+    function steerCannon(vector,deltaTime)
     {
         var speed = deltaTime;
-        var cDistance = 10.0;
         if(key.Up)
             cPos[1]+= speed;
         if(key.Down)
@@ -125,41 +156,52 @@ function SceneOne(Objs)
             cPos[0] -= speed;
         if(key.Right)
             cPos[0] += speed;
-        var uPos=vec3.fromValues(Math.sin(cPos[0])*cDistance,cPos[1],Math.cos(cPos[0])*cDistance);
-        vec3.add(uPos,uPos,vector);
         var cLook = vector;
-        camera0.lookAtFrom(cLook,uPos);
-       /* var speed = 15.1;
-        var rotAmntP = quat.create();
-        var rotAmntM = quat.create();
-        var axis = vec3.fromValues(0,1,0);
-        quat.setAxisAngle(rotAmntP,axis,toRad(1.0));
-        quat.setAxisAngle(rotAmntM,axis,toRad(-1.0));
-        model.rigidBody.activate();
-        
-        if(model.global.getPos()[1]<10.0&&key.SPACE)
-            model.rigidBody.applyCentralForce(new Ammo.btVector3(0,speed,0))
-        if(key.Up)
-           model.rigidBody.applyCentralForce(new Ammo.btVector3(0,0,-speed)); 
-        if(key.Down)
-            model.rigidBody.applyCentralForce(new Ammo.btVector3(0,0,speed));
-        if(key.Left)
-            model.rigidBody.applyCentralForce(new Ammo.btVector3(-speed,0,0));
-        if(key.Right)
-            model.rigidBody.applyCentralForce(new Ammo.btVector3(speed,0,0));
-        if(key.Q)
-            model.global.rotate(rotAmntP);
-        if(key.E)
-            model.global.rotate(rotAmntM);*/
-
+        camera.lookAtFrom(cLook,pos);
+        updateCannonPosition();
     }
-    function glClear()
+    function updateCannonPosition()
     {
-        gl.clearColor(0.2, 0.0, 1.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        var height = -3;
+        var dist = 1.5;
+        var rot = quat.create();
+        quat.setAxisAngle(rot,vec3.fromValues(0,1,0),cPos[0]);
+        cannonPos = vec3.fromValues(pos[0]/dist,height,pos[2]/dist);
+        cannon.global.setRotation(rot);
+        cannon.global.setPosition(cannonPos);
     }
+    var cannonPos=0;
+    var canShot = true;
+    var direction = null;
+    var pos=null;
+    function updatePos()
+    {
+        pos=vec3.fromValues(Math.sin(cPos[0])*cDistance,cPos[1],Math.cos(cPos[0])*cDistance);
+    }
+    function shootCannonBalls()
+    {
+        if(key.SPACE&&canShot)
+        {
+            cBPos = vec3.fromValues(cannonPos[0],cannonPos[1],cannonPos[2]);
+            var ln = 10.0;
+            vec3.add(cBPos,cBPos,vec3.fromValues(-cannonPos[0]/ln,2.0,-cannonPos[2]/ln));
+            cannonBalls.push(new gObject(drawObjs,buffer,shaderStruct,cBPos,mass,cannonBallShape));
+            canShot = false;
+            var str = 2.1;
+            direction = new Ammo.btVector3(-pos[0]*str,0,-pos[2]*str);
+            var i = cannonBalls.length-1;
+            cannonBalls[i].rigidBody.applyCentralImpulse(direction);
+        }
+        else if(!key.SPACE)
+        {
+            canShot = true;
+        }
+    }
+    function updateCannonBalls()
+    {
+    }
+    init(drawObjs,objs,shaderStruct);
 }
-
 function SceneTwo()
 {
     this.endScene=false;

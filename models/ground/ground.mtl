@@ -1,0 +1,13 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+newmtl Grass
+Ns 92.156863
+Ka 0.000000 0.000000 0.000000
+Kd 0.007211 0.143971 0.009350
+Ks 0.000000 0.051000 0.000726
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd muddygrass.png
+
+

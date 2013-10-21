@@ -117,6 +117,7 @@ function parseObj(obj,model)
                 if(line[j] in duplicateCheck)
                 {
                     model.meshes[meshIndex].indexes.push(duplicateCheck[line [j] ]);
+                    model.totalIndexes.push(duplicateCheck[line[j]]);
                     model.materialIndex.push(model.indexedMaterialNames[matIndex]);
                 }
                 else
@@ -149,6 +150,7 @@ function parseObj(obj,model)
 
                     duplicateCheck[line[j]] = index;
                     model.meshes[meshIndex].indexes.push(index);
+                    model.totalIndexes.push(index);
                     model.materialIndex.push(model.indexedMaterialNames[matIndex]);
                     index++;
                 }
@@ -182,6 +184,7 @@ function MeshHolder()
 }
 function ModelHolder()
 {
+    this.totalIndexes= new Array();
     this.meshes = new Array();
     this.materialNames = new Array();
     this.materialInfo = new Array();
@@ -294,6 +297,7 @@ function iModel(bufferData)
     this.numMeshes=         bufferData.meshes.length;
     this.texGLSLlocs =      bufferData.textureGLSLLocations;
     this.vertexPoints =     bufferData.vertexes;
+    this.tIndex =       bufferData.totalIndexes;
     this.vB=            gl.createBuffer();
     this.uvB =          gl.createBuffer();
     this.nB =           gl.createBuffer();
@@ -340,8 +344,6 @@ function iModel(bufferData)
     for(var i=0; i<this.numMeshes; i++)
     {
         this.iB[i] = gl.createBuffer();
-    
-   
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,this.iB[i]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(bufferData.meshes[i].indexes),gl.STATIC_DRAW);
         this.iB[i].numItems = bufferData.meshes[i].indexes.length;

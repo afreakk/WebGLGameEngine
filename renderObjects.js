@@ -1,9 +1,58 @@
+function rObject(drawObjects, product,shaderProgram,pos)
+{
+    this.global = new Translations();
+    this.global.translate(pos);
+    this.model = product;
+    this.shader  = shaderProgram;
+    this.draw = function() 
+	{
+        setShader(this.shader.shader);
+        setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
+        gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB);
+        gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
+        gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.diffColor);
+        gl.vertexAttribPointer(this.shader.diffColor, this.model.diffColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.ambColor);
+        gl.vertexAttribPointer(this.shader.ambColor, this.model.ambColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.specColor);
+        gl.vertexAttribPointer(this.shader.specColor, this.model.specColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
+        gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
+
+        gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
+        for(var j=0; j<this.model.tB.length; j++)
+        {
+            activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
+        }
+        for(var i=0; i<this.model.numMeshes; i++)
+        {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+            gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+        }
+       // debugDraw.global.setPosition(this.global.getPos());
+       // debugDraw.draw();
+	}
+    drawObjects.add(this);
+    
+}
 function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
 {
     this.global = new Translations();
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    if(shape === "triMesh")
+        this.rigidBody = pWorld.addBodyTri(mass, pos, product);
     if(shape)
         this.rigidBody = pWorld.addBodyHasShape(mass,pos,shape);
     else
