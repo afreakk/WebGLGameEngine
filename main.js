@@ -6,8 +6,9 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ted' : 'models/ted/ted.obj' ,
-                    'amy' : 'models/amy/amyrose.obj', 'cube' : 'models/cube/cube.obj', 'sand' : 'models/sand/sand.obj' },startApp,canvas);
+        ObjLoader({'brick': 'models/brick/brick.obj' , 'plane': 'models/plane/plane.obj' ,
+                    'cannon':'models/cannon/cannon.obj','cannonBall':'models/cannonball/cannonBall.obj'},startApp,canvas);
+
     }
     else
     {

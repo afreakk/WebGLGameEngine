@@ -1,10 +1,13 @@
-function gObject(drawObjects, product,shaderProgram,pos,mass)
+function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
 {
     this.global = new Translations();
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
-    this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
+    if(shape)
+        this.rigidBody = pWorld.addBodyHasShape(mass,pos,shape);
+    else
+        this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
     var motionState = this.rigidBody.getMotionState();
     var transform = new Ammo.btTransform();
     this.draw = function() 
@@ -36,7 +39,9 @@ function gObject(drawObjects, product,shaderProgram,pos,mass)
 
         gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
         for(var j=0; j<this.model.tB.length; j++)
+        {
             activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
+        }
         for(var i=0; i<this.model.numMeshes; i++)
         {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);

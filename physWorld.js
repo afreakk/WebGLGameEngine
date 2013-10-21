@@ -11,6 +11,18 @@ function PhysicsWorld()
     {
         return world;
     }
+    this.addBodyHasShape=function(mass,vec,shape)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
+        var localInertia = new Ammo.btVector3(0, 0, 0);
+        var motionState = new Ammo.btDefaultMotionState(transform);
+        var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
+        var body = new Ammo.btRigidBody(rigidInfo);
+        world.addRigidBody(body);
+        return body;
+    }
     this.addBody=function(mass,vec,scale)
     {
         var transform = new Ammo.btTransform();
@@ -105,9 +117,9 @@ function PhysicsWorld()
         world.addRigidBody(body);
         return body;
     }
-    this.update= function()
+    this.update= function(time)
     {
-        world.stepSimulation(1/60,10);
+        world.stepSimulation(time,6);
     }
     this.destroy=function()
     {
