@@ -1,14 +1,10 @@
-function gObject(drawObjects, product,shaderProgram,pos,mass,oblig)
+function gObject(drawObjects, product,shaderProgram,pos,mass)
 {
     this.global = new Translations();
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
-    this.oblig = oblig;
-    if(oblig)
-        this.rigidBody = pWorld.oblig2Shape(oblig,pos,mass);
-    else
-        this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
+    this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
     var motionState = this.rigidBody.getMotionState();
     var transform = new Ammo.btTransform();
     this.draw = function() 
@@ -43,15 +39,8 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,oblig)
             activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
         for(var i=0; i<this.model.numMeshes; i++)
         {
-            if(this.model.strip)
-            {
-                gl.drawArrays(gl.TRIANGLE_STRIP,0,this.model.vB.numItems);
-            }
-            else
-            {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
-                gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
-            }
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+            gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
         }
        // debugDraw.global.setPosition(this.global.getPos());
        // debugDraw.draw();
@@ -115,28 +104,54 @@ function Translations()
         return this.rot;
     }
 }
-/*unIndexed objects,, dont know when ill ever use them also very outdated,needs revamp before using
-function RenderObject(drawObjects, product, shaderProgram,x,y,z)
+var debugDraw;
+function DebugDraw(drawObjects, product,shaderProgram,pos)
 {
-    this.translate(x,y,z);
-    var vertexBuffer   =product.vB;
-    var colorBuffer    =product.cB;
-    var vPosLoc = shaderProgram.vPos;
-    var vColLoc = shaderProgram.vCol;
-    var shader  = shaderProgram.shader;
-    var mMatLoc = shaderProgram.mMat;
+    this.global = new Translations();
+    this.global.translate(pos);
+    this.model = product;
+    this.shader  = shaderProgram;
     this.draw = function() 
 	{
-        setShader(shader);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.vertexAttribPointer(vPosLoc, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        setShader(this.shader.shader);
+        setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
+        gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(vColLoc, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        setMatrix(calcMatrix(),mMatLoc);
-		gl.drawArrays(gl.TRIANGLES , 0, vertexBuffer.numItems);
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB);
+        gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
+        gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.diffColor);
+        gl.vertexAttribPointer(this.shader.diffColor, this.model.diffColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.ambColor);
+        gl.vertexAttribPointer(this.shader.ambColor, this.model.ambColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.specColor);
+        gl.vertexAttribPointer(this.shader.specColor, this.model.specColor.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
+        gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
+
+        gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
+        for(var j=0; j<this.model.tB.length; j++)
+            activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);
+        for(var i=0; i<this.model.numMeshes; i++)
+        {
+            if(this.model.strip)
+            {
+                gl.drawArrays(gl.TRIANGLE_STRIP,0,this.model.vB.numItems);
+            }
+            else
+            {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+                gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+            }
+        }
 	}
     drawObjects.add(this);
+    
 }
-RenderObject.prototype = new Translations();
-*/

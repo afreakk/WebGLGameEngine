@@ -13,11 +13,6 @@ function SceneOne(Objs)
     var cube= null;
     var sand = null;
     var dirLight = null;
-    var obligTerning = null;
-    var obliHus = null;
-    var obliDor = null;
-    var obliStrip = null;
-    var obliStripTop= null;
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -56,16 +51,7 @@ function SceneOne(Objs)
         amy = new gObject(this.drawObjs, amyM.generateBuffers(), shaderStruct, vec3.fromValues(5.0, 10.0, -10.0),10);
         cube = new gObject(this.drawObjs, cubeM.generateBuffers(), shaderStruct, vec3.fromValues(2.0, 10.0, 1.0),10);
         sand = new gObject(this.drawObjs, sandM.generateBuffers(), shaderStruct, vec3.fromValues(0.0, -9.0, 0.0),0);
-        var ob= 5.0;
-        obligTerning = new gObject(this.drawObjs,new ObligTerning(ob),shaderStruct,vec3.fromValues(10.0,0.0, -45.0),0);
-        var oh= 20.0;
-        obliHus = new gObject(this.drawObjs,new ObligHus(oh),shaderStruct,vec3.fromValues(10.0, 15.0, -45.0), 10000,oh);
-        obliDor = new gObject(this.drawObjs, new ObligDor(oh),shaderStruct,vec3.fromValues(10.0,20.0-oh/2.0,-45.0+oh), 200);
-        obliStrip = new DebugDraw(this.drawObjs,new obligTriangleStrip(10000.0,100.0,100), shaderStruct, vec3.fromValues(0,10,0));
-        obliStripTop = new DebugDraw(this.drawObjs,new obligTriangleStrip(100.0,5.0,10), shaderStruct, vec3.fromValues(10.0,8,-45.0 ));
         debugDraw = new DebugDraw(this.drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137));
-        var turn = quat.fromValues(0,1,0,0);
-        cat.global.rotate(turn);
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 100.0,lightColor, lightPos);
@@ -82,7 +68,6 @@ function SceneOne(Objs)
         light.update();
         var rotateZ = quat.create();
         quat.setAxisAngle(rotateZ,vec3.fromValues(0,0,1),time);
-        obliStripTop.global.setRotation(rotateZ);
         this.catPut(ted);
         this.camera0.update();
         this.camera0.draw();
