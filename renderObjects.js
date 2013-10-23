@@ -51,18 +51,31 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    this.rigidBody = null;
+    this.ghost = null;
     if(shape === "triMesh")
         this.rigidBody = pWorld.addBodyTri(mass, pos, product);
-    if(shape)
+    else if(shape == "ghost")
+        this.ghost = pWorld.addGhost(pos ,product.vertexPoints);
+    else if(shape)
         this.rigidBody = pWorld.addBodyHasShape(mass,pos,shape);
     else
         this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
-    var motionState = this.rigidBody.getMotionState();
+    if(this.rigidBody)
+        var motionState = this.rigidBody.getMotionState();
+    else
+    {
+        var btPos = new Ammo.btVector3(this.global.pos[0],this.global.pos[1],this.global.pos[2]);
+        var btQuat = new Ammo.btQuaternion(this.global.rot[0],this.global.rot[1],this.global.rot[2],this.global.rot[3]);
+    }
     var transform = new Ammo.btTransform();
     this.draw = function() 
 	{
-        motionState.getWorldTransform(transform);
-        this.global.physicsUpdate(transform);
+        if(this.rigidBody)
+        {
+            motionState.getWorldTransform(transform);
+            this.global.physicsUpdate(transform);
+        }
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
@@ -99,6 +112,19 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
        // debugDraw.global.setPosition(this.global.getPos());
        // debugDraw.draw();
 	}
+    this.updateGhost= function()
+    {
+        btPos.setX(this.global.pos[0]);
+        btPos.setY(this.global.pos[1]);
+        btPos.setZ(this.global.pos[2]);
+        btQuat.setX(this.global.rot[0]);
+        btQuat.setY(this.global.rot[1]);
+        btQuat.setZ(this.global.rot[2]);
+        btQuat.setW(this.global.rot[3]);
+        transform.setOrigin(btPos);
+        transform.setRotation(btPos);
+        this.ghost.setWorldTransform(transform);
+    }
     drawObjects.add(this);
     
 }

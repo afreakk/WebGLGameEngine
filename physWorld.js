@@ -7,6 +7,28 @@ function PhysicsWorld()
     var solver = new Ammo.btSequentialImpulseConstraintSolver();
     var world = new Ammo.btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration); 
     world.setGravity(new Ammo.btVector3(0,-10,0));
+    this.addGhost=function(vec,points)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
+        var shape = new Ammo.btConvexHullShape();
+        var v = new Ammo.btVector3();
+        for(var i=0; i<points.length; i+=3)
+        {
+            v.setX(points[i]);
+            v.setY(points[i+1]);
+            v.setZ(points[i+2]);
+            shape.addPoint( v  );
+        }
+        console.log('made convex from vertexes..');
+        var ghostObject = new Ammo.btPairCachingGhostObject();
+        world.getPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+        ghostObject.setCollisionShape(shape);
+        ghostObject.setWorldTransform(transform);
+        world.addCollisionObject(ghostObject);
+        return ghostObject;
+    }
     this.getWorld = function()
     {
         return world;
