@@ -164,9 +164,13 @@ function PhysicsWorld()
         world.addRigidBody(body);
         return body;
     }
-    this.update= function(time)
+    this.update= function(time,slowMo)
     {
-        world.stepSimulation(time,6);
+        if(!slowMo)
+            world.stepSimulation(time,100,1/60);
+        else
+            world.stepSimulation(time/slowMo,100,(0.20/60));
+
     }
     this.destroy=function()
     {

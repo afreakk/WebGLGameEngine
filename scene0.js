@@ -63,10 +63,14 @@ function SceneOne(Objs)
     }
     function generalUpdate()
     {
-        if(key.Q)
-        pWorld.update(-deltaTime); //and this
+        if(cannon.getSlow()==true)
+        {
+            pWorld.update(deltaTime,50.0); //and this
+        }
         else
-        pWorld.update(deltaTime); //and this
+        {
+            pWorld.update(deltaTime,false);
+        }
     }
     function handleTime()
     {
