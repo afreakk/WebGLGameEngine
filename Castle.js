@@ -3,7 +3,7 @@ function Castle(objs,drawObjs,shaderStructX)
     var bricks = new Array();
     var shaderStruct = shaderStructX;
     var brickShape = null;
-    var brickMass = 1;
+    var brickMass = 10;
     var buffer = objs['brick'].generateBuffers();
 
     var yElements = 10;
@@ -36,6 +36,8 @@ function Castle(objs,drawObjs,shaderStructX)
                     {
                         var pos = vec3.fromValues(x*sX-xOff,y*sY-yOff,z*sZ-zOff);
                         bricks[i] = new gObject(drawObjs,buffer,shaderStruct,pos,brickMass,brickShape);
+                        bricks[i].rigidBody.setRestitution(0.0);
+                        bricks[i].rigidBody.setFriction(10.0);
                         i++;
                     }
                 }

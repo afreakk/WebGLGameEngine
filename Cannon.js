@@ -6,7 +6,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     var cannonBallShape = null;
     var cannonBalls = new Array();
     var buffer = null;
-    var mass = 10;
+    var mass = 19;
     function init(drawObjs,objs,shaderStruct)
     {
         var cannPos = vec3.fromValues(0,10,15);
@@ -83,10 +83,12 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
             vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln+xOffset,1.2,-backwards[2]*ln));
             cannonBalls.push(new gObject(drawObjs,buffer,shaderStruct,cBPos,mass,cannonBallShape));
             canShot = false;
-            var str = 500.1;
+            var str = 900.1;
             var i = cannonBalls.length-1;
             var btbackwards = new Ammo.btVector3(-backwards[0]*str,-backwards[1]*str,-backwards[2]*str);
             cannonBalls[i].rigidBody.applyCentralImpulse(btbackwards);
+            cannonBalls[i].rigidBody.setRestitution(0.1);
+            cannonBalls[i].rigidBody.setFriction(0.1);
         }
         else if(!key.SPACE)
         {
