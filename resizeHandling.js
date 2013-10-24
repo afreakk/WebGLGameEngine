@@ -15,7 +15,7 @@ function resizeHandling(Canvas)
     {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        this.scene.update(); 
+        this.scene.update();
     }    
     this.canvas = Canvas;
     this.scene = null; 

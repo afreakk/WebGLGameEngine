@@ -71,6 +71,7 @@ function SceneOne(Objs)
         {
             pWorld.update(deltaTime,false);
         }
+        doc.title = "FPS: "+Math.round(1.0/deltaTime);
     }
     function handleTime()
     {

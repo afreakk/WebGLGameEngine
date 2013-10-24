@@ -1,5 +1,7 @@
+var doc;
 function webGLStart(document)
 {
+    doc = document;
     var canvas = getCanvas(document); 
     mouse.x = 0;
     mouse.y = 0;

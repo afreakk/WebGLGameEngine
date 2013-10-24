@@ -99,11 +99,11 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
             aCannonI=null;
         if(aCannonI!==null)
         {
-            if(bulCamLerp<0.9)
+            if(bulCamLerp<0.8)
                 bulCamLerp += deltaTime/12.0;
             var lookFrom = vec3.create();
             var lerpFrom = vec3.create();
-            vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(0,2,0));
+            vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(0,4,5));
             vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
             slowMo=true;
