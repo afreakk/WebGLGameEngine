@@ -99,8 +99,8 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
             aCannonI=null;
         if(aCannonI!==null)
         {
-            if(bulCamLerp<0.8)
-                bulCamLerp += deltaTime/12.0;
+            if(bulCamLerp<0.9)
+                bulCamLerp += deltaTime/24.0;
             var lookFrom = vec3.create();
             var lerpFrom = vec3.create();
             vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(0,4,5));
