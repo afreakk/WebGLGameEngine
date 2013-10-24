@@ -7,12 +7,12 @@ function Castle(objs,drawObjs,shaderStructX)
     var buffer = objs['brick'].generateBuffers();
 
     var yElements = 10;
-    var xElements = 10;
-    var zElements = 10;
+    var xElements = 15;
+    var zElements = 5;
     var sX=1.3,sY=0.7,sZ=0.6;
     var xOff = sX*xElements/2.0;
     var yOff = 2.0; 
-    var zOff = sZ*zElements/2.0;
+    var zOff = sZ*zElements/2.0+10.0;
 
     this.update=function(deltaTime)
     {

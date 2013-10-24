@@ -138,12 +138,14 @@ function Translations()
 {
     this.pos = vec3.create();
     this.rot = quat.create();
+    var tPos;
+    var tRot;
     this.physicsUpdate= function(transform)
     {
-        var pos = transform.getOrigin();
-        this.pos = vec3.fromValues(pos.x().toFixed(2),pos.y().toFixed(2),pos.z().toFixed(2));
-        var rot = transform.getRotation();
-        this.rot = quat.fromValues(rot.x().toFixed(2),rot.y().toFixed(2),rot.z().toFixed(2),rot.w().toFixed(2));
+        tPos = transform.getOrigin();
+        this.pos = vec3.fromValues(tPos.x().toFixed(2),tPos.y().toFixed(2),tPos.z().toFixed(2));
+        tRot = transform.getRotation();
+        this.rot = quat.fromValues(tRot.x().toFixed(2),tRot.y().toFixed(2),tRot.z().toFixed(2),tRot.w().toFixed(2));
     }
     this.translate = function(trans)
     {

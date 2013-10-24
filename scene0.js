@@ -51,8 +51,8 @@ function SceneOne(Objs)
     }                                  
     this.update = function()
     {
-        var lDistance = 15.0;
-        light.setPosition(Math.sin(time)*lDistance, 0.0, Math.cos(time)*lDistance);
+        var lDistance = 20.0;
+        light.setPosition(Math.sin(time/2.0)*lDistance, 0.0, Math.cos(time/2.0)*lDistance);
         glClear(); //clears the screen
         handleTime();
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime);

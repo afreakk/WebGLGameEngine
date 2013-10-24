@@ -14,7 +14,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     }
     function init(drawObjs,objs,shaderStruct)
     {
-        var cannPos = vec3.fromValues(0,10,15);
+        var cannPos = vec3.fromValues(0,2,30);
         cannon = new gObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos,5);
         initCannonBallShape(objs);
     }
