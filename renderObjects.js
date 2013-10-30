@@ -174,9 +174,23 @@ function Translations()
     this.calcMatrix = function()
     {
         var cMatrix = mat4.create();
-        mat4.fromRotationTranslation(cMatrix,this.rot,this.pos);
+        if(!offset)
+            mat4.fromRotationTranslation(cMatrix,this.rot,this.pos);
+        else
+        {
+            var offPos = vec3.create();
+            vec3.add(offPos,this.pos,this.posOffset);
+            mat4.fromRotationTranslation(cMatrix,this.rot,offPos);
+        }
         return cMatrix;
-    }    
+    }
+    var offset = false;
+    this.posOffset;
+    this.setPosOffset=function(vec)
+    {
+        this.posOffset = vec;
+        offset = true;
+    }
     this.getPos = function()
     {
         return this.pos;
