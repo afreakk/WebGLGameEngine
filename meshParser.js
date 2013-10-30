@@ -107,123 +107,130 @@ function parseObj(obj,model)
         }
     }
     for(var i=0; i<lines.length; i++)
-{
-    if(lines[i][0]+lines[i][1] === ('f '))
     {
-        var line = lines[i].slice(2).split(' ');
-        for(var j=0; j<line.length; j++)
+        if(lines[i][0]+lines[i][1] === ('f '))
         {
-            var indices = line[j].split('/');
-            if(line[j] in duplicateCheck)
+            var line = lines[i].slice(2).split(' ');
+            for(var j=0; j<line.length; j++)
             {
-                model.meshes[meshIndex].indexes.push(duplicateCheck[line [j] ]);
-                model.materialIndex.push(model.indexedMaterialNames[matIndex]);
-            }
-            else
-            {
-                model.vertexes.push( vertexes[ (indices[0]-1)*3]);
-                model.vertexes.push( vertexes[ (indices[0]-1)*3+1]);
-                model.vertexes.push( vertexes[ (indices[0]-1)*3+2]);
-
-                if(isNaN(textCord[(indices[1]-1)*2]))
+                var indices = line[j].split('/');
+                if(line[j] in duplicateCheck)
                 {
-                    model.textCord.push(0.0);
-                    model.textCord.push(0.0);
+                    model.meshes[meshIndex].indexes.push(duplicateCheck[line [j] ]);
+                    model.totalIndexes.push(duplicateCheck[line[j]]);
+                    model.materialIndex.push(model.indexedMaterialNames[matIndex]);
                 }
                 else
                 {
-                    model.textCord.push( textCord[ (indices[1]-1)*2  ]);
-                    model.textCord.push( textCord[ (indices[1]-1)*2+1]);
-                }
-                if(isNaN(normals[ (indices[2]-1)*3 ]))
-                {
-                    model.normals= null;
-                    alert('no normals in line: '+line[j]);
-                }
-                else
-                {
-                    model.normals.push( normals[    (indices[2]-1)*3  ]);
-                    model.normals.push( normals[    (indices[2]-1)*3+1]);
-                    model.normals.push( normals[    (indices[2]-1)*3+2]);
-                }
+                    model.vertexes.push( vertexes[ (indices[0]-1)*3]);
+                    model.vertexes.push( vertexes[ (indices[0]-1)*3+1]);
+                    model.vertexes.push( vertexes[ (indices[0]-1)*3+2]);
 
-                duplicateCheck[line[j]] = index;
-                model.meshes[meshIndex].indexes.push(index);
-                model.materialIndex.push(model.indexedMaterialNames[matIndex]);
-                index++;
+                    if(isNaN(textCord[(indices[1]-1)*2]))
+                    {
+                        model.textCord.push(0.0);
+                        model.textCord.push(0.0);
+                    }
+                    else
+                    {
+                        model.textCord.push( textCord[ (indices[1]-1)*2  ]);
+                        model.textCord.push( textCord[ (indices[1]-1)*2+1]);
+                    }
+                    if(isNaN(normals[ (indices[2]-1)*3 ]))
+                    {
+                        model.normals= null;
+                        alert('no normals in line: '+line[j]);
+                    }
+                    else
+                    {
+                        model.normals.push( normals[    (indices[2]-1)*3  ]);
+                        model.normals.push( normals[    (indices[2]-1)*3+1]);
+                        model.normals.push( normals[    (indices[2]-1)*3+2]);
+                    }
+
+                    duplicateCheck[line[j]] = index;
+                    model.meshes[meshIndex].indexes.push(index);
+                    model.totalIndexes.push(index);
+                    model.materialIndex.push(model.indexedMaterialNames[matIndex]);
+                    index++;
+                }
             }
         }
-    }
-    else if(lines[i][0]+lines[i][1]+lines[i][2]+lines[i][3]+lines[i][4]+lines[i][5]=='usemtl')
-    {
-        if(!model.meshes[meshIndex])
+        else if(lines[i][0]+lines[i][1]+lines[i][2]+lines[i][3]+lines[i][4]+lines[i][5]=='usemtl')
+        {
+            if(!model.meshes[meshIndex])
+                newMesh();
+            var line = lines[i].slice(7);
+            matIndex++;
+            model.indexedMaterialNames[matIndex] = line;
+            model.meshes[meshIndex].materialNames.push(line);
+        }
+        else if(lines[i][0]+lines[i][1] == 'o ')
             newMesh();
-        var line = lines[i].slice(7);
-        matIndex++;
-        model.indexedMaterialNames[matIndex] = line;
-        model.meshes[meshIndex].materialNames.push(line);
     }
-    else if(lines[i][0]+lines[i][1] == 'o ')
-        newMesh();
+    function newMesh()
+    {
+        meshIndex++;
+        model.meshes[meshIndex] = new MeshHolder();
+    }
+    return model;
 }
-function newMesh()
-{
-    meshIndex++;
-    model.meshes[meshIndex] = new MeshHolder();
-}
-return model;
-}
-var numTexturesLoaded=0;
-var numTextures = 0;
+    var numTexturesLoaded=0;
+    var numTextures = 0;
 function MeshHolder()
 {
-this.indexes = new Array();
-this.materialNames = new Array();
+    this.indexes = new Array();
+    this.materialNames = new Array(); //maybe for later purposes
 }
 function ModelHolder()
 {
-this.meshes = new Array();
-this.materialNames = new Array();
-this.materialInfo = new Array();
-this.materialIndex = new Array();
-this.indexedMaterialNames = new Array;
-this.vertexes= new Array();
-this.textCord= new Array();
-this.normals = new Array();
-this.diffuseArray = new Array();
-this.ambientArray = new Array();
-this.specularArray = new Array();
-this.textures= new Array();
-this.textureBuffers = new Array();
-this.textureGLSLLocations = new Array();
-this.generateDiffColor=function()
-{
-    var currentMat = 0;
-    for(var i=0,k=0; i<this.materialIndex.length; i++,k+=3)
-    {   
-        if(this.materialIndex[i] === this.materialNames[currentMat].name)
-            this.materialIndex[i] = currentMat;
-        else
-        {
-            var j=0;
-            while(this.materialIndex[i]!== this.materialNames[j].name)
-                j++;
-            currentMat = j;
+    this.totalIndexes= new Array();
+    this.meshes = new Array();
+    this.materialNames = new Array();
+    this.materialInfo = new Array();
+    this.materialIndex = new Array();
+    this.indexedMaterialNames = new Array;
+    this.vertexes= new Array();
+    this.textCord= new Array();
+    this.normals = new Array();
+    this.diffuseArray = new Array();
+    this.ambientArray = new Array();
+    this.specularArray = new Array();
+    this.textures= new Array();
+    this.textureBuffers = new Array();
+    this.textureGLSLLocations = new Array();
+    this.generateDiffColor=function()
+    {
+        var currentMat = 0;
+        for(var i=0,k=0; i<this.materialIndex.length; i++,k+=3)
+        {   
+            if(this.materialIndex[i] === this.materialNames[currentMat].name)
+            {
+                this.materialIndex[i] = currentMat;
+            }
+            else
+            {
+                var j=0;
+                while(this.materialIndex[i]!== this.materialNames[j].name)
+                {
+                    j++;
+                }
+                currentMat = j;
+            }
+            var name = this.materialNames[currentMat].name;
+            this.diffuseArray[k] = this.materialInfo[name].diffuse[0];
+            this.diffuseArray[k+1] = this.materialInfo[name].diffuse[1];
+            this.diffuseArray[k+2] = this.materialInfo[name].diffuse[2];
+
+            this.ambientArray[k] = this.materialInfo[name].ambient[0];
+            this.ambientArray[k+1] = this.materialInfo[name].ambient[1];
+            this.ambientArray[k+2] = this.materialInfo[name].ambient[2];
+
+            this.specularArray[k] = this.materialInfo[name].specular[0];
+            this.specularArray[k+1] = this.materialInfo[name].specular[1];
+            this.specularArray[k+2] = this.materialInfo[name].specular[2];
         }
-        var name = this.materialNames[currentMat].name;
-        this.diffuseArray[k] = this.materialInfo[name].diffuse[0];
-        this.diffuseArray[k+1] = this.materialInfo[name].diffuse[1];
-        this.diffuseArray[k+2] = this.materialInfo[name].diffuse[2];
-
-        this.ambientArray[k] = this.materialInfo[name].ambient[0];
-        this.ambientArray[k+1] = this.materialInfo[name].ambient[1];
-        this.ambientArray[k+2] = this.materialInfo[name].ambient[2];
-
-        this.specularArray[k] = this.materialInfo[name].specular[0];
-        this.specularArray[k+1] = this.materialInfo[name].specular[1];
-        this.specularArray[k+2] = this.materialInfo[name].specular[2];
     }
-}
     this.loadTextures=function(completionCallback,models,canvas)
     {
         for(var i=0; i<this.materialNames.length; i++)
@@ -290,6 +297,7 @@ function iModel(bufferData)
     this.numMeshes=         bufferData.meshes.length;
     this.texGLSLlocs =      bufferData.textureGLSLLocations;
     this.vertexPoints =     bufferData.vertexes;
+    this.tIndex =       bufferData.totalIndexes;
     this.vB=            gl.createBuffer();
     this.uvB =          gl.createBuffer();
     this.nB =           gl.createBuffer();
@@ -336,8 +344,6 @@ function iModel(bufferData)
     for(var i=0; i<this.numMeshes; i++)
     {
         this.iB[i] = gl.createBuffer();
-    
-   
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,this.iB[i]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(bufferData.meshes[i].indexes),gl.STATIC_DRAW);
         this.iB[i].numItems = bufferData.meshes[i].indexes.length;
