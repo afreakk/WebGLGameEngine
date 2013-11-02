@@ -6,7 +6,10 @@ function SceneOne(Objs)
     var time=0;
     var light=null;
     var dirLight = null;
+
     var ledge=null;
+    var dk=null;
+
     this.canvas=null;
     this.camera0=null;
     this.camera1=null;
@@ -29,8 +32,8 @@ function SceneOne(Objs)
     {
         pWorld = new PhysicsWorld();
 
-        var cPos0    = vec3.fromValues(0.0,10.0,30.0);
-        var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
+        var cPos0    = vec3.fromValues(0.0,1.0,10.0);
+        var cLookAt = vec3.fromValues(0.0,0.0,0.0);
         this.camera0 = new Camera(this.drawObjs, cPos0,cLookAt,shaderStruct ,  45.0,   0.1,  300.0,    this.canvas,1.0,1.0,0.0,0.0);
 
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
@@ -42,13 +45,18 @@ function SceneOne(Objs)
         var ledgeBuffer = this.objs['ledge'].generateBuffers();
         var ledgePostion = vec3.fromValues(0,0,0);
         ledge = new gObject(this.drawObjs, ledgeBuffer, shaderStruct, ledgePostion, 0, "convex");
+        
+        var dkBuffer = this.objs['dk'].generateBuffers();
+        var dkPosition = vec3.fromValues(0,10,0);
+        dk = new gObject(this.drawObjs,dkBuffer,shaderStruct,dkPosition,10,"convex");
+
         console.log("sceneOne initiated");
     }                                  
     this.update = function()
     {
         var lDistance = 20.0;
         light.setPosition(Math.sin(time)*lDistance, 2.5, Math.cos(time)*lDistance);
-        pWorld.update();
+        pWorld.update(1/60);
         glClear();
         this.camera0.update();
         this.camera0.draw();
