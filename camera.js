@@ -1,10 +1,10 @@
-function Camera(drawObjects, position, look, vMatLoc, pMatLoc, Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
+function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
 {
     this.pos    = position;
     this.rot    = quat.create();
     this.scale  = vec3.fromValues(1.0,1.0,1.0);
-    this.vMatL   = vMatLoc;
-    this.pMatL   = pMatLoc;
+    this.vMatL   = shader.vMat;
+    this.pMatL   = shader.pMat;
     this.fov = Fov;
     this.near = Near;
     this.far = Far;
