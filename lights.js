@@ -5,12 +5,18 @@ function PointLight(shaderStruct, power, color,pos)
     this.shader = shaderStruct;
     this.lightColor = color;
     this.lightPower = power;
+    this.setPosition= function(x,y,z)
+    {
+        this.global.setPosition(x,y,z);
+        gl.uniform3fv(this.shader.lightPosition, this.global.getPos() );
+    }
     this.update = function()
     {
         gl.uniform3fv(this.shader.LightColor, this.lightColor);
         gl.uniform1f(this.shader.LightPower, this.lightPower);
         gl.uniform3fv(this.shader.lightPosition, this.global.getPos() );
     }
+    this.update();
 }
 function DirectionalLight(shaderStruct,vec,power)
 {
