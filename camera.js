@@ -29,6 +29,7 @@ function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vpo
         mat4.lookAt(tempMat,this.pos,center,up);
         this.rot = matToQuat(tempMat);
         setMatrix(tempMat,this.vMatL);
+        this.mtrx = tempMat;
     }
     this.lookAtFrom = function(center,position)
     {
@@ -49,7 +50,6 @@ function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vpo
         this.drawObjs.draw();
     }
     this.update();
-    this.setPerspective(); 
     this.lookAt(look);
 
 }

@@ -184,6 +184,7 @@ function MeshHolder()
 }
 function ModelHolder()
 {
+    this.name;
     this.totalIndexes= new Array();
     this.meshes = new Array();
     this.materialNames = new Array();
@@ -293,6 +294,7 @@ function ModelHolder()
 
 function iModel(bufferData)
 {
+    this.name =             bufferData.name;
     this.tB =               bufferData.textureBuffers;
     this.numMeshes=         bufferData.meshes.length;
     this.texGLSLlocs =      bufferData.textureGLSLLocations;
@@ -360,13 +362,14 @@ function ObjLoader( nameAndURLs, completionCallback ,canvas)
         names.push(name);
         var mtl = URL.slice(0,URL.length-3)+'mtl';
         models[name] = new ModelHolder();
+        models[name].name = name;
         ajaxes.push($.ajax(
         {
                 url: URL,
                 dataType: 'text',
                 success: function( data )
                 {
-                    parseObj( data ,models[name] );
+                    parseObj( data ,models[name] ,name);
                 }
         }));
         ajaxes.push($.ajax(

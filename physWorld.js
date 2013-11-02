@@ -7,9 +7,43 @@ function PhysicsWorld()
     var solver = new Ammo.btSequentialImpulseConstraintSolver();
     var world = new Ammo.btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration); 
     world.setGravity(new Ammo.btVector3(0,-10,0));
+    this.addGhost=function(vec,points)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
+        var shape = new Ammo.btConvexHullShape();
+        var v = new Ammo.btVector3();
+        for(var i=0; i<points.length; i+=3)
+        {
+            v.setX(points[i]);
+            v.setY(points[i+1]);
+            v.setZ(points[i+2]);
+            shape.addPoint( v  );
+        }
+        console.log('made convex from vertexes..');
+        var ghostObject = new Ammo.btPairCachingGhostObject();
+        world.getPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+        ghostObject.setCollisionShape(shape);
+        ghostObject.setWorldTransform(transform);
+        world.addCollisionObject(ghostObject);
+        return ghostObject;
+    }
     this.getWorld = function()
     {
         return world;
+    }
+    this.addBodyHasShape=function(mass,vec,shape)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
+        var localInertia = new Ammo.btVector3(0, 0, 0);
+        var motionState = new Ammo.btDefaultMotionState(transform);
+        var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
+        var body = new Ammo.btRigidBody(rigidInfo);
+        world.addRigidBody(body);
+        return body;
     }
     this.addBody=function(mass,vec,scale)
     {
@@ -39,25 +73,50 @@ function PhysicsWorld()
         var isDynamic = mass !== 0;
         var localInertia = new Ammo.btVector3(0, 0, 0);
         var shape = new Ammo.btConvexHullShape();
-        var vec = new Ammo.btVector3();
+        var v = new Ammo.btVector3();
         for(var i=0; i<points.length; i+=3)
         {
-            vec.setX(points[i]);
-            vec.setY(points[i+1]);
-            vec.setZ(points[i+2]);
-            shape.addPoint( vec  );
+            v.setX(points[i]);
+            v.setY(points[i+1]);
+            v.setZ(points[i+2]);
+            shape.addPoint( v  );
         }
         console.log('made convex from vertexes..');
-/*        var hull = Ammo.btShapehull(shape);
-        var margin = shape.getMargin(); ser ikke ut som det er implementert
-        hull.buildHull(margin);
-        var simplifiedShape = new Ammo.btConvexHullShape(shape.getVertexPointer(),shape.numVerticies());*/
         if(isDynamic)
             shape.calculateLocalInertia(mass, localInertia);
         var motionState = new Ammo.btDefaultMotionState(transform);
         var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
         var body = new Ammo.btRigidBody(rigidInfo);
         world.addRigidBody(body);
+        return body;
+    }
+    this.addBodyTri= function(mass,vec,product)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
+        var isDynamic = mass !== 0;
+        var localInertia = new Ammo.btVector3(0, 0, 0);
+        var triMesh = new Ammo.btTriangleMesh;
+        var v = new Ammo.btVector3();
+        for(var i=0; i<product.tIndex.length; i+=3)
+        {
+            var id0= product.tIndex[i]*3;
+            var id1= product.tIndex[i+1]*3;
+            var id2= product.tIndex[i+2]*3;
+            var v0 = new Ammo.btVector3(product.vertexPoints[id0], product.vertexPoints[id0+1], product.vertexPoints[id0+2]);
+            var v1 = new Ammo.btVector3(product.vertexPoints[id1], product.vertexPoints[id1+1], product.vertexPoints[id1+2]);
+            var v2 = new Ammo.btVector3(product.vertexPoints[id2], product.vertexPoints[id2+1], product.vertexPoints[id2+2]);
+            triMesh.addTriangle(v0,v1,v2);
+        }
+        var shape = new Ammo.btBvhTriangleMeshShape(triMesh,true);
+        if(isDynamic)
+            shape.calculateLocalInertia(mass, localInertia);
+        var motionState = new Ammo.btDefaultMotionState(transform);
+        var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
+        var body = new Ammo.btRigidBody(rigidInfo);
+        world.addRigidBody(body);
+        console.log("trimeshinit");
         return body;
     }
     this.oblig2Shape = function(size,vec,mass)
@@ -105,9 +164,13 @@ function PhysicsWorld()
         world.addRigidBody(body);
         return body;
     }
-    this.update= function()
+    this.update= function(time,slowMo)
     {
-        world.stepSimulation(1/60,10);
+        if(!slowMo)
+            world.stepSimulation(time,100,1/60);
+        else
+            world.stepSimulation(time/slowMo,100,(0.25/60));
+
     }
     this.destroy=function()
     {

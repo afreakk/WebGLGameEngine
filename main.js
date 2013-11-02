@@ -6,8 +6,7 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);
-        ObjLoader({'cat': 'models/cat/cat.obj','tree': 'models/tree/tree_oak.obj', 'ted' : 'models/ted/ted.obj' ,
-                    'amy' : 'models/amy/amyrose.obj', 'cube' : 'models/cube/cube.obj', 'sand' : 'models/sand/sand.obj' },startApp,canvas);
+        ObjLoader({'cube' : 'models/cube/cube.obj','ledge' : 'models/ledge/ledge.obj' },startApp,canvas); //for some reason cube HAS to be loaded idnowy
     }
     else
     {
