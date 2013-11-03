@@ -40,6 +40,7 @@ function getShaderStruct(shaderProgram)
     this.texSamplers[1] = gl.getUniformLocation(shaderProgram, "texSampler1");
     this.texSamplers[2] = gl.getUniformLocation(shaderProgram, "texSampler2");
     this.texSamplers[3] = gl.getUniformLocation(shaderProgram, "texSampler3");
+    this.shadeEqualsOne = gl.getUniformLocation(shaderProgram, "shade");
     this.shader = shaderProgram;
 }
 

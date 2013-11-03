@@ -65,13 +65,29 @@ function PhysicsWorld()
     {
         world.addConstraint(constraint);
     }
+    this.addBodyCylinder=function(radius,height,pos,mass)
+    {
+        var transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(pos[0],pos[1],pos[2]));
+        var isDynamic = mass !==0;
+        var localInertia = new Ammo.btVector3(0,0,0);
+        var shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius,height*0.5,radius));
+        if(isDynamic)
+            shape.calculateLocalInertia(mass, localInertia);
+        var motionState = new Ammo.btDefaultMotionState(transform);
+        var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
+        var body = new Ammo.btRigidBody(rigidInfo);
+        world.addRigidBody(body);
+        return body;
+    }
     this.addBodyConvex= function(mass,vec,points)
     {
         var transform = new Ammo.btTransform();
         transform.setIdentity();
         transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
         var isDynamic = mass !== 0;
-        var localInertia = new Ammo.btVector3(0, 0, 0);
+        var localInertia = new Ammo.btVector3(0, 2, 0);
         var shape = new Ammo.btConvexHullShape();
         var v = new Ammo.btVector3();
         for(var i=0; i<points.length; i+=3)

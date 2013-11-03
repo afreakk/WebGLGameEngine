@@ -4,8 +4,10 @@ function rObject(drawObjects, product,shaderProgram,pos)
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    this.shade = 1;
     this.draw = function() 
 	{
+        gl.uniform1i(this.shader.shadeEqualsOne,this.shade);
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
@@ -45,7 +47,7 @@ function rObject(drawObjects, product,shaderProgram,pos)
     drawObjects.add(this);
     
 }
-function gObject(drawObjects, product,shaderProgram,pos,mass,shape,boxScale)
+function gObject(drawObjects, product,shaderProgram,pos,mass,shape,xArg1,xArg2)
 {
     this.global = new Translations();
     this.global.translate(pos);
@@ -53,6 +55,8 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape,boxScale)
     this.shader  = shaderProgram;
     this.rigidBody = null;
     this.ghost = null;
+    this.shade = 1;
+    this.offset = null;
     if(shape === "triMesh")
         this.rigidBody = pWorld.addBodyTri(mass, pos, product);
     else if(shape == "ghost")
@@ -60,7 +64,9 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape,boxScale)
     else if(shape == "convex")
         this.rigidBody = pWorld.addBodyConvex(mass,pos,product.vertexPoints); 
     else if(shape == "box")
-        this.rigidBody = pWorld.addBody(mass, pos, boxScale);
+        this.rigidBody = pWorld.addBody(mass, pos, xArg1);  //boxScale
+    else if(shape == "cylinder")
+        this.rigidBody = pWorld.addBodyCylinder(xArg1,xArg2, pos, mass); //radius , height
     else if(shape)
         this.rigidBody = pWorld.addBodyHasShape(mass,pos,shape);
     if(this.rigidBody)
@@ -71,15 +77,28 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape,boxScale)
         var btQuat = new Ammo.btQuaternion(this.global.rot[0],this.global.rot[1],this.global.rot[2],this.global.rot[3]);
     }
     var transform = new Ammo.btTransform();
+    this.setOffset = function(matrix)
+    {
+        this.offset = matrix
+    }
     this.draw = function() 
 	{
+        gl.uniform1i(this.shader.shadeEqualsOne,this.shade);
         if(this.rigidBody)
         {
             motionState.getWorldTransform(transform);
             this.global.physicsUpdate(transform);
         }
         setShader(this.shader.shader);
-        setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        if(this.offset)
+        {
+            var out = mat4.create();
+            mat4.multiply(out,this.global.calcMatrix(),this.offset);
+            setMatrix(out,this.shader.mMat);
+        }
+        else
+            setMatrix(this.global.calcMatrix(),this.shader.mMat);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
         gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -209,8 +228,10 @@ function DebugDraw(drawObjects, product,shaderProgram,pos)
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    this.shade = 1;
     this.draw = function() 
 	{
+        gl.uniform1i(this.shader.shadeEqualsOne,this.shade);
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);

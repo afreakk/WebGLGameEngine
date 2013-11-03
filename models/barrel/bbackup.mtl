@@ -1,0 +1,9 @@
+newmtl initialShadingGroup
+illum 4
+Kd 0.60 0.60 0.60
+Ka 0.10 0.10 0.10
+Ks 0.25 0.25 0.25
+Tf 1.00 1.00 1.00
+map_Kd MedBarrelDiffuse.jpg
+bump MedBarrelNormal.jpg -bm 1
+Ni 1.00

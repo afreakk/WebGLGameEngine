@@ -11,6 +11,7 @@ uniform sampler2D texSampler3;
 uniform int samplerCount[4];
 uniform vec3 DirectionalLight;
 uniform float DirectionalPower;
+uniform int shade;
 varying float lightVertDistance;
 varying vec3 EyeDirection_cameraspace;
 varying float matIndexF;
@@ -73,10 +74,18 @@ void main(void) {
         texture = texture2D(texSampler3,uvCoords);
     if(texture.a<0.1)
         discard;
-    float distance = lightVertDistance*lightVertDistance;
-    vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,distance);
-    vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
-    vec3 endColor = ambientColor+pointLight+directionLight;
+    vec3 endColor;
+    if(shade == 1)
+    {
+        float distance = lightVertDistance*lightVertDistance;
+        vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,distance);
+        vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
+        endColor = ambientColor+pointLight+directionLight;
+    }
+    else
+    {
+        endColor = texture.rgb*diffuseColor;
+    }
     gl_FragColor = vec4(endColor,texture.a);
 
 }
