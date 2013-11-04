@@ -12,6 +12,8 @@
     <script src='gl-matrix/mat3.js'></script>
     <script src='gl-matrix/mat4.js'></script>
     <script src='gl-matrix/quat.js'></script>
+    <script src='multicrew.js'></script>
+    <script src='label.js'></script>
     <script src='ammo.js'></script>
     <script src='webgl-utils.js'></script>
     <script src='main.js'></script>
@@ -49,9 +51,19 @@
             background: #000000;
             margin:0;
         }
+        #panel
+        {
+            background:     transparent;
+            display:        block;
+            height:         400px;
+            position:       absolute;
+            width:          1000px;
+            top: 0;
+        }
 </style>
 </head>
 <body>
 <canvas id="lerret" style="border: none; position: relative; left: 0" width="window.innerWidth" height="window.innerHeight" ></canvas>
+<canvas id="panel"></canvas>
 </body>
 </html>

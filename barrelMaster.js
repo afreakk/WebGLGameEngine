@@ -16,6 +16,24 @@ function BarrelMaster(meshBuffer,drawContainer,shaderStructX)
     var forceVec = null;
     var relPos = null;
     var timeBetween = 2.0;
+    var zValue = 0.0;
+    this.setZ=function(value)
+    {
+        zValue= value;
+    }
+    this.reset=function()
+    {
+        while(barrelArray.length > 0)
+        {
+            barrelArray[barrelArray.length-1].dontRender();
+            pWorld.removeBody(barrelArray[barrelArray.length-1].rigidBody);
+            barrelArray.pop();
+        }
+    }
+    this.decreaseTimeBetween= function()
+    {
+        timeBetween -= timeBetween/2.5;
+    }
     function init(meshBuffer,drawContainer,shaderStructX)
     {
         barrelBuffer = meshBuffer;
@@ -40,8 +58,7 @@ function BarrelMaster(meshBuffer,drawContainer,shaderStructX)
     this.update=function(time,dt)
     {
         var posSwitcher = Math.random()*16.0;
-        timeBetween -= (dt/8.0)/(1.0+time/4.0);
-        var fromPos = vec3.fromValues(8.0-posSwitcher,2.5,-10);
+        var fromPos = vec3.fromValues(8.0-posSwitcher,2.5,zValue);
         if(time%timeBetween<0.1)
         {
             if(!hasSent)

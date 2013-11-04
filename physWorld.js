@@ -7,6 +7,34 @@ function PhysicsWorld()
     var solver = new Ammo.btSequentialImpulseConstraintSolver();
     var world = new Ammo.btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration); 
     world.setGravity(new Ammo.btVector3(0,-10,0));
+    this.collideHigherThan=function(bodyA,height)
+    {
+        var count = world.getDispatcher().getNumManifolds();
+        var isBody = false;
+        for (var i=0; i < count;i++)
+        {
+            var contactManifold =  world.getDispatcher().getManifoldByIndexInternal(i);
+
+            var obAptr = contactManifold.getBody0();
+            var obBptr = contactManifold.getBody1();
+            var obA = new Ammo.wrapPointer(obAptr,Ammo.btRigidBody);
+            var obB = new Ammo.wrapPointer(obBptr,Ammo.btRigidBody);
+            var bodyPos = bodyA.getCenterOfMassPosition();
+            var posB = obB.getCenterOfMassPosition();
+            var posA = obA.getCenterOfMassPosition();
+            if(posA.getX() == bodyPos.getX() && posA.getY() == bodyPos.getY() && posA.getZ() == bodyPos.getZ())
+                if(posB.getY()>height)
+                    isBody = true;
+            else if(posB.getX() == bodyPos.getX() && posB.getY() == bodyPos.getY() && posB.getZ() == bodyPos.getZ())
+                if(posA.getY()>height)
+                    isBody = true;
+        }   
+        return isBody;
+    }
+    this.removeBody=function(body)
+    {
+        world.removeRigidBody(body);
+    }
     this.addGhost=function(vec,points)
     {
         var transform = new Ammo.btTransform();

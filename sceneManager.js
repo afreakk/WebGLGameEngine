@@ -21,7 +21,15 @@ function SceneManager(Canvas)
             this.currentScene = this.sceneArray[index];
             this.resizeH.setScene(this.currentScene);
             this.currentScene.GLSettings();
-            this.currentScene.init();
+            if(!this.currentScene.noInit)
+            {
+                this.currentScene.loadShaders();
+                this.currentScene.init();
+            }
+            else
+            {
+                this.currentScene.resetLvl();
+            }
         }
         else
         {
@@ -34,7 +42,9 @@ function SceneManager(Canvas)
         if(!this.currentScene.endScene)
             this.currentScene.update();
         else
-            this.setLvl(this.currentScene.nextLevel);
+        {
+            this.setLvl(this.currentScene.nextLvl);
+        }
     }
 }
 function Manager(Canvas)

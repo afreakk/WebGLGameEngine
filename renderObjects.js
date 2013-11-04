@@ -146,7 +146,12 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape,xArg1,xArg2)
         transform.setRotation(btPos);
         this.ghost.setWorldTransform(transform);
     }
-    drawObjects.add(this);
+    this.dontRender = function()
+    {
+        drawObjs.removeIndex(id);
+    }
+    var id = drawObjects.add(this);
+    var drawObjs = drawObjects;
     
 }
 function activateTexture(texturecount,texture,textureSamplers, index)
