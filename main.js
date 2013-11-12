@@ -1,8 +1,10 @@
 var doc;
+var panelCanvas;
 function webGLStart(document)
 {
     doc = document;
-    var canvas = getCanvas(document); 
+    canvas = getCanvas(document,"lerret"); 
+    panelCanvas = getCanvas(document,"panel");
     mouse.x = 0;
     mouse.y = 0;
     if(gl = initGL(canvas))

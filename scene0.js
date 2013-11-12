@@ -17,6 +17,7 @@ function SceneOne(Objs)
     var startTime = new Date().getTime();
     var cannon = null;
     var castle = null;
+    var panel,label
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -43,11 +44,14 @@ function SceneOne(Objs)
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 1000.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,2.0);
+        dirLight = new DirectionalLight(shaderStruct,direction,4.0);
         console.log("sceneOne initiated");
         initGroundPlane();
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0);
         castle = new Castle(objs,drawObjs,shaderStruct);
+        panel = new multicrew.Panel("panel");
+        label = panel.insert(new multicrew.Label({ title: "MODE: ", text: "0.0", x: this.canvas.width/2, y: this.canvas.height/2+100, 
+        color: "#FFF", titleColor: "#ffff00" }));
     }                                  
     this.update = function()
     {
@@ -63,6 +67,8 @@ function SceneOne(Objs)
     }
     function generalUpdate()
     {
+        panel.clear()
+        panel.draw()
         if(cannon.getSlow()==true)
         {
             pWorld.update(deltaTime,50.0); //and this

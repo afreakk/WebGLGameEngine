@@ -14,7 +14,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     }
     function init(drawObjs,objs,shaderStruct)
     {
-        var cannPos = vec3.fromValues(0,2,30);
+        var cannPos = vec3.fromValues(0,-11,190);
         cannon = new rObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos);
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
@@ -109,22 +109,27 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     function cameraLookAt(deltaTime)
     {
         if(key.Q)
+        {
             aCannonI=null;
+            slowMo = false;
+        }
+        if(key.E)
+        {
+            slowMo = true;
+        }
         if(aCannonI!==null)
         {
             if(bulCamLerp<0.9)
-                bulCamLerp += deltaTime/24.0;
+                bulCamLerp += deltaTime/4.0;
             var lookFrom = vec3.create();
             var lerpFrom = vec3.create();
             vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(0,4,5));
             vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
-            slowMo=true;
         }
         else
         {
             camera.lookAtFrom(cannon.global.getPos(),pos);
-            slowMo=false;
         }
     }
     var cannonPos=0;

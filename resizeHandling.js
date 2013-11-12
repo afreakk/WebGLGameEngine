@@ -10,11 +10,15 @@ function resizeHandling(Canvas)
     {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        panelCanvas.width= window.innerWidth;
+        panelCanvas.height = window.innerHeight;
     }
     this.resizeCanvas = function() 
     {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        panelCanvas.width= window.innerWidth;
+        panelCanvas.height = window.innerHeight;
         this.scene.update();
     }    
     this.canvas = Canvas;

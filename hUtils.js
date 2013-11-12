@@ -83,9 +83,9 @@ function setAttribs(attribLocArray)
     }
 }
 setAttribs.aLocArr= new Array();
-function getCanvas(document)
+function getCanvas(document,name)
 {
-    var canvas = document.getElementById("lerret");
+    var canvas = document.getElementById(name);
     return canvas;
 }
 
