@@ -38,6 +38,10 @@ function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vpo
         tempMat = mat4.lookAt(tempMat, this.pos,center,up);
         this.mtrx = tempMat;               //enten saa funker ikek setMatrixPR som den skal ELLER så funker ikke matToQuat som den skal, noe er galt iaf
     }                                      //overrider setmatrixPR med setmatrix this.mtrx,, ta tak i det !! todooo i morra
+    this.getPos = function()
+    {
+        return this.pos;
+    }
     this.update = function()
     {
         this.setPerspective();

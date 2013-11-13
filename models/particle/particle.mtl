@@ -1,0 +1,11 @@
+# Blender MTL File: 'plane.blend'
+# Material Count: 1
+newmtl wtf
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.1 0.1 0.1
+Ks 0.25 0.25 0.25
+d 1
+illum 2
+map_Kd tex.png
+

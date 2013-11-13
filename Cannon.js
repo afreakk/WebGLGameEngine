@@ -1,20 +1,42 @@
-function CannonControl(drawObjs,objs,shaderStruct,Camera)
+function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
 {
     var slowMo = false;
-    var cDistance = 15.0;
     var cannon = null;
     var camera = Camera;
     var cannonBallShape = null;
     var cannonBalls = new Array();
     var buffer = null;
     var mass = 19;
+    var labelMode = null;
+    var stringNormal = "Normal Time";
+    var stringSlowMotion = "Slow Motion";
+    var currentModeString = "";
+
+    var xCamDistance = 6.0;
+    var yCamDistance = 1.4;
+    var zCamDistance = 6.0;
+
+    function initGUI(panel)
+    {
+        labelMode = new multicrew.Label({ title: "MODE: ", text: currentModeString, x: this.canvas.width/8, y: this.canvas.height-this.canvas.height/8.0, 
+        color: "#FFF", titleColor: "#ffff00" })
+        panel.insert(labelMode);
+    }
+    function updateGUI()
+    {
+        if(slowMo)
+            currentModeString = stringSlowMotion;
+        else
+            currentModeString = stringNormal;
+        labelMode.text = currentModeString;
+    }
     this.getSlow=function()
     {
         return slowMo;
     }
     function init(drawObjs,objs,shaderStruct)
     {
-        var cannPos = vec3.fromValues(0,-11,190);
+        var cannPos = vec3.fromValues(0,-11,180);
         cannon = new rObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos);
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
@@ -31,6 +53,8 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
             steerCannon(vector,deltaTime);
         else
             steerBullet(deltaTime);
+
+        updateGUI();
     }
     bulletVel = new Ammo.btVector3(0,0,0);
     function steerBullet(deltaTime)
@@ -60,7 +84,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
         cannonBallShape = new Ammo.btSphereShape(radius);
         cannonBallShape.calculateLocalInertia(mass, localInertia);
     }
-    var turnTorq = new Ammo.btVector3(0,0,0);
     var backwards = vec3.fromValues(0,0,1);
     var up = vec3.fromValues(0,1,0);
     var right = vec3.fromValues(1,0,0);
@@ -82,7 +105,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     {
         xAngle = 0.0;
         yAngle = 0.0;
-        var speed = deltaTime*1.0;
+        var speed = deltaTime*0.5;
         aLock = Math.PI/4.0;
         if(key.Left&&yTotal<aLock)
             yAngle += speed;
@@ -123,7 +146,8 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
                 bulCamLerp += deltaTime/4.0;
             var lookFrom = vec3.create();
             var lerpFrom = vec3.create();
-            vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(0,4,5));
+            vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(xCamDistance,yCamDistance,zCamDistance));
+
             vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
         }
@@ -139,7 +163,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     {
         var turnSpeed = deltaTime;
         pos = vec3.create();
-        var backwardsXX = vec3.fromValues(backwards[0]*cDistance,backwards[1]+cDistance/2.0,backwards[2]*cDistance);
+        var backwardsXX = vec3.fromValues(backwards[0]*xCamDistance,backwards[1]+yCamDistance,backwards[2]*zCamDistance);
         vec3.add(pos, cannon.global.getPos(), backwardsXX);
     }
     var aCannonI=null;
@@ -169,6 +193,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera)
     function updateCannonBalls()
     {
     }
+    initGUI(panel);
     init(drawObjs,objs,shaderStruct);
 }
 function setVel(vel,dir,speed)

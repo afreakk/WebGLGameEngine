@@ -71,7 +71,7 @@ void main(void) {
         texture = texture2D(texSampler2,uvCoords);
     else if(matIndex == samplerCount[3])
         texture = texture2D(texSampler3,uvCoords);
-    if(texture.a<0.1)
+    if(texture.a<0.2)
         discard;
     float distance = lightVertDistance*lightVertDistance;
     vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,distance);

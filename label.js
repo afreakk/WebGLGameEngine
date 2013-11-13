@@ -41,7 +41,7 @@ multicrew.Label.prototype.draw = function()
 		this.init();
 	
 	var style = this.parent.context.fillStyle;
-	this.parent.context.clearRect(this.x*(scaleW), (this.y)*(scaleH) - this.height, this.width,(this.height * 1.2));
+	this.parent.context.clearRect(this.x*(scaleW), (this.y)*(scaleH) - this.height*scaleH, this.width*scaleW,(this.height * 1.2));
 	this.parent.context.save();
 	this.parent.context.font = this.font;
 	this.parent.context.fillStyle = this.color;
@@ -55,8 +55,8 @@ multicrew.Label.prototype.draw = function()
 		size.width = this.parent.context.measureText(this.title).width;
 		
 		this.parent.context.font = this.parent.context.font.replace(/[0-9]*[^px]/, size.height * 2);
-		this.parent.context.clearRect((this.x)*scaleW + (this.width / 2) - (size.width / 2), (this.y)*scaleH - (size.height * 2), size.width
-        , size.height * 1.2);
+		this.parent.context.clearRect((this.x)*scaleW + (this.width / 2)*scaleW - (size.width / 2)*scaleW, (this.y)*scaleH - (size.height * 2)*scaleW, 
+        size.width*scaleW, (scaleW*size.height) * 1.2);
         this.parent.context.fillStyle = this.titleColor;
 		this.parent.context.fillText(this.title, (this.x + (this.width / 2) - (size.width / 2))*scaleW, (this.y - (size.height * 2))*scaleH);
 		this.parent.context.font = this.font;

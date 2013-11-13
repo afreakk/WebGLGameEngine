@@ -43,7 +43,22 @@ function rObject(drawObjects, product,shaderProgram,pos)
        // debugDraw.draw();
 	}
     drawObjects.add(this);
-    
+    var drawIndex = drawObjects.add(this);
+    var drawObjs = drawObjects;
+    this.isHidden = false;
+    this.setHidden = function(hidden)
+    {
+        if( !hidden && this.isHidden!=hidden )
+        {
+            drawObjs.show(drawIndex,this);
+            this.isHidden = false;
+        }
+        else if(hidden && this.isHidden!=hidden )
+        {
+            drawObjs.hide(drawIndex);
+            this.isHidden = true;
+        }
+    }
 }
 function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
 {
@@ -125,7 +140,22 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
         transform.setRotation(btPos);
         this.ghost.setWorldTransform(transform);
     }
-    drawObjects.add(this);
+    var drawIndex = drawObjects.add(this);
+    var drawObjs = drawObjects;
+    this.isHidden = false;
+    this.setHidden = function(hidden)
+    {
+        if( !hidden && isHidden!=hidden )
+        {
+            drawObjs.add(this);
+            isHidden = false;
+        }
+        else if(hidden && isHidden!=hidden )
+        {
+            drawObjs.removeIndex(drawIndex);
+            isHidden = true;
+        }
+    }
     
 }
 function activateTexture(texturecount,texture,textureSamplers, index)

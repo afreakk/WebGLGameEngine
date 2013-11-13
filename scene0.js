@@ -17,7 +17,8 @@ function SceneOne(Objs)
     var startTime = new Date().getTime();
     var cannon = null;
     var castle = null;
-    var panel,label
+    var panel;
+    var prtcl;
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -27,6 +28,8 @@ function SceneOne(Objs)
         shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
+        gl.enable (gl.BLEND);
+        gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
     function initGroundPlane()
     {
@@ -35,6 +38,7 @@ function SceneOne(Objs)
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
+        panel = new multicrew.Panel("panel");
         pWorld = new PhysicsWorld();
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
@@ -44,15 +48,13 @@ function SceneOne(Objs)
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 1000.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,4.0);
+        dirLight = new DirectionalLight(shaderStruct,direction,5.0);
         console.log("sceneOne initiated");
         initGroundPlane();
-        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0);
+        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel);
         castle = new Castle(objs,drawObjs,shaderStruct);
-        panel = new multicrew.Panel("panel");
-        label = panel.insert(new multicrew.Label({ title: "MODE: ", text: "0.0", x: this.canvas.width/2, y: this.canvas.height/2+100, 
-        color: "#FFF", titleColor: "#ffff00" }));
-    }                                  
+        prtcl = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),2,vec3.fromValues(0.1,0.1,0.1));
+    }   
     this.update = function()
     {
         var lDistance = 20.0;
@@ -62,6 +64,7 @@ function SceneOne(Objs)
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime);
         castle.update(deltaTime);
         generalUpdate();//
+        prtcl.update(camera0.getPos(),deltaTime);
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
     }
