@@ -1,25 +1,31 @@
 function DrawableObjects()
 {
     var objects = new Array();
-    this.add=function(obj)
+    this.add = function(obj)
     {
         objects.push(obj);
-        return objects.length-1;
+        return (objects.length-1);
     }
-    this.draw=function()
+    this.draw = function()
     {
         for(var i=0; i<objects.length; i++)
+        {
             if( objects[i] != null)
+            {
                 objects[i].draw();
+            }
+            else
+            {
+
+            }
+        }
     }
     this.hide = function(index)
     {
-        if(index>-1)
-            objects[index] = null;
+        objects[index] = null;
     }
     this.show = function(index,obj)
     {
-        if(index>-1)
-            objects[index] = obj;
+        objects[index] = obj;
     }
 }

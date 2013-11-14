@@ -15,7 +15,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     var xCamDistance = 6.0;
     var yCamDistance = 1.4;
     var zCamDistance = 6.0;
-
+    var explosion = null;
     function initGUI(panel)
     {
         labelMode = new multicrew.Label({ title: "MODE: ", text: currentModeString, x: this.canvas.width/8, y: this.canvas.height-this.canvas.height/8.0, 
@@ -24,10 +24,12 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     }
     function updateGUI()
     {
-        if(slowMo)
+        if(slowMo){
             currentModeString = stringSlowMotion;
-        else
+        }
+        else{
             currentModeString = stringNormal;
+        }
         labelMode.text = currentModeString;
     }
     this.getSlow=function()
@@ -41,6 +43,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
         initCannonBallShape(objs);
+        explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),2,vec3.fromValues(0.1,0.1,0.1));
     }
     this.update=function(vector,deltaTime) 
     {
@@ -55,6 +58,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             steerBullet(deltaTime);
 
         updateGUI();
+        explosion.update(camera.getPos(),deltaTime);
     }
     bulletVel = new Ammo.btVector3(0,0,0);
     function steerBullet(deltaTime)
@@ -106,7 +110,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         xAngle = 0.0;
         yAngle = 0.0;
         var speed = deltaTime*0.5;
-        aLock = Math.PI/4.0;
+        aLock = Math.PI/6.0;
         if(key.Left&&yTotal<aLock)
             yAngle += speed;
         else if(key.Right&&yTotal>-aLock)
@@ -184,6 +188,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             cannonBalls[i].rigidBody.setFriction(0.1);
             aCannonI= i;
             bulCamLerp=0.0;
+            explosion.wake();
         }
         else if(!key.SPACE)
         {

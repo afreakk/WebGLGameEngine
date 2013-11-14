@@ -18,7 +18,6 @@ function SceneOne(Objs)
     var cannon = null;
     var castle = null;
     var panel;
-    var prtcl;
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -53,7 +52,6 @@ function SceneOne(Objs)
         initGroundPlane();
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel);
         castle = new Castle(objs,drawObjs,shaderStruct);
-        prtcl = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),2,vec3.fromValues(0.1,0.1,0.1));
     }   
     this.update = function()
     {
@@ -64,7 +62,6 @@ function SceneOne(Objs)
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime);
         castle.update(deltaTime);
         generalUpdate();//
-        prtcl.update(camera0.getPos(),deltaTime);
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
     }

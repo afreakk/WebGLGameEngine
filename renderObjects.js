@@ -42,18 +42,17 @@ function rObject(drawObjects, product,shaderProgram,pos)
        // debugDraw.global.setPosition(this.global.getPos());
        // debugDraw.draw();
 	}
-    drawObjects.add(this);
     var drawIndex = drawObjects.add(this);
     var drawObjs = drawObjects;
     this.isHidden = false;
     this.setHidden = function(hidden)
     {
-        if( !hidden && this.isHidden!=hidden )
+        if( hidden===false && this.isHidden!=hidden )
         {
             drawObjs.show(drawIndex,this);
             this.isHidden = false;
         }
-        else if(hidden && this.isHidden!=hidden )
+        else if(hidden ===true && this.isHidden!=hidden )
         {
             drawObjs.hide(drawIndex);
             this.isHidden = true;
@@ -173,9 +172,10 @@ function Translations()
     this.physicsUpdate= function(transform)
     {
         tPos = transform.getOrigin();
-        this.pos = vec3.fromValues(tPos.x().toFixed(2),tPos.y().toFixed(2),tPos.z().toFixed(2));
+        this.pos = vec3.fromValues(tPos.x(),tPos.y(),tPos.z());
+
         tRot = transform.getRotation();
-        this.rot = quat.fromValues(tRot.x().toFixed(2),tRot.y().toFixed(2),tRot.z().toFixed(2),tRot.w().toFixed(2));
+        this.rot = quat.fromValues(tRot.x(),tRot.y(),tRot.z(),tRot.w());
     }
     this.translate = function(trans)
     {

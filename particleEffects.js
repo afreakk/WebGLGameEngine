@@ -1,15 +1,17 @@
 function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
 {
     var particles = new Array();
-    var cPos = pos;
+    var centerPosition = pos;
     var num = numParticles;
     var scaleX = scale[0];
     var scaleY = scale[1];
     var scaleZ = scale[2];
     var totalNum = 0;
-    var time = 0;
+    var time = 0.0;
     var maxSpeed = 0.1;
     var maxMaxDistance = 0.5
+    var alive = false;
+    this.seconds = 2.0;
     function init(drawObjects,product,shaderProgram)
     {
         for(var y=-num; y<num; y++)
@@ -18,17 +20,15 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
             {
                 for(var z=-num; z<num; z++)
                 {
-                    particles[totalNum]= new rObject(drawObjects,product,shaderProgram,cPos);
+                    particles[totalNum]= new rObject(drawObjects,product,shaderProgram,centerPosition);
                     particles[totalNum].setHidden(true);
                     totalNum ++;
                 }
             }
         }
-
         console.log(totalNum);
     }
-    alive = false;
-    function wake()
+    this.wake = function()
     {
         var i=0;
         for(var y=-num; y<num; y++)
@@ -37,13 +37,13 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
             {
                 for(var z=-num; z<num; z++)
                 {
-                    particles[i].global.setHidden(false);
+                    particles[i].setHidden(false);
                     i ++;
                 }
             }
         }
         alive = true;
-        time = 0;
+        time = 0.0;
     }
     function die()
     {
@@ -55,7 +55,8 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
                 for(var z=-num; z<num; z++)
                 {
                     particles[i].setHidden(true);
-                    particles[i].global.setPosition(cPos);
+                    console.log(centerPosition[0],centerPosition[1],centerPosition[2]);
+                    particles[i].global.setPosition(centerPosition);
                     i ++;
                 }
             }
@@ -101,7 +102,7 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
                     var absPos = vec3.create();
                     vec3.add(absPos,particlePos,mov)
 
-                    if(vec3.distance(absPos,cPos)<maxDistance)
+                    if(vec3.distance(absPos,centerPosition)<maxDistance)
                         particles[i].global.translate(mov);
 
                     i++;
@@ -112,8 +113,12 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
     this.update = function(cameraPosition, dt)
     {
         if(alive)
+        {
             updateParticles(cameraPosition,dt);
-
+            if(time > this.seconds){
+                die();
+            }
+        }
     }
     init(drawObjects,product,shaderProgram);
 }
