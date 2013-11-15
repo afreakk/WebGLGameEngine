@@ -4,8 +4,11 @@ function rObject(drawObjects, product,shaderProgram,pos)
     this.global.translate(pos);
     this.model = product;
     this.shader  = shaderProgram;
+    this.alpha = -1;
     this.draw = function() 
 	{
+        if(this.alpha != -1)
+            gl.uniform1f(this.shader.alpha, this.alpha );
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
@@ -39,6 +42,8 @@ function rObject(drawObjects, product,shaderProgram,pos)
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
             gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
         }
+        if(this.alpha != -1)
+            gl.uniform1f(this.shader.alpha, 1.0  ); //revert back to normal
        // debugDraw.global.setPosition(this.global.getPos());
        // debugDraw.draw();
 	}
@@ -183,7 +188,7 @@ function Translations()
     }
     this.setPosition = function(pos)
     {
-        this.pos = pos;
+        this.pos = vec3.fromValues(pos[0], pos[1], pos[2]);
     }
     this.rotate = function(q)
     {
@@ -191,7 +196,7 @@ function Translations()
     }
     this.setRotation = function(q)
     {
-        this.rot = q;
+        this.rot = quat.fromValues(q[0],q[1],q[2],q[3]);
     }
     this.lookAt = function(vec)
     {

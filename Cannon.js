@@ -43,7 +43,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
         initCannonBallShape(objs);
-        explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),2,vec3.fromValues(0.1,0.1,0.1));
+        explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),3,vec3.fromValues(0.1,0.1,0.1));
     }
     this.update=function(vector,deltaTime) 
     {
@@ -52,11 +52,12 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         cameraLookAt(deltaTime);
         shootCannonBalls();
         updateCannonBalls();
-        if(!slowMo)
+        if(!slowMo) {
             steerCannon(vector,deltaTime);
-        else
+        }
+        else {
             steerBullet(deltaTime);
-
+        }
         updateGUI();
         explosion.update(camera.getPos(),deltaTime);
     }
@@ -144,7 +145,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         {
             slowMo = true;
         }
-        if(aCannonI!==null)
+        /*if(aCannonI!==null)
         {
             if(bulCamLerp<0.9)
                 bulCamLerp += deltaTime/4.0;
@@ -154,7 +155,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
 
             vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
-        }
+        }*/
         else
         {
             camera.lookAtFrom(cannon.global.getPos(),pos);
@@ -188,6 +189,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             cannonBalls[i].rigidBody.setFriction(0.1);
             aCannonI= i;
             bulCamLerp=0.0;
+            explosion.setCenter(cannonBalls[i].global.getPos());
             explosion.wake();
         }
         else if(!key.SPACE)

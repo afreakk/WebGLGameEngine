@@ -17,6 +17,7 @@ varying float matIndexF;
 varying vec3 diffuseColor;
 varying vec3 ambientColor;
 varying vec3 specularColor;
+uniform float alpha;
 vec3 DiffuseSpecPoint(vec3 normal_camSpace, vec3 lightDir_camSpace,vec3 eyeDir_camSpace,vec3 textureRGB, float distance)
 {
     // Normal of the computed fragment, in camera space
@@ -77,6 +78,6 @@ void main(void) {
     vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,distance);
     vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
     vec3 endColor = ambientColor+pointLight+directionLight;
-    gl_FragColor = vec4(endColor,texture.a);
+    gl_FragColor = vec4(endColor,texture.a*alpha);
 
 }

@@ -23,6 +23,7 @@ function SceneOne(Objs)
         var shader = getShader(gl,"vs/vShader","fs/fShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
+        gl.uniform1f(shaderStruct.alpha, 1.0 );
         setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex,shaderStruct.diffColor, 
         shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
