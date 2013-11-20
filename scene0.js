@@ -35,6 +35,8 @@ function SceneOne(Objs)
     {
         var pos = vec3.fromValues(0,-4,0);
         groundPlane = new gObject(drawObjs,objs['ground'].generateBuffers(),shaderStruct,pos,0,"triMesh");
+        groundPlane.rigidBody.setFriction(10.0);
+        
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
@@ -52,7 +54,7 @@ function SceneOne(Objs)
         console.log("sceneOne initiated");
         initGroundPlane();
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel);
-        castle = new Castle(objs,drawObjs,shaderStruct);
+        castle = new Castle(objs,drawObjs,shaderStruct, panel);
     }   
     this.update = function()
     {
@@ -60,8 +62,8 @@ function SceneOne(Objs)
         light.setPosition(Math.sin(time/2.0)*lDistance, 0.0, Math.cos(time/2.0)*lDistance);
         glClear(); //clears the screen
         handleTime();
-        cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime);
-        castle.update(deltaTime);
+        cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.active);
+        castle.update(deltaTime,cannon.getSlow());
         generalUpdate();//
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
@@ -72,7 +74,7 @@ function SceneOne(Objs)
         panel.draw()
         if(cannon.getSlow()==true)
         {
-            pWorld.update(deltaTime,50.0); //and this
+            pWorld.update(deltaTime,10.0); //and this
         }
         else
         {

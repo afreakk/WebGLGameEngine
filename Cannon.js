@@ -6,12 +6,13 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     var cannonBallShape = null;
     var cannonBalls = new Array();
     var buffer = null;
-    var mass = 19;
+    var mass = 1.0;
     var labelMode = null;
     var stringNormal = "Normal Time";
     var stringSlowMotion = "Slow Motion";
     var currentModeString = "";
-
+    var str = 20.1;
+    var wall = null;
     var xCamDistance = 6.0;
     var yCamDistance = 1.4;
     var zCamDistance = 6.0;
@@ -38,18 +39,20 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     }
     function init(drawObjs,objs,shaderStruct)
     {
-        var cannPos = vec3.fromValues(0,-11,180);
+        var cannPos = vec3.fromValues(0,-10.5,180.5);
+        var wallPos = vec3.fromValues(0,-11.3,180);
         cannon = new rObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos);
+        wall = new rObject(drawObjs,objs['wall'].generateBuffers(),shaderStruct,wallPos);
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
         initCannonBallShape(objs);
         explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),3,vec3.fromValues(0.1,0.1,0.1));
     }
-    this.update=function(vector,deltaTime) 
+    this.update=function(vector,deltaTime,castleHit) 
     {
         getDirections();
         updatePos(deltaTime);
-        cameraLookAt(deltaTime);
+        cameraLookAt(deltaTime,castleHit);
         shootCannonBalls();
         updateCannonBalls();
         if(!slowMo) {
@@ -64,7 +67,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     bulletVel = new Ammo.btVector3(0,0,0);
     function steerBullet(deltaTime)
     {
-        var force = 10000;
+        var force = 100;
         bulletVel.setZero();
         if(key.Up)
             setVel(bulletVel,up,force);
@@ -134,28 +137,29 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         cannon.global.rotate(rotateX);
     }
     var bulCamLerp=0.0;
-    function cameraLookAt(deltaTime)
+    this.getSlow= function()
     {
-        if(key.Q)
+        return slowMo;
+    }
+    function cameraLookAt(deltaTime,castleHit)
+    {
+        if(castleHit)
         {
             aCannonI=null;
             slowMo = false;
         }
-        if(key.E)
-        {
-            slowMo = true;
-        }
-        /*if(aCannonI!==null)
+        if(aCannonI!==null)
         {
             if(bulCamLerp<0.9)
-                bulCamLerp += deltaTime/4.0;
+                bulCamLerp += deltaTime/10.0;
             var lookFrom = vec3.create();
             var lerpFrom = vec3.create();
             vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(xCamDistance,yCamDistance,zCamDistance));
 
             vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
-        }*/
+            slowMo = true;
+        }
         else
         {
             camera.lookAtFrom(cannon.global.getPos(),pos);
@@ -181,7 +185,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln,1.2,-backwards[2]*ln));
             cannonBalls.push(new gObject(drawObjs,buffer,shaderStruct,cBPos,mass,cannonBallShape));
             canShot = false;
-            var str = 1300.1;
             var i = cannonBalls.length-1;
             var btbackwards = new Ammo.btVector3(-backwards[0]*str,-backwards[1]*str,-backwards[2]*str);
             cannonBalls[i].rigidBody.applyCentralImpulse(btbackwards);

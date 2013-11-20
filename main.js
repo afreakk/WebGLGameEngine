@@ -11,7 +11,8 @@ function webGLStart(document)
     {
         glMatrix.setMatrixArrayType(Float32Array);
         ObjLoader({'brick': 'models/brick/brick.obj' , 'ground': 'models/ground/ground.obj' ,
-                    'cannon':'models/cannon/cannon.obj','cannonBall':'models/cannonball/cannonBall.obj', 'particle':'models/particle/particle.obj'},startApp,canvas);
+                    'cannon':'models/cannon/cannon.obj','cannonBall':'models/cannonball/cannonBall.obj', 'particle':'models/particle/particle.obj',
+                    'wall':'models/wall/wall.obj'},startApp,canvas);
 
     }
     else

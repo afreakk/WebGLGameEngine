@@ -6,7 +6,7 @@ function PhysicsWorld()
     var overlappingPairCache = new Ammo.btDbvtBroadphase();
     var solver = new Ammo.btSequentialImpulseConstraintSolver();
     var world = new Ammo.btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration); 
-    world.setGravity(new Ammo.btVector3(0,-10,0));
+    world.setGravity(new Ammo.btVector3(0,-7,0));
     this.addGhost=function(vec,points)
     {
         var transform = new Ammo.btTransform();
