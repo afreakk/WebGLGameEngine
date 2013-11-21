@@ -1,5 +1,6 @@
-function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
+function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
 {
+    var castleZ = castleZposition;
     var slowMo = false;
     var cannon = null;
     var camera = Camera;
@@ -50,10 +51,15 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     }
     this.update=function(vector,deltaTime,castleHit) 
     {
+        if(castleHit)
+        {
+            aCannonI=null;
+            slowMo = false;
+        }
         getDirections();
         updatePos(deltaTime);
         cameraLookAt(deltaTime,castleHit);
-        shootCannonBalls();
+        shootCannonBalls(castleHit);
         updateCannonBalls();
         if(!slowMo) {
             steerCannon(vector,deltaTime);
@@ -78,6 +84,13 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         if(key.Right)
             setVel(bulletVel,right,force);
         updateBulletPos();
+    }
+    this.getBulletPos=function()
+    {
+        if(aCannonI!= null)
+            return cannonBalls[aCannonI].global.getPos();
+        else
+            return null;
     }
     function updateBulletPos()
     {
@@ -143,11 +156,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
     }
     function cameraLookAt(deltaTime,castleHit)
     {
-        if(castleHit)
-        {
-            aCannonI=null;
-            slowMo = false;
-        }
         if(aCannonI!==null)
         {
             if(bulCamLerp<0.9)
@@ -160,13 +168,30 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
             slowMo = true;
         }
+        else if((castleHit&&timeInBirdPerspective<4.0) )
+        {
+            timeInBirdPerspective+= deltaTime;
+            camera.lookAtFrom(vec3.fromValues(0,-12.5,castleZ-12.5),vec3.fromValues(7.5,-7.5,castleZ-4)); 
+            castleTull = false;
+        }
         else
         {
             camera.lookAtFrom(cannon.global.getPos(),pos);
+            castleTull = true;
+        }
+        if (timeInBirdPerspective>4.0 && castleHit == false)
+        {
+            timeInBirdPerspective = 0;
         }
     }
+    this.getTimeInBirdPerspective=function()
+    {
+        return !castleTull;
+    }
+    var castleTull;
+    var timeInBirdPerspective = 0;
     var cannonPos=0;
-    var canShot = true;
+    var canShot = false;
     var pos=null;
     function updatePos(deltaTime)
     {
@@ -176,7 +201,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
         vec3.add(pos, cannon.global.getPos(), backwardsXX);
     }
     var aCannonI=null;
-    function shootCannonBalls()
+    function shootCannonBalls(castleHit)
     {
         if(key.SPACE&&canShot)
         {
@@ -195,7 +220,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel)
             explosion.setCenter(cannonBalls[i].global.getPos());
             explosion.wake();
         }
-        else if(!key.SPACE)
+        else if(timeInBirdPerspective> 4.0)
         {
             canShot = true;
         }

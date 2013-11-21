@@ -1,6 +1,7 @@
-function Castle(objs,drawObjs,shaderStructX,panel)
+function Castle(objs,drawObjs,shaderStructX,panel,zPos)
 {
-    var active = false;
+    var zPosition = zPos;
+    brickHit = true;
 
     var bricks = new Array();
     var shaderStruct = shaderStructX;
@@ -18,7 +19,15 @@ function Castle(objs,drawObjs,shaderStructX,panel)
     var bricksFallen = 0; 
     var labelScore = null;
     var time = 0;
-    this.update=function(deltaTime,cannonSlow)
+    this.getBrickHit=function()
+    {
+        return brickHit;
+    }
+    this.setBrickhit=function(clau)
+    {
+        brickHit = clau;
+    }
+    this.update=function(deltaTime)
     {
         time += deltaTime;
         if(!findOnce&&time>8.0)
@@ -69,7 +78,7 @@ function Castle(objs,drawObjs,shaderStructX,panel)
                             if(lowered)
                                 continue;
                         }
-                        var pos = vec3.fromValues(x*sX-xOff,y*sY-yOff,z*sZ-zOff+180);
+                        var pos = vec3.fromValues(x*sX-xOff,y*sY-yOff,z*sZ-zOff+zPosition);
                         bricks[i] = new gObject(drawObjs,buffer,shaderStruct,pos,brickMass,brickShape);
                         bricks[i].rigidBody.setRestitution(0.0);
                         bricks[i].rigidBody.setFriction(0.5);
@@ -101,13 +110,9 @@ function Castle(objs,drawObjs,shaderStructX,panel)
         }
         if(outOfPlaceBrick>bricksFallen)
         {
-            var active=true;
+            brickHit=true;
         }
         return outOfPlaceBrick;
-    }
-    this.getActive=function()
-    {
-        return active;
     }
     function init(panel)
     {

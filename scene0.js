@@ -17,7 +17,7 @@ function SceneOne(Objs)
     var startTime = new Date().getTime();
     var cannon = null;
     var castle = null;
-    var panel;
+    var panel= null;
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -48,22 +48,26 @@ function SceneOne(Objs)
 //        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
         var lightColor = vec3.fromValues(1.0,1.0,1.0);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
-        light = new PointLight(shaderStruct, 1000.0,lightColor, lightPos);
+        light = new PointLight(shaderStruct, 50.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,5.0);
+        dirLight = new DirectionalLight(shaderStruct,direction,2.5);
         console.log("sceneOne initiated");
         initGroundPlane();
-        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel);
-        castle = new Castle(objs,drawObjs,shaderStruct, panel);
+        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,170);
+        castle = new Castle(objs,drawObjs,shaderStruct, panel,170);
     }   
     this.update = function()
     {
         var lDistance = 20.0;
-        light.setPosition(Math.sin(time/2.0)*lDistance, 0.0, Math.cos(time/2.0)*lDistance);
+        if(cannon.getBulletPos() !== null)
+        {
+            light.setPosition(cannon.getBulletPos()[0],cannon.getBulletPos()[1],cannon.getBulletPos()[2]);
+        }
         glClear(); //clears the screen
         handleTime();
-        cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.active);
-        castle.update(deltaTime,cannon.getSlow());
+        castle.update(deltaTime);
+        cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.getBrickHit());
+        castle.setBrickhit(cannon.getTimeInBirdPerspective());
         generalUpdate();//
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
