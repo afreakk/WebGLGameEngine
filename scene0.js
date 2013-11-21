@@ -46,7 +46,7 @@ function SceneOne(Objs)
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
         camera0 = new Camera(drawObjs, cPos0,cLookAt,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
 //        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
-        var lightColor = vec3.fromValues(1.0,1.0,1.0);
+        var lightColor = vec3.fromValues(1.0,0.95,0.9);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 50.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);

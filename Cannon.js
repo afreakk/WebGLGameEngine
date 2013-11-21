@@ -9,7 +9,9 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var buffer = null;
     var mass = 1.0;
     var labelMode = null;
+    var labelKMH = null;
     var stringNormal = "Normal Time";
+    var kmhString = "0";
     var stringSlowMotion = "Slow Motion";
     var currentModeString = "";
     var str = 20.1;
@@ -21,11 +23,18 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     function initGUI(panel)
     {
         labelMode = new multicrew.Label({ title: "MODE: ", text: currentModeString, x: this.canvas.width/8, y: this.canvas.height-this.canvas.height/8.0, 
-        color: "#FFF", titleColor: "#ffff00" })
+        color: "#FFF", titleColor: "#ffff00" });
+        labelKMH = new multicrew.Label({ title: "KM/H: ", text: kmhString, x: this.canvas.width-this.canvas.width/8, y: this.canvas.height/8.0,
+        color: "#FFF", titleColor: "#ffff00" });
         panel.insert(labelMode);
+        panel.insert(labelKMH);
     }
     function updateGUI()
     {
+        if(cannonBalls.length>0)
+            kmhString = Math.abs( (cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getZ()
+            +cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getX()+cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getZ()).toFixed(2) );
+        labelKMH.text = kmhString;
         if(slowMo){
             currentModeString = stringSlowMotion;
         }

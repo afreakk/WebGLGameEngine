@@ -14,7 +14,7 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
     var currentAlpha = 1.0;
     this.setCenter = function(pos) 
     {
-        centerPosition = vec3.fromValues(pos[0],pos[1],pos[2])
+        centerPosition = vec3.fromValues(pos[0],pos[1]+0.5,pos[2])
     }
     function init(drawObjects,product,shaderProgram)
     {
@@ -71,7 +71,7 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
     function updateParticles(cameraPosition,dt)
     {
         time += dt;
-        currentAlpha -= dt;
+        currentAlpha -= dt/2.0;
         var i=0;
         var moveScale =10.0*dt;
         var maxDistance = maxMaxDistance;
