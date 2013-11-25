@@ -67,6 +67,7 @@ function SceneOne(Objs)
         glClear(); //clears the screen
         handleTime();
         castle.update(deltaTime);
+        cannon.setCanShoot(castle.isAllowedToShoot());
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.getBrickHit());
         if(!cannon.getRollsLeft()&&cannon.getMode() == "aimingMode")
         {

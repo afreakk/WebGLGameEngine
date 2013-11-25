@@ -25,13 +25,14 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var yCamDistance = 1.4;
     var zCamDistance = 6.0;
     var explosion = null;
+    var gutterBall = false;
     function initGUI(panel)
     {
         labelMode = new multicrew.Label({ title: "MODE: ", text: currentModeString, x: this.canvas.width/8, y: this.canvas.height-this.canvas.height/8.0, 
         color: "#FFF", titleColor: "#ffff00" });
         labelKMH = new multicrew.Label({ title: "KM/H: ", text: kmhString, x: this.canvas.width-this.canvas.width/8, y: this.canvas.height/8.0,
         color: "#FFF", titleColor: "#ffff00" });
-        labelShotInfo = new multicrew.Label({ title: stringShotInfo, text: " ", x: this.canvas.width/2.0, y: this.canvas.height/8.0,
+        labelShotInfo = new multicrew.Label({ title: stringShotInfo, text: " ", x: this.canvas.width/2.0, y: this.canvas.height/2.0,
         color: "#FFF", titleColor: "#ffff00" });
         labelRolls = new multicrew.Label({ title: "Rolls left:", text: rollsString, x: this.canvas.width/2.0, y: this.canvas.height-this.canvas.height/8.0,
         color: "#FFF", titleColor: "#ffff00" });
@@ -72,6 +73,10 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         initCannonBallShape(objs);
         explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),3,vec3.fromValues(0.1,0.1,0.1));
     }
+    this.setCanShoot = function(canIt)
+    {
+        parentAllowsShooting = canIt;
+    }
     this.update=function(vector,deltaTime,castleHit) 
     {
         if(castleHit)
@@ -87,7 +92,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         if(!slowMo) {
             steerCannon(vector,deltaTime);
         }
-        else {
+        else if(aCannonI!== null) {
             steerBullet(deltaTime);
         }
         updateGUI();
@@ -119,6 +124,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     {
         cannonBalls[aCannonI].rigidBody.activate();
         cannonBalls[aCannonI].rigidBody.applyCentralForce(bulletVel);
+
     }
     function initCannonBallShape(objs)
     {
@@ -179,13 +185,15 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     function cameraLookAt(deltaTime,castleHit)
     {
-        if(aCannonI!==null)
+        if(timeInBirdPerspective<4.0 && gutterBall)
+            mode = "birdPerspectiveMode";
+        else if(aCannonI!==null)
             mode = "bulletTimeMode";
-        else if((castleHit&&timeInBirdPerspective<4.0) )
+        else if((castleHit&&timeInBirdPerspective<4.0))
             mode = "birdPerspectiveMode";
         else
             mode = "aimingMode";
-        if (timeInBirdPerspective>4.0 && castleHit == false)
+        if (timeInBirdPerspective>4.0 && (castleHit == false))
         {
             timeInBirdPerspective = 0;
         }
@@ -213,6 +221,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         stringShotInfo = "";
         camera.lookAtFrom(cannon.global.getPos(),pos);
         isBirdPerspective = false;
+        gutterBall = false;
     }
     function bulletTimeMode(deltaTime)
     {
@@ -228,6 +237,13 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         if(slowMo == false)
             rollsString -=1;
         slowMo = true;
+
+        if(cannonBalls[aCannonI].global.getPos()[2] < 155)
+        {
+            gutterBall = true;
+            timeInBirdPerspective = 0;
+            typeShotString = "Gutter Ball!";
+        }
     }
     this.setRollsLeft = function(rolls)
     {
@@ -246,6 +262,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var cannonPos=0;
     var canShot = false;
     var pos=null;
+    var parentAllowsShooting=false;
     function updatePos(deltaTime)
     {
         var turnSpeed = deltaTime;
@@ -256,7 +273,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var aCannonI=null;
     function shootCannonBalls(castleHit)
     {
-        if(key.SPACE&&canShot)
+        if(key.SPACE&&canShot&&parentAllowsShooting)
         {
             var ln = 2.0;
             var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
