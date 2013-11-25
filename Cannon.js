@@ -10,10 +10,15 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var mass = 1.0;
     var labelMode = null;
     var labelKMH = null;
+    var labelShotInfo = null;
+    var labelRolls = null;
     var stringNormal = "Normal Time";
+    var stringShotInfo = "";
     var kmhString = "0";
     var stringSlowMotion = "Slow Motion";
     var currentModeString = "";
+    var rollsString = 2;
+    var typeShotString = "";
     var str = 20.1;
     var wall = null;
     var xCamDistance = 6.0;
@@ -26,21 +31,30 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         color: "#FFF", titleColor: "#ffff00" });
         labelKMH = new multicrew.Label({ title: "KM/H: ", text: kmhString, x: this.canvas.width-this.canvas.width/8, y: this.canvas.height/8.0,
         color: "#FFF", titleColor: "#ffff00" });
+        labelShotInfo = new multicrew.Label({ title: stringShotInfo, text: " ", x: this.canvas.width/2.0, y: this.canvas.height/8.0,
+        color: "#FFF", titleColor: "#ffff00" });
+        labelRolls = new multicrew.Label({ title: "Rolls left:", text: rollsString, x: this.canvas.width/2.0, y: this.canvas.height-this.canvas.height/8.0,
+        color: "#FFF", titleColor: "#ffff00" });
+        panel.insert(labelRolls);
         panel.insert(labelMode);
         panel.insert(labelKMH);
+        panel.insert(labelShotInfo);
     }
     function updateGUI()
     {
         if(cannonBalls.length>0)
             kmhString = Math.abs( (cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getZ()
-            +cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getX()+cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getZ()).toFixed(2) );
-        labelKMH.text = kmhString;
+            +cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getX()
+            +cannonBalls[cannonBalls.length-1].rigidBody.getLinearVelocity().getZ()).toFixed(2) );
         if(slowMo){
             currentModeString = stringSlowMotion;
         }
         else{
             currentModeString = stringNormal;
         }
+        labelRolls.text = rollsString;
+        labelShotInfo.title = stringShotInfo;
+        labelKMH.text = kmhString;
         labelMode.text = currentModeString;
     }
     this.getSlow=function()
@@ -166,38 +180,68 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     function cameraLookAt(deltaTime,castleHit)
     {
         if(aCannonI!==null)
-        {
-            if(bulCamLerp<0.9)
-                bulCamLerp += deltaTime/10.0;
-            var lookFrom = vec3.create();
-            var lerpFrom = vec3.create();
-            vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(xCamDistance,yCamDistance,zCamDistance));
-
-            vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
-            camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
-            slowMo = true;
-        }
+            mode = "bulletTimeMode";
         else if((castleHit&&timeInBirdPerspective<4.0) )
-        {
-            timeInBirdPerspective+= deltaTime;
-            camera.lookAtFrom(vec3.fromValues(0,-12.5,castleZ-12.5),vec3.fromValues(7.5,-7.5,castleZ-4)); 
-            castleTull = false;
-        }
+            mode = "birdPerspectiveMode";
         else
-        {
-            camera.lookAtFrom(cannon.global.getPos(),pos);
-            castleTull = true;
-        }
+            mode = "aimingMode";
         if (timeInBirdPerspective>4.0 && castleHit == false)
         {
             timeInBirdPerspective = 0;
         }
+        switch (mode)
+        {
+            case "bulletTimeMode": bulletTimeMode(deltaTime); break;
+            case "birdPerspectiveMode": birdPerspectiveMode(deltaTime); break;
+            case "aimingMode": aimingMode(deltaTime); break;
+        }
     }
-    this.getTimeInBirdPerspective=function()
+    this.getMode = function()
     {
-        return !castleTull;
+        return mode;
     }
-    var castleTull;
+
+    function birdPerspectiveMode(deltaTime)
+    {
+        stringShotInfo = typeShotString;
+        timeInBirdPerspective+= deltaTime;
+        camera.lookAtFrom(vec3.fromValues(0,-12.5,castleZ-12.5),vec3.fromValues(7.5,-7.5,castleZ-4)); 
+        isBirdPerspective = true;
+    }
+    function aimingMode(deltaTime)
+    {
+        stringShotInfo = "";
+        camera.lookAtFrom(cannon.global.getPos(),pos);
+        isBirdPerspective = false;
+    }
+    function bulletTimeMode(deltaTime)
+    {
+        if(bulCamLerp<0.9)
+            bulCamLerp += deltaTime/10.0;
+        var lookFrom = vec3.create();
+        var lerpFrom = vec3.create();
+        vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(xCamDistance,yCamDistance,zCamDistance));
+
+        vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
+        camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
+
+        if(slowMo == false)
+            rollsString -=1;
+        slowMo = true;
+    }
+    this.setRollsLeft = function(rolls)
+    {
+        rollsString = rolls;
+    }
+    this.getRollsLeft=function()
+    {
+        return rollsString;
+    }
+    this.isBirdPerspective=function()
+    {
+        return isBirdPerspective;
+    }
+    var isBirdPerspective;
     var timeInBirdPerspective = 0;
     var cannonPos=0;
     var canShot = false;

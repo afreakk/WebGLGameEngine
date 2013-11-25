@@ -56,6 +56,7 @@ function SceneOne(Objs)
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,170);
         castle = new Castle(objs,drawObjs,shaderStruct, panel,170);
     }   
+    var canResetLane = false;
     this.update = function()
     {
         var lDistance = 20.0;
@@ -67,7 +68,12 @@ function SceneOne(Objs)
         handleTime();
         castle.update(deltaTime);
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.getBrickHit());
-        castle.setBrickhit(cannon.getTimeInBirdPerspective());
+        if(!cannon.getRollsLeft()&&cannon.getMode() == "aimingMode")
+        {
+            castle.reset();
+            cannon.setRollsLeft(2);
+        }
+        castle.setBrickhit(cannon.isBirdPerspective());
         generalUpdate();//
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();

@@ -25,8 +25,8 @@ multicrew.Panel = function(canvas)
 multicrew.Panel.prototype.insert = function(element)
 {
 	element.parent = this;
-	element.draw = (element.draw || {});
-	element.init = (element.init || {});
+	element.draw = (element.draw);
+	element.init = (element.init);
 	
 	this.elements.push(element);
 	element.init();

@@ -116,9 +116,8 @@ function Explosion(drawObjects, product,shaderProgram,pos,numParticles,scale)
         if(alive)
         {
             updateParticles(cameraPosition,dt);
-            if(currentAlpha<= 0.0){
+            if(currentAlpha<= 0.0)
                 die();
-            }
         }
     }
     init(drawObjects,product,shaderProgram);
