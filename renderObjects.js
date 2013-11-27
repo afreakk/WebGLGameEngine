@@ -92,7 +92,7 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
 	{
         if(this.rigidBody)
         {
-            motionState.getWorldTransform(transform);
+            transform = this.rigidBody.getCenterOfMassTransform();
             this.global.physicsUpdate(transform);
         }
         setShader(this.shader.shader);

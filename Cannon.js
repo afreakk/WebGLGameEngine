@@ -79,11 +79,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     this.update=function(vector,deltaTime,castleHit) 
     {
-        if(castleHit)
-        {
-            aCannonI=null;
-            slowMo = false;
-        }
         getDirections();
         updatePos(deltaTime);
         cameraLookAt(deltaTime,castleHit);
@@ -151,6 +146,11 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var xAngle = 0.0;
     var yTotal = 0.0;
     var xTotal = 0.0;
+    var wobblyPins = false;
+    this.setWobblyPins=function(inWobbly)
+    {
+        wobblyPins = inWobbly;
+    }
     function steerCannon(vector,deltaTime)
     {
         xAngle = 0.0;
@@ -185,18 +185,16 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     function cameraLookAt(deltaTime,castleHit)
     {
-        if(timeInBirdPerspective<4.0 && gutterBall)
+        if(gutterBall)
+            mode = "birdPerspectiveMode";
+        else if((castleHit&&wobblyPins))
+            mode = "birdPerspectiveMode";
+        else if(timeInBirdPerspective>0.0&&timeInBirdPerspective<minTimeInBirdPerspective)
             mode = "birdPerspectiveMode";
         else if(aCannonI!==null)
             mode = "bulletTimeMode";
-        else if((castleHit&&timeInBirdPerspective<4.0))
-            mode = "birdPerspectiveMode";
         else
             mode = "aimingMode";
-        if (timeInBirdPerspective>4.0 && (castleHit == false))
-        {
-            timeInBirdPerspective = 0;
-        }
         switch (mode)
         {
             case "bulletTimeMode": bulletTimeMode(deltaTime); break;
@@ -208,13 +206,19 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     {
         return mode;
     }
-
+    var minTimeInBirdPerspective= 4.0;
+    var timeInBirdPerspective = 0.0;
     function birdPerspectiveMode(deltaTime)
     {
+        timeInBirdPerspective += deltaTime;
+        if(timeInBirdPerspective > minTimeInBirdPerspective)
+            gutterBall = false;
         stringShotInfo = typeShotString;
-        timeInBirdPerspective+= deltaTime;
         camera.lookAtFrom(vec3.fromValues(0,-12.5,castleZ-12.5),vec3.fromValues(7.5,-7.5,castleZ-4)); 
         isBirdPerspective = true;
+        hasBeenInBirdPerspective = true;
+        slowMo = false;
+        aCannonI = null;
     }
     function aimingMode(deltaTime)
     {
@@ -222,6 +226,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         camera.lookAtFrom(cannon.global.getPos(),pos);
         isBirdPerspective = false;
         gutterBall = false;
+        timeInBirdPerspective = 0.0;
     }
     function bulletTimeMode(deltaTime)
     {
@@ -241,10 +246,11 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         if(cannonBalls[aCannonI].global.getPos()[2] < 155)
         {
             gutterBall = true;
-            timeInBirdPerspective = 0;
+            wobblyPins = false;
             typeShotString = "Gutter Ball!";
         }
     }
+    var hasBeenInBirdPerspective = true;
     this.setRollsLeft = function(rolls)
     {
         rollsString = rolls;
@@ -258,7 +264,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         return isBirdPerspective;
     }
     var isBirdPerspective;
-    var timeInBirdPerspective = 0;
     var cannonPos=0;
     var canShot = false;
     var pos=null;
@@ -273,7 +278,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var aCannonI=null;
     function shootCannonBalls(castleHit)
     {
-        if(key.SPACE&&canShot&&parentAllowsShooting)
+        if(key.SPACE&&canShot&&parentAllowsShooting&&hasBeenInBirdPerspective)
         {
             var ln = 2.0;
             var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
@@ -289,8 +294,9 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
             bulCamLerp=0.0;
             explosion.setCenter(cannonBalls[i].global.getPos());
             explosion.wake();
+            hasBeenInBirdPerspective = false;
         }
-        else if(timeInBirdPerspective> 4.0)
+        else if(!wobblyPins)
         {
             canShot = true;
         }

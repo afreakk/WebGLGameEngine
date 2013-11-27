@@ -6,15 +6,16 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var bricks = new Array();
     var shaderStruct = shaderStructX;
     var brickShape = null;
-    var brickMass = 0.1;
+    var brickMass = 1.0;
     var buffer = objs['bowlingPin'].generateBuffers();
 
+    var unCertainPins = [];
     var yElements = 1;
     var xElements = 4;
     var zElements = 5;
-    var sX=1.0,sY=2.5,sZ=1.0;
+    var sX=1.0,sY=2.75,sZ=1.0;
     var xOff = sX*xElements/2.0;
-    var yOff = yElements*(sY*2.0); 
+    var yOff = yElements*(sY*2.0)+4.5; 
     var zOff = sZ*zElements/2.0+10.0;
     var bricksFallen = 0; 
     var labelScore = null;
@@ -40,11 +41,19 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         }
         updateGUI();
     }
-    function makeShape(objs)
+    function makeShape()
     {
-        brickShape = new Ammo.btBoxShape(new Ammo.btVector3(sX/2.0,sY/2.0,sZ/2.0));
-        var localInertia = new Ammo.btVector3(0, -2.4, 0);
-        brickShape.calculateLocalInertia(brickMass, localInertia);
+        var rectangleShape = new Ammo.btCylinderShape(new Ammo.btVector3(sX/2.0,(sY/8.0)*3,sZ/2.0));
+/*        var sphereShape = new Ammo.btSphereShape(sY/8.0);
+        
+        var trans = new Ammo.btTransform();
+        var btVec = new Ammo.btVector3(0,0,0);
+        btVec.setY(-(sY/4.0));
+        trans.setOrigin(btVec);
+        brickShape = new Ammo.btCompoundShape();
+        brickShape.addChildShape(trans,sphereShape);*/
+        brickShape = rectangleShape;
+
     }
     function initGUI(panel)
     {
@@ -72,7 +81,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         bricksFallen = bricksActuallyFallen;
         labelScore.text = bricksFallen;
         labelTotalScore.text = totalScore();
-        labelRoundCount = roundCount();
+        labelRoundCount.text = roundCount();
     }
     function initCastle(drawObjs,shaderStruct)
     {
@@ -92,6 +101,8 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
                     bricks[i] = new gObject(drawObjs,buffer,shaderStruct,pos,brickMass,brickShape);
                     bricks[i].rigidBody.setRestitution(0.0);
                     bricks[i].rigidBody.setFriction(0.5);
+                    bricks[i].rigidBody.setFriction(0.5);
+                    bricks[i].rigidBody.setActivationState(4);
                     i++;
                 }
             }
@@ -110,7 +121,10 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     function resetVars()
     {
         for(var i=0; i<bricks.length; i++)
+        {
             hasHit[i] = false;
+            unCertainPins[i] = false;
+        }
         totalScoreStr += bricksFallen;
         roundCountStr ++;
         bricksFallen = 0;
@@ -133,6 +147,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
                     var xP= x*(sX*1.5)-(smx*(sX*1))/2.0;
                     var yP= y*(sY*1.0)-yOff;
                     var zP= z*(sZ*2.5)-zOff+zPosition;
+
                     vec.setX(xP);
                     vec.setY(yP);
                     vec.setZ(zP);
@@ -141,7 +156,6 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
                     bricks[i].rigidBody.clearForces();
                     bricks[i].rigidBody.setLinearVelocity(zeroVec);
                     bricks[i].rigidBody.setAngularVelocity(zeroVec);
-                    bricks[i].rigidBody.activate();
                     i++;
                 }
             }
@@ -168,32 +182,61 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var hasHit = [];
     function checkCastle()
     {
-        outOfPlaceBrick=0;
+        scorePinYTreshold = -10.3;
+        velocityHitTreshold = 0.25;
+        squaredDistanceTreshold = 2.0;
         if(hasNormalPositions)
         {
             for(var i=0; i<bricks.length; i++)
             {
-                var pos = bricks[i].global.getPos();
-                if(pos[0].toFixed(0) != normalPos[i][0].toFixed(0) || pos[1].toFixed(0) != normalPos[i][1].toFixed(0) 
-                || pos[2].toFixed(0) != normalPos[i][2].toFixed(0))
+                var brickY = bricks[i].rigidBody.getCenterOfMassPosition().getY();
+                var angVelocity = bricks[i].rigidBody.getAngularVelocity();
+                var linearVelocity = bricks[i].rigidBody.getLinearVelocity();
+
+                var totalVelocity = (Math.abs( angVelocity.getX() ) +Math.abs( angVelocity.getY() ) +Math.abs( angVelocity.getZ() ))
+                +Math.abs( (linearVelocity.getX() )+Math.abs(linearVelocity.getY())+Math.abs(linearVelocity.getZ()));
+                if(totalVelocity > velocityHitTreshold)
                 {
-                    if(pos[1]< - zOff + sY)
+                    if(hasHit[i]!==true)
                     {
-                        outOfPlaceBrick++;
-                        hasHit[i] = true;
+                        brickHit = true;
+                        if(brickY>scorePinYTreshold)
+                            unCertainPins[i] = true;
                     }
                 }
-                var linVel = bricks[i].rigidBody.getLinearVelocity();
-                var sumOfVelAxis = linVel.getX()+linVel.getY()+linVel.getZ();
-                if(sumOfVelAxis>0)
-                    brickHit = true;
+                else
+                    unCertainPins[i] = false;
+
+                if(brickY <= scorePinYTreshold)
+                {
+                    unCertainPins[i] = false;
+                    hasHit[i] = true;
+                }
+                else if(vec3.squaredDistance(normalPos[i],bricks[i].global.getPos()) > squaredDistanceTreshold)
+                {
+                    unCertainPins[i] = false;
+                    hasHit[i] = true;
+                }
             }
         }
+        var outOfPlaceBrick =0;
+        var countUncertainPins= 0;
+        for(var i=0; i<bricks.length; i++)
+        {
+            outOfPlaceBrick += hasHit[i]?1:0;
+            countUncertainPins += unCertainPins[i]?1:0;
+        }
+        pinWobbling = countUncertainPins>0?true:false;
         return outOfPlaceBrick;
+    }
+    var pinWobbling=false;
+    this.getWobbling=function()
+    {
+        return pinWobbling;
     }
     function init(panel)
     {
-        makeShape(objs);
+        makeShape();
         initCastle(drawObjs,shaderStruct);
         initGUI(panel);
     }

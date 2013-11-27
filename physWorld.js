@@ -39,6 +39,7 @@ function PhysicsWorld()
         transform.setIdentity();
         transform.setOrigin(new Ammo.btVector3(vec[0],vec[1],vec[2]));
         var localInertia = new Ammo.btVector3(0, 0, 0);
+        shape.calculateLocalInertia(mass,localInertia);
         var motionState = new Ammo.btDefaultMotionState(transform);
         var rigidInfo = new Ammo.btRigidBodyConstructionInfo(mass,motionState,shape,localInertia);
         var body = new Ammo.btRigidBody(rigidInfo);
