@@ -53,12 +53,15 @@ function SceneOne(Objs)
         dirLight = new DirectionalLight(shaderStruct,direction,2.5);
         console.log("sceneOne initiated");
         initGroundPlane();
-        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,170);
-        castle = new Castle(objs,drawObjs,shaderStruct, panel,170);
+        var pinDistance = 160;
+        cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,pinDistance);
+        castle = new Castle(objs,drawObjs,shaderStruct, panel,pinDistance);
     }   
     var canResetLane = false;
     this.update = function()
     {
+        gl.uniform1f(shaderStruct.iGlobalTime, time );
+        gl.uniform1i(shaderStruct.strike, 1 );
         var lDistance = 20.0;
         if(cannon.getBulletPos() !== null)
         {
@@ -66,7 +69,9 @@ function SceneOne(Objs)
         }
         glClear(); //clears the screen
         handleTime();
+        castle.setRollCount(cannon.getRollCount());
         castle.update(deltaTime);
+        cannon.setTypeShotString(castle.getTypeShotStr());
         cannon.setCanShoot(castle.isAllowedToShoot());
         cannon.setWobblyPins(castle.getWobbling());
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.getBrickHit());
@@ -84,14 +89,10 @@ function SceneOne(Objs)
     {
         panel.clear()
         panel.draw()
-        if(cannon.getSlow()==true)
-        {
+        if(cannon.getMode()=== "bulletTimeMode")
             pWorld.update(deltaTime,10.0); //and this
-        }
         else
-        {
             pWorld.update(deltaTime,false);
-        }
         doc.title = "FPS: "+Math.round(1.0/deltaTime);
     }
     function handleTime()

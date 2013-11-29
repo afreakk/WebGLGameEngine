@@ -180,4 +180,9 @@ function PhysicsWorld()
         Ammo.destroy(overlappingPairCache);
         Ammo.destroy(solver);
     }
+    this.remove=function(obj)
+    {
+        world.removeCollisionObject(obj.rigidBody);
+    }
+
 }

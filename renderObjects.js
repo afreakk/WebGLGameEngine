@@ -146,7 +146,7 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
     }
     var drawIndex = drawObjects.add(this);
     var drawObjs = drawObjects;
-    this.isHidden = false;
+    var isHidden = false;
     this.setHidden = function(hidden)
     {
         if( !hidden && isHidden!=hidden )
@@ -156,9 +156,14 @@ function gObject(drawObjects, product,shaderProgram,pos,mass,shape)
         }
         else if(hidden && isHidden!=hidden )
         {
-            drawObjs.removeIndex(drawIndex);
+            drawObjs.hide(drawIndex);
             isHidden = true;
         }
+    }
+    this.remove=function()
+    {
+        this.setHidden(true);
+        pWorld.remove(this);
     }
     
 }

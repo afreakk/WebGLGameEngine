@@ -9,6 +9,10 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var brickMass = 1.0;
     var buffer = objs['bowlingPin'].generateBuffers();
 
+    var trans = new Ammo.btTransform();
+    var vec = new Ammo.btVector3();    //every single "new" of Ammo leaks so helper vars to reduce leak
+    var zeroVec = new Ammo.btVector3(0,0,0);
+
     var unCertainPins = [];
     var yElements = 1;
     var xElements = 4;
@@ -24,22 +28,76 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var totalScoreStr = 0;
     var RoundTimer = 0;
     var roundCountStr = 0;
+    var hasHit = [];
+    var rollCount = 0;
     this.getBrickHit=function()
     {
         return brickHit;
     }
-    this.setBrickhit=function(clau)
+    this.setBrickhit=function(inBrickhit)
     {
-        brickHit = clau;
+        brickHit = inBrickhit;
     }
     this.update=function(deltaTime)
     {
-        RoundTimer += deltaTime;
         if(!hasNormalPositions&&RoundTimer>8.0)
         {
             findNormalPos();
+            removeUnusedPins();
         }
+        bricksFallen  = checkCastle();
+        updateTypeShot();
         updateGUI();
+        removeUnusedPins();
+        RoundTimer += deltaTime;
+    }
+    var changeRound = false;
+    function removeUnusedPins()
+    {
+        trans.setIdentity();
+        if(!brickHit)
+        {
+            for(var i=0; i<bricks.length; i++)
+            {
+                if(hasHit[i] === true)
+                {
+                    var xP= 0;
+                    var yP= -100;
+                    var zP= 0;
+
+                    vec.setX(xP);
+                    vec.setY(yP);
+                    vec.setZ(zP);
+                    trans.setOrigin(vec);
+                    bricks[i].rigidBody.setCenterOfMassTransform(trans);
+                    bricks[i].rigidBody.clearForces();
+                    bricks[i].rigidBody.setLinearVelocity(zeroVec);
+                    bricks[i].rigidBody.setAngularVelocity(zeroVec);
+                }
+            }
+        }
+    }
+    this.setRollCount=function(inRollCount)
+    {
+        rollCount = inRollCount;
+    }
+    function updateTypeShot()
+    {
+        var firstThrow = (rollCount%2)?true:false;
+        if(bricksFallen == 10)
+        {
+            if(firstThrow)
+                typeShotString = "Strike!";
+            else
+                typeShotString = "Spare!";
+        }
+        else if(bricksFallen == 0)
+        {
+            typeShotString = "GutterBall";
+        }
+        else
+            typeShotString = " ";
+
     }
     function makeShape()
     {
@@ -75,10 +133,13 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         return totalScoreStr;
     }
+    var typeShotString = " ";
+    this.getTypeShotStr  = function()
+    {
+        return typeShotString;
+    }
     function updateGUI()
     {
-        bricksActuallyFallen = checkCastle();
-        bricksFallen = bricksActuallyFallen;
         labelScore.text = bricksFallen;
         labelTotalScore.text = totalScore();
         labelRoundCount.text = roundCount();
@@ -133,11 +194,9 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     }
     function reset()
     {
+        trans.setIdentity();
         smx = xElements;
         var i=0;
-        var trans = new Ammo.btTransform();
-        var vec = new Ammo.btVector3();
-        var zeroVec = new Ammo.btVector3(0,0,0);
         for (var z=0; z<zElements; z++)
         {
             for(var x=0; x<smx; x++)
@@ -179,14 +238,13 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         }
         hasNormalPositions= true;
     }
-    var hasHit = [];
     function checkCastle()
     {
-        scorePinYTreshold = -10.3;
-        velocityHitTreshold = 0.25;
-        squaredDistanceTreshold = 2.0;
         if(hasNormalPositions)
         {
+            var scorePinYTreshold = -10.3;
+            var velocityHitTreshold = 0.25;
+            var squaredDistanceTreshold = 2.0;
             for(var i=0; i<bricks.length; i++)
             {
                 var brickY = bricks[i].rigidBody.getCenterOfMassPosition().getY();
