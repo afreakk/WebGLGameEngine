@@ -1,3 +1,9 @@
+RGBToHex = function(r,g,b){
+    var bin = r << 16 | g << 8 | b;
+    return (function(h){
+        return new Array(7-h.length).join("0")+h
+    })(bin.toString(16).toUpperCase())
+}
 var multicrew = (multicrew || {});
 
 if(!Math.clamp) Math.clamp = function(val, min, max) { return Math.max(min, Math.min(val, max)); }
@@ -17,6 +23,8 @@ multicrew.Label = function(options)
 	this.height		= 0;
 	this.x 			= (options.x || 0);
 	this.y			= (options.y || 0);
+    this.crazyMode  = false;
+    this.db         = 0;
 }
 
 multicrew.Label.prototype.init = function()
@@ -39,9 +47,20 @@ multicrew.Label.prototype.draw = function()
 	
 	if(this.text != this.lastText)
 		this.init();
-	
+    if(this.crazyMode === true)
+    {
+        if(Math.random()>0.5)
+        {
+            var r = Math.random()*this.db*255;
+            var g = Math.random()*this.db*255;
+            var b = Math.random()*this.db*255;
+
+            this.color = RGBToHex(r.clamp(0,255),g.clamp(0,255),b.clamp(0,255));
+        }
+    }
 	var style = this.parent.context.fillStyle;
-	this.parent.context.clearRect(this.x*(scaleW), (this.y)*(scaleH) - this.height*scaleH, this.width*scaleW,(this.height * 1.2));
+	this.parent.context.clearRect(this.x*(scaleW), (this.y)*(scaleH) - this.height*scaleH, this.width*scaleW,
+    ((this.crazyMode?this.height*2:this.height) * 1.2));
 	this.parent.context.save();
 	this.parent.context.font = this.font;
 	this.parent.context.fillStyle = this.color;
@@ -57,8 +76,11 @@ multicrew.Label.prototype.draw = function()
 		this.parent.context.font = this.parent.context.font.replace(/[0-9]*[^px]/, size.height * 2);
 		this.parent.context.clearRect((this.x)*scaleW + (this.width / 2)*scaleW - (size.width / 2)*scaleW, (this.y)*scaleH - (size.height * 2)*scaleW, 
         size.width*scaleW, (scaleW*size.height) * 1.2);
-        this.parent.context.fillStyle = this.titleColor;
+        this.parent.context.fillStyle = this.crazyMode?this.color:this.titleColor;
 		this.parent.context.fillText(this.title, (this.x + (this.width / 2) - (size.width / 2))*scaleW, (this.y - (size.height * 2))*scaleH);
 		this.parent.context.font = this.font;
 	}
 }
+Number.prototype.clamp = function(min, max) {
+  return Math.min(Math.max(this, min), max);
+};

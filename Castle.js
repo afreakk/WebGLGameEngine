@@ -8,7 +8,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var brickShape = null;
     var brickMass = 1.0;
     var buffer = objs['bowlingPin'].generateBuffers();
-
+    var timeBeforeShot= 2.0; //time before we snap up the normal position of new pins
     var trans = new Ammo.btTransform();
     var vec = new Ammo.btVector3();    //every single "new" of Ammo leaks so helper vars to reduce leak
     var zeroVec = new Ammo.btVector3(0,0,0);
@@ -19,39 +19,92 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var zElements = 5;
     var sX=1.0,sY=2.75,sZ=1.0;
     var xOff = sX*xElements/2.0;
-    var yOff = yElements*(sY*2.0)+4.5; 
+    var yOff = yElements*(sY*2.0)+4.4; 
     var zOff = sZ*zElements/2.0+10.0;
     var bricksFallen = 0; 
     var labelScore = null;
     var labelTotalScore = null;
     var labelRoundCount = null;
+    var labelMultiplier = null;
     var totalScoreStr = 0;
     var RoundTimer = 0;
     var roundCountStr = 0;
     var hasHit = [];
     var rollCount = 0;
+    var typeShotString = " ";
+    var normalPos = new Array();
+    var hasNormalPositions = false;
+    var pinWobbling=false;
+    var firstThrowScore=0;
+    var secondThrowScore=0;
+    var firstThrow=null;
+    var lastThrowRealValue = 0;
+    var lastThrow=0;
+    var scoreMultiplier=0;
+    var bricksFallenRealValue=0;
     this.getBrickHit=function()
     {
         return brickHit;
     }
     this.setBrickhit=function(inBrickhit)
     {
-        brickHit = inBrickhit;
+        if(brickHit !== inBrickhit)
+        {
+            brickHit = inBrickhit;
+            if(scoreMultiplier>0)
+                scoreMultiplier --;
+        }
+    }
+    var musicPower=0;
+    function handleFX(dt)
+    {
+        if(scoreMultiplier > 0)
+        {
+            musicPower += audioMgr.getDB()*20.0;
+            gl.uniform1f(shaderStruct.iGlobalTime, musicPower );
+            gl.uniform1i(shaderStruct.strike, 1 );
+            audioMgr.pauseSpec("robb");
+            audioMgr.playSpec("brothers");
+            labelMultiplier.db = musicPower/2.0;
+            if(labelMultiplier.crazyMode !==true)
+                labelMultiplier.crazyMode=true;
+        }
+        else
+        {
+            gl.uniform1i(shaderStruct.strike, 0 );
+            audioMgr.pauseSpec("brothers");
+            audioMgr.playSpec("robb");
+            if(labelMultiplier.crazyMode !== false)
+                labelMultiplier.crazyMode = false;
+        }
     }
     this.update=function(deltaTime)
     {
-        if(!hasNormalPositions&&RoundTimer>8.0)
+        handleFX(deltaTime);
+        if(RoundTimer>timeBeforeShot)
         {
-            findNormalPos();
-            removeUnusedPins();
+            if(!hasNormalPositions)
+            {
+                findNormalPos();
+            }
+            updateTypeShot();
         }
-        bricksFallen  = checkCastle();
-        updateTypeShot();
+        handleScoring(deltaTime);
         updateGUI();
         removeUnusedPins();
         RoundTimer += deltaTime;
     }
-    var changeRound = false;
+    function handleScoring(dt)
+    {
+        var fallenCount = checkCastle(dt);
+        if(fallenCount !== bricksFallenRealValue)
+        {
+            lastThrowRealValue = fallenCount-bricksFallenRealValue;
+            lastThrow = lastThrowRealValue * ((scoreMultiplier>0)?2:1);
+            bricksFallen += lastThrow;
+            bricksFallenRealValue += lastThrowRealValue;
+        }
+    }
     function removeUnusedPins()
     {
         trans.setIdentity();
@@ -79,24 +132,37 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     }
     this.setRollCount=function(inRollCount)
     {
-        rollCount = inRollCount;
+        if(rollCount !== inRollCount)
+        {
+            rollCount = inRollCount;
+            firstThrow = (rollCount%2)?true:false;
+        }
     }
     function updateTypeShot()
     {
-        var firstThrow = (rollCount%2)?true:false;
-        if(bricksFallen == 10)
+        if(bricksFallenRealValue == 10)
         {
-            if(firstThrow)
+            if(firstThrow && typeShotString!=="Strike!")
+            {
                 typeShotString = "Strike!";
-            else
+                while(scoreMultiplier<3)
+                    scoreMultiplier ++;
+            }
+            else if(!firstThrow && typeShotString !== "Spare!")
+            {
                 typeShotString = "Spare!";
+                while(scoreMultiplier<2)
+                    scoreMultiplier ++;
+            }
         }
-        else if(bricksFallen == 0)
+        else if(lastThrowRealValue == 0)
         {
             typeShotString = "GutterBall";
         }
         else
+        {
             typeShotString = " ";
+        }
 
     }
     function makeShape()
@@ -115,6 +181,8 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     }
     function initGUI(panel)
     {
+        labelMultiplier = new multicrew.Label({ title: "ScoreMultiplier: ", text: (scoreMultiplier>0)?"2X":"1X", x: this.canvas.width/8, y: 
+        this.canvas.height-this.canvas.height/8.0, color: "#FFF", titleColor: "#ffff00" });
         labelScore = new multicrew.Label({ title: "Round Score", text: bricksFallen.toString(), x: this.canvas.width/8, 
         y: this.canvas.height/8.0, color: "#FFF", titleColor: "#ffff00" });
         labelTotalScore = new multicrew.Label({ title: "Total Score", text: totalScore(), x: this.canvas.width/2, y:this.canvas.height/8.0
@@ -124,6 +192,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         panel.insert(labelRoundCount);
         panel.insert(labelTotalScore);
         panel.insert(labelScore);
+        panel.insert(labelMultiplier);
     }
     function roundCount()
     {
@@ -133,7 +202,6 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         return totalScoreStr;
     }
-    var typeShotString = " ";
     this.getTypeShotStr  = function()
     {
         return typeShotString;
@@ -143,6 +211,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         labelScore.text = bricksFallen;
         labelTotalScore.text = totalScore();
         labelRoundCount.text = roundCount();
+        labelMultiplier.text = (scoreMultiplier>0)?"2X":"1X";
     }
     function initCastle(drawObjs,shaderStruct)
     {
@@ -174,7 +243,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     }
     this.isAllowedToShoot=function()
     {
-        if(RoundTimer > 4.0)
+        if(RoundTimer > timeBeforeShot+1.0)
             return true;
         else
             return false;
@@ -185,10 +254,13 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         {
             hasHit[i] = false;
             unCertainPins[i] = false;
+            timeSinceLastPlong[i] = 0;
         }
+        typeShotString = " ";
         totalScoreStr += bricksFallen;
         roundCountStr ++;
         bricksFallen = 0;
+        bricksFallenRealValue = 0;
         hasNormalPositions = false;
         RoundTimer = 0;
     }
@@ -227,8 +299,6 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         reset();
     }
-    var normalPos = new Array();
-    var hasNormalPositions = false;
     function findNormalPos()
     {
         normalPos.length  =  0;
@@ -238,7 +308,24 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         }
         hasNormalPositions= true;
     }
-    function checkCastle()
+    var dist = new Array();
+    var timeSinceLastPlong = new Array();
+    var plongTimeTreshold = 0.1;
+    function checkIfSound(lastVec, nowVec,index)
+    {
+        var suddenChangeTreshold = 3.0;
+        var thisDist = vec3.distance(lastVec,nowVec);
+        var distanceDistance = (thisDist-dist[index])*(thisDist-dist[index]);
+        if( distanceDistance > suddenChangeTreshold && timeSinceLastPlong[index] > plongTimeTreshold)
+        {
+            console.log(distanceDistance);
+            timeSinceLastPlong[index]=0.0;
+            audioMgr.playSequential('pin.ogg',distanceDistance/20);
+        }
+        dist[index] = thisDist;
+    }
+    var linearVelocity=new Array();
+    function checkCastle(dt)
     {
         if(hasNormalPositions)
         {
@@ -247,12 +334,19 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             var squaredDistanceTreshold = 2.0;
             for(var i=0; i<bricks.length; i++)
             {
+                timeSinceLastPlong[i] += dt;
                 var brickY = bricks[i].rigidBody.getCenterOfMassPosition().getY();
                 var angVelocity = bricks[i].rigidBody.getAngularVelocity();
-                var linearVelocity = bricks[i].rigidBody.getLinearVelocity();
-
+                linearVelSingle = [bricks[i].rigidBody.getLinearVelocity().getX(),bricks[i].rigidBody.getLinearVelocity().getY()
+                ,bricks[i].rigidBody.getLinearVelocity().getZ()];
+                if(!hasHit[i])
+                {
+                    if(linearVelocity[i] !== undefined)
+                        checkIfSound(linearVelocity[i],linearVelSingle,i);
+                    linearVelocity[i] = linearVelSingle
+                }
                 var totalVelocity = (Math.abs( angVelocity.getX() ) +Math.abs( angVelocity.getY() ) +Math.abs( angVelocity.getZ() ))
-                +Math.abs( (linearVelocity.getX() )+Math.abs(linearVelocity.getY())+Math.abs(linearVelocity.getZ()));
+                +Math.abs( (linearVelSingle[0] )+Math.abs(linearVelSingle[1])+Math.abs(linearVelSingle[2]));
                 if(totalVelocity > velocityHitTreshold)
                 {
                     if(hasHit[i]!==true)
@@ -287,7 +381,6 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         pinWobbling = countUncertainPins>0?true:false;
         return outOfPlaceBrick;
     }
-    var pinWobbling=false;
     this.getWobbling=function()
     {
         return pinWobbling;

@@ -7,7 +7,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var cannonBalls = new Array();
     var buffer = null;
     var mass = 1.0;
-    var labelMode = null;
     var labelKMH = null;
     var labelShotInfo = null;
     var labelRolls = null;
@@ -17,7 +16,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var stringSlowMotion = "Slow Motion";
     var currentModeString = "";
     var rollsString = 2;
-    var str = 20.1;
+    var str = 30.0;
     var wall = null;
     var xCamDistance = 15.0;
     var yCamDistance = 8.4;
@@ -27,8 +26,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var rollCount = 0;
     function initGUI(panel)
     {
-        labelMode = new multicrew.Label({ title: "MODE: ", text: currentModeString, x: this.canvas.width/8, y: this.canvas.height-this.canvas.height/8.0, 
-        color: "#FFF", titleColor: "#ffff00" });
         labelKMH = new multicrew.Label({ title: "KM/H: ", text: kmhString, x: this.canvas.width-this.canvas.width/8, y: this.canvas.height/8.0,
         color: "#FFF", titleColor: "#ffff00" });
         labelShotInfo = new multicrew.Label({ title: stringShotInfo, text: " ", x: this.canvas.width/2.0, y: this.canvas.height/2.0,
@@ -36,7 +33,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         labelRolls = new multicrew.Label({ title: "Rolls left:", text: rollsString, x: this.canvas.width/2.0, y: this.canvas.height-this.canvas.height/8.0,
         color: "#FFF", titleColor: "#ffff00" });
         panel.insert(labelRolls);
-        panel.insert(labelMode);
         panel.insert(labelKMH);
         panel.insert(labelShotInfo);
     }
@@ -54,7 +50,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         labelRolls.text = rollsString;
         labelShotInfo.title = stringShotInfo;
         labelKMH.text = kmhString;
-        labelMode.text = currentModeString;
     }
     function init(drawObjs,objs,shaderStruct)
     {
@@ -208,17 +203,20 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     function aimingMode(deltaTime)
     {
-        stringShotInfo = "";
+        if(wobblyPins)
+            stringShotInfo = "Please wait, a pin is wobbling..";
+        else
+            stringShotInfo = "";
         camera.lookAtFrom(cannon.global.getPos(),getAimingModePos());
         return shootCannonBalls();
     }
     function bulletTimeMode(deltaTime,castleHit)
     {
         if(bulCamLerp<0.9)
-            bulCamLerp += deltaTime/10.0;
+            bulCamLerp += deltaTime/5.0;
         var lookFrom = vec3.create();
         var lerpFrom = vec3.create();
-        vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(xCamDistance,yCamDistance,zCamDistance));
+        vec3.add(lerpFrom,cannon.global.getPos(),vec3.fromValues(backwards[0]*xCamDistance,yCamDistance*4.0,backwards[2]*zCamDistance));
 
         vec3.lerp(lookFrom,lerpFrom,cannonBalls[aCannonI].global.getPos(),bulCamLerp);
         camera.lookAtFrom(cannonBalls[aCannonI].global.getPos(),lookFrom);
@@ -264,6 +262,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     {
         if(key.SPACE&&parentAllowsShooting)
         {
+            audioMgr.playSequential("cannon.ogg");
             var ln = 5.0;
             var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
             vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln,3.0,-backwards[2]*ln));

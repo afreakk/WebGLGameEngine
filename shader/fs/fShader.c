@@ -100,7 +100,7 @@ void main(void) {
     vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
     vec3 endColor = ambientColor+pointLight+directionLight;
     if(strike == 1)
-        endColor += fractal();
+        endColor += fractal()/2.0;
     gl_FragColor = vec4(endColor,texture.a*alpha);
 
 }

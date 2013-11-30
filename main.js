@@ -1,5 +1,10 @@
+/////global vars
 var doc;
 var panelCanvas;
+
+
+
+//////////
 function webGLStart(document)
 {
     doc = document;
