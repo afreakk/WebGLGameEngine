@@ -5,6 +5,7 @@ function SceneOne(Objs)
     this.canvas=null;        //size and stuff set each frame by resizeHandling
 
     var shaderStruct=null; //shaderstruct to keep the shader variable and all the attributes and uniform variables
+    var guiShader = null;
     var deltaTime=0;
     var lastTime=0;
     var time=0;
@@ -21,6 +22,7 @@ function SceneOne(Objs)
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
+        var guiShader = getShader(gl,"vs/guiShader","fs/guiShader");
         shaderStruct = new getShaderStruct(shader);
         setShader(shaderStruct.shader);
         gl.uniform1f(shaderStruct.alpha, 1.0 );
@@ -31,12 +33,12 @@ function SceneOne(Objs)
         gl.enable (gl.BLEND);
         gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
+    var guiPlane = null;
     function initGroundPlane()
     {
         var pos = vec3.fromValues(0,-4,0);
         groundPlane = new gObject(drawObjs,objs['ground'].generateBuffers(),shaderStruct,pos,0,"triMesh");
         groundPlane.rigidBody.setFriction(10.0);
-        
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
@@ -56,8 +58,50 @@ function SceneOne(Objs)
         var pinDistance = 150;
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,pinDistance);
         castle = new Castle(objs,drawObjs,shaderStruct, panel,pinDistance);
+        guiPlane = new gui3DElement(drawObjs,objs['plane'].generateBuffers(),shaderStruct,helpTipStartPos);
+        guiUpd(0);
     }   
-    var canResetLane = false;
+    var helpTipStartPos = vec3.fromValues(0,-6,175);
+    var toggleHelp = true;
+    var hKeyTimer = 0;
+    function guiUpd(dt)
+    {
+        if(toggleHelp)
+            visual();
+        hKeyTimer += dt;
+        if(key.H===true&&hKeyTimer>0.5)
+        {
+            hKeyTimer = 0;
+            toggleHelp = !toggleHelp;
+        }
+        if(toggleHelp=== true)
+            guiPlane.setHidden(false);
+        else if (toggleHelp === false)
+            guiPlane.setHidden(true);
+    }
+    function visual()
+    {
+        if(cannon.getMode() === "aimingMode")
+        {
+            if(guiPlane.getCurrentTexture() !== "howToMove.png")
+                guiPlane.useTexture('howToMove.png');
+            guiPlane.global.setPosition(helpTipStartPos);
+        }
+        if(cannon.getMode() === "bulletTimeMode")
+        {
+            if(guiPlane.getCurrentTexture() !== "manipulatePhys.png")
+                guiPlane.useTexture('manipulatePhys.png');
+            guiPlane.global.setPosition([cannon.getBulletPos()[0],cannon.getBulletPos()[1]+1,cannon.getBulletPos()[2]+2]);
+        }
+        if(cannon.getMode() === "birdPerspectiveMode")
+        {
+            if(guiPlane.getCurrentTexture() === "manipulatePhys.png")
+            {
+                toggleHelp = false;
+                guiPlane.setHidden(true);
+            }
+        }
+    }
     this.update = function()
     {
         var lDistance = 20.0;
@@ -67,6 +111,7 @@ function SceneOne(Objs)
         }
         glClear(); //clears the screen
         handleTime();
+        guiUpd(deltaTime);
         castle.setRollCount(cannon.getRollCount());
         castle.update(deltaTime);
         cannon.setTypeShotString(castle.getTypeShotStr());

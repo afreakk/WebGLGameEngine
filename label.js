@@ -73,7 +73,7 @@ multicrew.Label.prototype.draw = function()
 		var size = { height: this.parent.context.font.replace(/px[^0-9]*$/, "") };
 		size.width = this.parent.context.measureText(this.title).width;
 		
-		this.parent.context.font = this.parent.context.font.replace(/[0-9]*[^px]/, size.height * 2);
+		this.parent.context.font = this.parent.context.font.replace(/[0-9]*[^px]/, size.height * 1.1);
 		this.parent.context.clearRect((this.x)*scaleW + (this.width / 2)*scaleW - (size.width / 2)*scaleW, (this.y)*scaleH - (size.height * 2)*scaleW, 
         size.width*scaleW, (scaleW*size.height) * 1.2);
         this.parent.context.fillStyle = this.crazyMode?this.color:this.titleColor;

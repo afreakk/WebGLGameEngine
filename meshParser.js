@@ -255,13 +255,13 @@ function ModelHolder()
         {
             if(this.materialInfo[this.materialNames[i].name].url=== null)
                 continue;
-            gl.activeTexture(gl.TEXTURE0+i);
+            gl.activeTexture(gl.TEXTURE0); // her var det gl.texture0+i , skjønner ikke helt hvorfor men var kanskje en grunn ? vi fr se
             var tBuffer=gl.createTexture();    
             gl.bindTexture(gl.TEXTURE_2D, tBuffer);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textures[this.materialNames[i].name]);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipMaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipMaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
             if(mipMaps)
                 gl.generateMipmap(gl.TEXTURE_2D);
             gl.bindTexture(gl.TEXTURE_2D, null);

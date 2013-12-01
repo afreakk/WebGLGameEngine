@@ -182,13 +182,13 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     function initGUI(panel)
     {
         labelMultiplier = new multicrew.Label({ title: "ScoreMultiplier: ", text: (scoreMultiplier>0)?"2X":"1X", x: this.canvas.width/8, y: 
-        this.canvas.height-this.canvas.height/8.0, color: "#FFF", titleColor: "#ffff00" });
+        this.canvas.height-this.canvas.height/16.0, color: "#FFF", titleColor: "#ffff00" });
         labelScore = new multicrew.Label({ title: "Round Score", text: bricksFallen.toString(), x: this.canvas.width/8, 
         y: this.canvas.height/8.0, color: "#FFF", titleColor: "#ffff00" });
         labelTotalScore = new multicrew.Label({ title: "Total Score", text: totalScore(), x: this.canvas.width/2, y:this.canvas.height/8.0
         , color: "#FFF", titleColor: "#ffff00" });
         labelRoundCount = new multicrew.Label({title: "Round #", text: roundCount(), x:this.canvas.width-this.canvas.width/8,
-        y: this.canvas.height-this.canvas.height/8.0, color: "#FFF", titleColor: "#ffff00" });
+        y: this.canvas.height-this.canvas.height/16.0, color: "#FFF", titleColor: "#ffff00" });
         panel.insert(labelRoundCount);
         panel.insert(labelTotalScore);
         panel.insert(labelScore);

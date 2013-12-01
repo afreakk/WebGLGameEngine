@@ -1,3 +1,111 @@
+
+function baseBind(model,shader)
+{
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.vB);
+    gl.vertexAttribPointer(shader.vPos, model.vB.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER,model.uvB);
+    gl.vertexAttribPointer(shader.uvMap,   model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.nB);
+    gl.vertexAttribPointer(shader.normals, model.nB.itemSize, gl.FLOAT, false, 0,0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.diffColor);
+    gl.vertexAttribPointer(shader.diffColor, model.diffColor.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.ambColor);
+    gl.vertexAttribPointer(shader.ambColor, model.ambColor.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.specColor);
+    gl.vertexAttribPointer(shader.specColor, model.specColor.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.matIndex)
+    gl.vertexAttribPointer(shader.materialIndex, model.matIndex.itemSize, gl.FLOAT, false , 0,0);
+}
+function gui3DElement(drawObjects, product, shaderProgram, pos)
+{
+    this.global = new Translations();
+    this.global.translate(pos);
+    this.model = product;
+    this.shader  = shaderProgram;
+    this.alpha = -1; // -1 = full alpha
+    var guiTextures = new Array();
+    var textureBuffers = new Array();
+    var currentTexture = null;
+    this.draw = function() 
+	{
+        if(isHidden===true)
+            return;
+        setShader(this.shader.shader);
+        setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        baseBind(this.model,this.shader);
+        if(currentTexture !== null)
+            activateTexture(gl.TEXTURE0,textureBuffers[currentTexture],this.shader.texSamplers,0);
+
+        if(this.alpha != -1)
+            gl.uniform1f(this.shader.alpha, this.alpha );
+        for(var i=0; i<this.model.numMeshes; i++)
+        {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+            gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+        }
+        if(this.alpha != -1)
+            gl.uniform1f(this.shader.alpha, 1.0  ); //revert back to normal
+	}
+    this.getCurrentTexture=function()
+    {
+        return currentTexture;
+    }
+    this.useTexture=function(url)
+    {
+        currentTexture = url;
+        if(url in textureBuffers)
+        {
+            return;
+        }
+        else
+        {
+            loadTextures(url,generateTextureBuffers);
+        }
+    }
+    function loadTextures(url, completionCallback)
+    {
+        guiTextures[url] = new Image();
+        guiTextures[url].src = url;
+        guiTextures[url].onload = (function() 
+        {
+            completionCallback(guiTextures[url],url);
+        });
+    }
+    function generateTextureBuffers(inImg, url)
+    {
+        var mipMaps = false; 
+        gl.activeTexture(gl.TEXTURE0);
+        var tBuffer=gl.createTexture();    
+        gl.bindTexture(gl.TEXTURE_2D, tBuffer);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, inImg);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipMaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+        if(mipMaps)
+            gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        textureBuffers[url] = tBuffer;
+        currentTexture = url;
+    }
+    var drawIndex = drawObjects.add(this);
+    var drawObjs = drawObjects;
+    var isHidden = false;
+    this.getHidden=function()
+    {
+        return isHidden;
+    }
+    this.setHidden = function(hidden)
+    {
+        isHidden = hidden;
+    }
+}
+
 function rObject(drawObjects, product,shaderProgram,pos)
 {
     this.global = new Translations();
@@ -11,28 +119,7 @@ function rObject(drawObjects, product,shaderProgram,pos)
             gl.uniform1f(this.shader.alpha, this.alpha );
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.vB);
-        gl.vertexAttribPointer(this.shader.vPos, this.model.vB.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER,this.model.uvB);
-        gl.vertexAttribPointer(this.shader.uvMap,   this.model.uvB.itemSize,     gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.nB);
-        gl.vertexAttribPointer(this.shader.normals, this.model.nB.itemSize, gl.FLOAT, false, 0,0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.diffColor);
-        gl.vertexAttribPointer(this.shader.diffColor, this.model.diffColor.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.ambColor);
-        gl.vertexAttribPointer(this.shader.ambColor, this.model.ambColor.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.specColor);
-        gl.vertexAttribPointer(this.shader.specColor, this.model.specColor.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.model.matIndex)
-        gl.vertexAttribPointer(this.shader.materialIndex, this.model.matIndex.itemSize, gl.FLOAT, false , 0,0);
-
-        gl.uniform1iv(this.shader.samplerCount, this.model.texGLSLlocs );
+        baseBind(this.model,this.shader);
         for(var j=0; j<this.model.tB.length; j++)
         {
             activateTexture(gl.TEXTURE0+j,this.model.tB[j],this.shader.texSamplers,j);

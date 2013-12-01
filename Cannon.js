@@ -30,7 +30,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         color: "#FFF", titleColor: "#ffff00" });
         labelShotInfo = new multicrew.Label({ title: stringShotInfo, text: " ", x: this.canvas.width/2.0, y: this.canvas.height/2.0,
         color: "#FFF", titleColor: "#ffff00" });
-        labelRolls = new multicrew.Label({ title: "Rolls left:", text: rollsString, x: this.canvas.width/2.0, y: this.canvas.height-this.canvas.height/8.0,
+        labelRolls = new multicrew.Label({ title: "(h to toggle instructions) Rolls left:", text: rollsString, x: this.canvas.width/2.0, y: this.canvas.height-this.canvas.height/16.0,
         color: "#FFF", titleColor: "#ffff00" });
         panel.insert(labelRolls);
         panel.insert(labelKMH);
@@ -139,6 +139,10 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     this.setWobblyPins=function(inWobbly)
     {
         wobblyPins = inWobbly;
+        if(wobblyPins===true)
+        {
+            wobblyTimeOut= 0.0;
+        }
     }
     function steerCannon(vector,deltaTime)
     {
@@ -203,12 +207,8 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     function aimingMode(deltaTime)
     {
-        if(wobblyPins)
-            stringShotInfo = "Please wait, a pin is wobbling..";
-        else
-            stringShotInfo = "";
         camera.lookAtFrom(cannon.global.getPos(),getAimingModePos());
-        return shootCannonBalls();
+        return shootCannonBalls(deltaTime);
     }
     function bulletTimeMode(deltaTime,castleHit)
     {
@@ -258,27 +258,40 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         return vec3.add(vec3.create(), cannon.global.getPos(), backwardsXX);
     }
     var aCannonI=null;
-    function shootCannonBalls()
+    var wobblyTimeOut = 0;
+    function shootCannonBalls(dt)
     {
-        if(key.SPACE&&parentAllowsShooting)
+        wobblyTimeOut += dt;
+        if(parentAllowsShooting)
         {
-            audioMgr.playSequential("cannon.ogg");
-            var ln = 5.0;
-            var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
-            vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln,3.0,-backwards[2]*ln));
-            cannonBalls.push(new gObject(drawObjs,buffer,shaderStruct,cBPos,mass,cannonBallShape));
-            var i = cannonBalls.length-1;
-            var btbackwards = new Ammo.btVector3(-backwards[0]*str,-backwards[1]*str,-backwards[2]*str);
-            cannonBalls[i].rigidBody.applyCentralImpulse(btbackwards);
-            cannonBalls[i].rigidBody.setRestitution(0.1);
-            cannonBalls[i].rigidBody.setFriction(0.1);
-            aCannonI= i;
-            bulCamLerp=0.0;
-            explosion.setCenter(cannonBalls[i].global.getPos());
-            explosion.wake();
-            rollCount++;
-            return  "bulletTimeMode";
+            if(wobblyTimeOut>0.5)
+            {
+                stringShotInfo = "";
+                if(key.SPACE)
+                {
+                    audioMgr.playSequential("cannon.ogg");
+                    var ln = 5.0;
+                    var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
+                    vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln,3.0,-backwards[2]*ln));
+                    cannonBalls.push(new gObject(drawObjs,buffer,shaderStruct,cBPos,mass,cannonBallShape));
+                    var i = cannonBalls.length-1;
+                    var btbackwards = new Ammo.btVector3(-backwards[0]*str,-backwards[1]*str,-backwards[2]*str);
+                    cannonBalls[i].rigidBody.applyCentralImpulse(btbackwards);
+                    cannonBalls[i].rigidBody.setRestitution(0.1);
+                    cannonBalls[i].rigidBody.setFriction(0.1);
+                    aCannonI= i;
+                    bulCamLerp=0.0;
+                    explosion.setCenter(cannonBalls[i].global.getPos());
+                    explosion.wake();
+                    rollCount++;
+                    return  "bulletTimeMode";
+                }
+            }
+            else
+                stringShotInfo = "Please wait, a pin is wobbling..";
         }
+        else
+            stringShotInfo = "Please wait, for machine..";
         return "aimingMode";
     }
     this.getRollCount=function()
