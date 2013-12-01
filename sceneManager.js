@@ -34,7 +34,7 @@ function SceneManager(Canvas)
         if(!this.currentScene.endScene)
             this.currentScene.update();
         else
-            this.setLvl(this.currentScene.nextLevel);
+            this.setLvl(this.currentScene.nextLvl);
     }
 }
 function Manager(Canvas)

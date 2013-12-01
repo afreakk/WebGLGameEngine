@@ -154,12 +154,17 @@ function SceneOne(Objs)
 function SceneTwo()
 {
     this.endScene=false;
-    this.nextLvl=0;
+    this.nextLvl=1;           //public variables to show when and what nextlvl is
+    this.canvas=null;        //size and stuff set each frame by resizeHandling
+    var panel= null;
     this.init = function()
     {
-        alert("SceneTwo not implemented");
+    }
+    this.GLSettings = function()
+    {
     }
     this.update = function()
     {
+        this.endScene = true;
     }
 }

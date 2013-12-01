@@ -21,10 +21,12 @@ function AudiManager()
     }
     function loadAudio()
     {
-        audioFiles['brothers']  = document.getElementsByTagName('audio')[0];
-        audioFiles['cannon']    = document.getElementsByTagName('audio')[1];
-        audioFiles['pin']       = document.getElementsByTagName('audio')[2];
-        audioFiles['robb']      = document.getElementsByTagName('audio')[3];
+        audioFiles['brothers']  = new Audio("b.ogg");
+        audioFiles['brothers'].addEventListener('progress', function (){ increaseLoading('.');});
+  //      audioFiles['cannon']    = new Audio("cannon.ogg");
+//        audioFiles['pin']       = new Audio("pin.ogg");
+        audioFiles['robb']      = new Audio("robb.ogg");
+        audioFiles['robb'].addEventListener('progress', function (){ increaseLoading('.');});
     }
     this.playSpec=function(str,force)
     {
@@ -39,7 +41,7 @@ function AudiManager()
     {
         multiSound.push(new Audio());
         var indx = multiSound.length-1;
-        multiSound[indx].src = str;
+        multiSound[indx].src = str;          ///cacher den er det derfor dettte går så fint ? 
         if(volume !== undefined&&!isNaN(volume))
         {
             if(volume>=1)

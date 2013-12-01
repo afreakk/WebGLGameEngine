@@ -1,5 +1,6 @@
 function parseMtl(data, model,URL)
 {
+    increaseLoading(".");
     var lines = data.split('\n');
     var texURL = fixUrl(URL);
     for(var i=0, index = -1; i<lines.length; i++)
@@ -75,6 +76,7 @@ function parseMtl(data, model,URL)
 
 function parseObj(obj,model)
 {
+    increaseLoading(".");
     var lines = obj.split('\n');
     var vertexes = new Array();
     var normals = new Array();
@@ -243,6 +245,7 @@ function ModelHolder()
             this.textures[this.materialNames[i].name].onload = (function() 
             {
                 numTexturesLoaded++; 
+                increaseLoading('.');
                 if(numTexturesLoaded == numTextures)
                     completionCallback(models,canvas);
             });

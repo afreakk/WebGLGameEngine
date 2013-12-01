@@ -12,6 +12,7 @@ function webGLStart(document)
     panelCanvas = getCanvas(document,"panel");
     mouse.x = 0;
     mouse.y = 0;
+    showLoading();
     if(gl = initGL(canvas))
     {
         glMatrix.setMatrixArrayType(Float32Array);

@@ -2,19 +2,9 @@
 <head>
 <title>W</title>
 <meta http-equiv="content-type"     content="text/html; charset=ISO-8859-1">
-<audio src="b.ogg">
-  Your browser does not support the <code>audio</code> element.
-</audio>
-<audio src="cannon.ogg">
-  Your browser does not support the <code>audio</code> element.
-</audio>
-<audio src="pin.ogg">
-  Your browser does not support the <code>audio</code> element.
-</audio>
-<audio src="robb.ogg">
-  Your browser does not support the <code>audio</code> element.
-</audio>
 <script src="jquery-2.0.3.js"></script>
+    <script src='label.js'></script>
+    <script src='loading.js'></script>
     <script src='gl-matrix/common.js'></script>
     <script src='gl-matrix/vec2.js'></script>
     <script src='gl-matrix/vec3.js'></script>
@@ -44,7 +34,6 @@
     <script src='physWorld.js'></script>
     <script src='Castle.js'></script>
     <script src='Cannon.js'></script>
-    <script src='label.js'></script>
     <script src='multicrew.js'></script>
     <script src='perlinsimplexnoise.js'></script>
     <script src='dancer/dancer.js'></script>
@@ -72,7 +61,7 @@
 </style>
 </head>
 <body>
-<canvas id="lerret" style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 1></canvas>
-<canvas id="panel"  style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 0></canvas>
+<canvas id="lerret" style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 2></canvas>
+<canvas id="panel"  style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 1></canvas>
 </body>
 </html>
