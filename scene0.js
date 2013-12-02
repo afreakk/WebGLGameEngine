@@ -1,4 +1,4 @@
-function SceneOne(Objs)
+function SceneOne(Objs,Plane)
 {
     this.endScene=false;
     this.nextLvl=1;           //public variables to show when and what nextlvl is
@@ -19,6 +19,7 @@ function SceneOne(Objs)
     var cannon = null;
     var castle = null;
     var panel= null;
+    var plane = Plane;
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var shader = getShader(gl,"vs/vShader","fs/fShader");
@@ -58,7 +59,7 @@ function SceneOne(Objs)
         var pinDistance = 150;
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,pinDistance);
         castle = new Castle(objs,drawObjs,shaderStruct, panel,pinDistance);
-        guiPlane = new gui3DElement(drawObjs,objs['plane'].generateBuffers(),shaderStruct,helpTipStartPos);
+        guiPlane = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         guiUpd(0);
     }   
     var helpTipStartPos = vec3.fromValues(0,-6,175);
@@ -102,6 +103,17 @@ function SceneOne(Objs)
             }
         }
     }
+    var timeOut = 0.0;
+    function opening(currPos)
+    {
+        if(timeOut >= -Math.PI)
+        {
+            console.log(timeOut);
+            timeOut -= Math.min(deltaTime/1.0,0.1);
+            console.log(currPos);
+            camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),-0.5,Math.cos(timeOut)),currPos),currPos);
+        }
+    }
     this.update = function()
     {
         var lDistance = 20.0;
@@ -125,6 +137,7 @@ function SceneOne(Objs)
         }
         castle.setBrickhit(cannon.isBirdPerspective());
         generalUpdate();//
+        opening(camera0.getPos());
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
     }
@@ -147,24 +160,7 @@ function SceneOne(Objs)
     }
     function glClear()
     {
-        gl.clearColor(0.2, 0.0, 1.0, 1.0);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    }
-}
-function SceneTwo()
-{
-    this.endScene=false;
-    this.nextLvl=1;           //public variables to show when and what nextlvl is
-    this.canvas=null;        //size and stuff set each frame by resizeHandling
-    var panel= null;
-    this.init = function()
-    {
-    }
-    this.GLSettings = function()
-    {
-    }
-    this.update = function()
-    {
-        this.endScene = true;
     }
 }

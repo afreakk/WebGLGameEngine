@@ -8,6 +8,11 @@ function showLoading()
     y: this.canvas.height-this.canvas.height/16.0, color: "#FFF", titleColor: "#ffff00" });
     loadingPanel.insert(loadingBar);
 }
+function removeLoading()
+{
+    loadingBar = null;
+    loadingPanel = null;
+}
 function increaseLoading(str)
 {
     if(loadingBar!==null)

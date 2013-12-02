@@ -1,4 +1,3 @@
-var audioMgr = new AudiManager();
 function AudiManager()
 {
     var currentID = null;
@@ -6,6 +5,7 @@ function AudiManager()
     var audioFiles = new Array();
     var multiSound = new Array();
     var dancers = new Array();
+    var audioLocation = "audio/";
     ///audiofiles
     init();
     function init()
@@ -18,15 +18,21 @@ function AudiManager()
         dancers['brothers'].load(audioFiles['brothers']);
         dancers['robb'] = new Dancer();
         dancers['robb'].load(audioFiles['robb']);
+        dancers['roboTrans'] = new Dancer();
+        dancers['roboTrans'].load(audioFiles['roboTrans']);
     }
     function loadAudio()
     {
-        audioFiles['brothers']  = new Audio("b.ogg");
+        audioFiles['brothers']  = new Audio(audioLocation+"b.ogg");
         audioFiles['brothers'].addEventListener('progress', function (){ increaseLoading('.');});
-  //      audioFiles['cannon']    = new Audio("cannon.ogg");
-//        audioFiles['pin']       = new Audio("pin.ogg");
-        audioFiles['robb']      = new Audio("robb.ogg");
+        audioFiles['cannon']    = new Audio(audioLocation+"cannon.ogg");
+        audioFiles['cannon'].addEventListener('progress', function (){ increaseLoading('.');});
+        audioFiles['pin']       = new Audio(audioLocation+"pin.ogg");      //init caching 
+        audioFiles['pin'].addEventListener('progress', function (){ increaseLoading('.');});
+        audioFiles['robb']      = new Audio(audioLocation+"robb.ogg");
         audioFiles['robb'].addEventListener('progress', function (){ increaseLoading('.');});
+        audioFiles['roboTrans']      = new Audio(audioLocation+"roboTrans.ogg");
+        audioFiles['roboTrans'].addEventListener('progress', function (){ increaseLoading('.');});
     }
     this.playSpec=function(str,force)
     {
@@ -34,14 +40,13 @@ function AudiManager()
     }
     this.play=function(str,forceRestart)
     {
-        audioFiles[str].currentTime = 0;
         audioFiles[str].play();
     }
     this.playSequential=function(str,volume)
     {
         multiSound.push(new Audio());
         var indx = multiSound.length-1;
-        multiSound[indx].src = str;          ///cacher den er det derfor dettte går så fint ? 
+        multiSound[indx].src = audioLocation+str+".ogg"; 
         if(volume !== undefined&&!isNaN(volume))
         {
             if(volume>=1)
@@ -67,18 +72,19 @@ function AudiManager()
     }
     function playSomething(id,force)
     {
-        if(dancers[id].isLoaded)
+        if(dancers[id].isLoaded()===true)
         {
-            if(dancers[id].isPlaying!== true||force === true)
-            {
-                dancers[id].play();
-            }
+            dancers[id].play();
             currentID = id;
         }
         else
         {
-            console.log("id request is not loaded");
+            console.log("id request is not loaded,load them in initfunction");
         }
+    }
+    this.rewindSpec=function(id)
+    {
+        dancers[id].audio.currentTime=0;
     }
     this.getDB=function()
     {

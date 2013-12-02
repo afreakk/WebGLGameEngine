@@ -269,7 +269,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
                 stringShotInfo = "";
                 if(key.SPACE)
                 {
-                    audioMgr.playSequential("cannon.ogg");
+                    audioMgr.playSequential("cannon");
                     var ln = 5.0;
                     var cBPos = vec3.fromValues(cannon.global.getPos()[0],cannon.global.getPos()[1],cannon.global.getPos()[2]);
                     vec3.add(cBPos,cBPos,vec3.fromValues(-backwards[0]*ln,3.0,-backwards[2]*ln));

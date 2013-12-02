@@ -56,7 +56,23 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
     {
         return currentTexture;
     }
+    this.getTexture=function()
+    {
+        return currentTexture;
+    }
     this.useTexture=function(url)
+    {
+        currentTexture = url;
+        if(url in textureBuffers)
+        {
+            return;
+        }
+        else
+        {
+            loadTextures(url,generateTextureBuffers);
+        }
+    }
+    this.setTexture=function(url)
     {
         currentTexture = url;
         if(url in textureBuffers)
@@ -71,7 +87,7 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
     function loadTextures(url, completionCallback)
     {
         guiTextures[url] = new Image();
-        guiTextures[url].src = url;
+        guiTextures[url].src = "imgz/"+url;
         guiTextures[url].onload = (function() 
         {
             completionCallback(guiTextures[url],url);

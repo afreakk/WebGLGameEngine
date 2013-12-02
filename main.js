@@ -2,9 +2,8 @@
 var doc;
 var panelCanvas;
 
-
-
 //////////
+var audioMgr = null;
 function webGLStart(document)
 {
     doc = document;
@@ -12,9 +11,12 @@ function webGLStart(document)
     panelCanvas = getCanvas(document,"panel");
     mouse.x = 0;
     mouse.y = 0;
-    showLoading();
     if(gl = initGL(canvas))
     {
+        showLoading();
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        audioMgr = new AudiManager();
         glMatrix.setMatrixArrayType(Float32Array);
         ObjLoader({  'ground': 'models/ground/ground.obj' , 'plane' : 'models/plane/plane.obj',
                     'cannon':'models/cannon/cannon.obj','cannonBall':'models/cannonball/cannonBall.obj', 'particle':'models/particle/particle.obj',
@@ -31,10 +33,12 @@ function startApp(meshes, canvas)
 {
     var mgr = new Manager(canvas);
     var startLvl = 0;
-    var lvlOne = new SceneOne(meshes);
-    var lvlTwo = new SceneTwo();
-    mgr.addScene(lvlOne);
+    var plane = meshes['plane'].generateBuffers()
+    var lvlOne = new SceneOne(meshes, plane);
+    var lvlTwo = new SceneTwo(meshes, plane);
+    removeLoading();
     mgr.addScene(lvlTwo);
+    mgr.addScene(lvlOne);
     mgr.init(startLvl);
     mgr.animFrame();
 }

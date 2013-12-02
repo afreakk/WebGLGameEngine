@@ -320,7 +320,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         {
             console.log(distanceDistance);
             timeSinceLastPlong[index]=0.0;
-            audioMgr.playSequential('pin.ogg',distanceDistance/20);
+            audioMgr.playSequential('pin',distanceDistance/20);
         }
         dist[index] = thisDist;
     }
