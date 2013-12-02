@@ -1,16 +1,22 @@
 
-function MenuAnimator(Items,EndPos)
+function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing)
 {
     var items = Items;
     var animators = new Array();
     var endPos = EndPos;
-    var widthSpacing = 20;
-    var yStart = 7.5;
-    var zStart = -10;
+    var widthSpacing = (xwidthSpacing === undefined)?20:xwidthSpacing;
+    var yStart = (xyStart === undefined)?-7.5:xyStart;
+    var zStart = (xzStart === undefined)?-10:xzStart;
     var selected = 0;
     var isInFocus = new Array();
     var timeSinceKeyPress=0;
     var keyPressTimeTreshold = 0.2;
+    var doesSwitchImage = false;
+    this.setSwitchImage=function(val)
+    {
+        doesSwitchImage=val;
+    }
+    console.log(zStart);
     init();
     function init()
     {
@@ -29,7 +35,7 @@ function MenuAnimator(Items,EndPos)
     {
         if(isInFocus[selected]===true)
             return selected;
-        return "notSelectedUet";
+        return null;
     }
     function controls(dt)
     {
@@ -73,7 +79,8 @@ function MenuAnimator(Items,EndPos)
             else
                 animators[i].setSelect(false);
             isInFocus[i] = animators[i].update(dt);
-            switchImage(items[i],isInFocus[i]);
+            if(doesSwitchImage===true)
+                switchImage(items[i],isInFocus[i]);
         }
     }
     function switchImage(item,elementFocus)

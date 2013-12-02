@@ -65,7 +65,7 @@ vec3 DiffuseSpecDirection(vec3 normal_camSpace, vec3 lightDir, vec3 eyeDir_camSp
 }
 vec3 fractal()
 {     
-    vec2 position = uvCoords;
+    vec2 position = uvCoords*100000.0;
 
      float cX = position.x - 0.5;
      float cY = position.y - 0.5;
@@ -76,11 +76,37 @@ vec3 fractal()
      float color = 0.0;
      color += cos( newX * cos(iGlobalTime / 15.0 ) * 80.0 ) + cos( newX * cos(iGlobalTime / 15.0 ) * 10.0 );
      color += cos( newY * cos(iGlobalTime / 10.0 ) * 40.0 ) + cos( newY * sin(iGlobalTime / 25.0 ) * 40.0 );
-     color += cos( newX * cos(iGlobalTime / 5.0 ) * 10.0 ) + cos( newY * sin(iGlobalTime / 35.0 ) * 80.0 );
+     color += cos( newX * cos(iGlobalTime / 5.0 ) * 10.0 ) + sin( newY * sin(iGlobalTime / 35.0 ) * 80.0 );
      color *= cos(iGlobalTime / 10.0 ) * 0.5;
 
      return vec3( color, color * 0.5, sin( color + iGlobalTime / 3.0 ) * 0.75 );
 
+}
+vec3 hFrac()
+{
+	vec2 uv = (uvCoords)*200000.0;
+	float pwr = iGlobalTime;
+
+	float ww = 0.01;
+
+	uv.y += 0.1;
+	vec3 str;
+	pwr /=4.0;
+	uv.y += ((pwr) *(1.0* sin(uv.x*3.14*2.0  +iGlobalTime*2.0) ));
+	ww = tan(uv.y);
+	str = vec3(pwr*0.1 , pwr*0.1, pwr);
+	if(ww>1.0+pwr)
+		str = vec3(ww*0.1 , ww*0.1, ww*0.1 );
+	if(ww<0.4+pwr)
+		ww=0.0;
+	if(ww>0.4+pwr && ww<0.6+pwr)
+		str = vec3(ww*0.2 , ww*0.2,ww);
+	if(ww>0.6+pwr && ww<0.8+pwr)
+		str = vec3(0.0, 0.0, ww*0.9 );
+	if(ww>0.8&&ww<1.0)
+		str = vec3(ww*0.1 , ww*0.1, ww*0.8 );
+	
+    return str;
 }
 void main(void) {
     highp int matIndex = int(matIndexF);
@@ -100,12 +126,19 @@ void main(void) {
     vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,pow(distance,2.0));
     vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
     vec3 endColor = ambientColor+pointLight+directionLight;
+    vec3 frClr= vec3(1.0,1.0,1.0);
     if(strike == 1)
     {
-        vec3 frClr = fractal();
+        frClr = hFrac();
         float minVal = 0.15; 
         endColor *= vec3(max(minVal,frClr.r),max(minVal,frClr.g),max(minVal,frClr.b));
     }
-    gl_FragColor = vec4(endColor,texture.a*alpha);
+    else if(strike == 2)
+    {
+        frClr = hFrac();
+        float minVal = 0.5; 
+        endColor *= vec3(max(minVal,frClr.r),max(minVal,frClr.g),max(minVal,frClr.b));
+    }
+    gl_FragColor = vec4(endColor,texture.a*alpha*((min(frClr.r,1.0)+min(frClr.g,1.0)+min(frClr.b,1.0))/3.0));
 
 }

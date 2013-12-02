@@ -16,6 +16,10 @@
     <script src='libs/gl-matrix/quat.js'></script>
     <script src='libs/ammo.js'></script>
     <script src='libs/webgl-utils.js'></script>
+    <script src="libs/parse-1.2.13.min.js"></script>
+    <script src='libs/perlinsimplexnoise.js'></script>
+    <script src='libs/dancer/dancer.js'></script>
+    <script src='libs/dancer/lib/fft.js'></script>
     <script src='shaderLoader.js'></script>
     <script src='particleEffects.js'></script>
     <script src='simpleShapes.js'></script>
@@ -36,12 +40,12 @@
     <script src='Castle.js'></script>
     <script src='Cannon.js'></script>
     <script src='multicrew.js'></script>
-    <script src='libs/perlinsimplexnoise.js'></script>
-    <script src='libs/dancer/dancer.js'></script>
-    <script src='libs/dancer/lib/fft.js'></script>
     <script src='main.js'></script>
     <script src='audioMgr.js'></script>
     <script src='menusystem.js'></script>
+    <script src='textToTexture.js'></script>
+    <script src='databaseHandling.js'></script>
+
     <script>
         var startingInnerWidth = window.innerWidth;
         var startingInnerHeight = window.innerHeight;
@@ -65,5 +69,6 @@
 <body>
 <canvas id="lerret" style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 2></canvas>
 <canvas id="panel"  style="border: none; position: absolute; left: 0" width="window.innerWidth" height="window.innerHeight" z-index: 1></canvas>
+<canvas id="textureCanvas"></canvas>
 </body>
 </html>

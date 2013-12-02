@@ -12,6 +12,7 @@ function SceneTwo(Objs,Plane)
     var shaderStruct = null;
     var drawObjs = new DrawableObjects();
     var menuElements= new Array();
+    var highScoreElements = new Array();
     var aMenu = null;
     var dirLight = null;
     var light = null;
@@ -20,6 +21,7 @@ function SceneTwo(Objs,Plane)
     var lastTime=0;
     var time=0;
     var startTime = new Date().getTime();
+    var mState = "mainMenu";
     this.init = function()
     {
         var lightColor = vec3.fromValues(1.0,0.95,0.9);
@@ -32,7 +34,8 @@ function SceneTwo(Objs,Plane)
         var cPos0    = vec3.fromValues(0.0,0.0,-10.0);
         var cLookAt = vec3.fromValues(0.0,0.0,10.0);
         camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
-        audioMgr.play("robb");
+        audioMgr.playSpec("robb");
+        initHighscoreList();
     }
     function setupMenu()
     {
@@ -47,7 +50,8 @@ function SceneTwo(Objs,Plane)
         menuElements[2] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         menuElements[2].useTexture('sCredits.png'); //prebuffer image not used
         menuElements[2].useTexture('uCredits.png');
-        aMenu = new MenuAnimator(menuElements,vec3.fromValues(0,0,0));
+        aMenu = new MenuAnimator(menuElements,vec3.fromValues(0,0,5.0));
+        aMenu.setSwitchImage(true);
     }
     this.GLSettings= function()   //being run automatically by sceneManager
     {
@@ -61,19 +65,14 @@ function SceneTwo(Objs,Plane)
         gl.enable (gl.BLEND);
         gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
-    var db = 0;
+    var currentDB = 0;
     this.update = function()
     {
+        audioMgr.playSpec("robb");
+        currentDB = audioMgr.getDB("robb")*.50+audioMgr.getDB("roboTrans")*.50;
         handleTime();
         updateMenu();
-        db += audioMgr.getDB()*100;
-        gl.uniform1f(shaderStruct.iGlobalTime, db );
-        gl.uniform1i(shaderStruct.strike, 1 );
-        var currPos = vec3.fromValues(cameraPos[0],cameraPos[1],cameraPos[2]);
-        var mDB = audioMgr.getDB()*500;
-        vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
-        camera.lookAtFrom(vec3.fromValues(0,0,0),currPos);
-        this.endScene= endingScene(currPos);
+        this.endScene= endingScene(cameraPos);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         camera.update(); //needs to be called each update for each camera
@@ -90,12 +89,73 @@ function SceneTwo(Objs,Plane)
             return true;
         return false;
     }
+    var lerpToSub = 0;
+    var SubDepth = 10.0;
     function updateMenu()
     {
-        aMenu.update(deltaTime);
-        if(key.SPACE&&aMenu.getSelected() === 0)
+        injectHighscore();
+        var currPos = vec3.fromValues(cameraPos[0],cameraPos[1],cameraPos[2]);
+        var mDB = currentDB*500;
+        if(mState === "mainMenu")
         {
-            endScene=true;
+            aMenu.update(deltaTime);
+            vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
+            if(key.SPACE&&aMenu.getSelected() !== null)
+                switchState()
+            if(lerpToSub>0.0)
+                lerpToSub -= deltaTime; 
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB );
+            gl.uniform1i(shaderStruct.strike, 1 );
+        }
+        if(mState === "highScore")
+        {
+            mDB /= 2.0;
+            if(highScoreList !== null)
+                highScoreList.update(deltaTime);
+            vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
+            if(lerpToSub<1.0)
+                lerpToSub += deltaTime; 
+
+            console.log(highScoreList.getSelected());
+            if(key.SPACE&&highScoreList.getSelected() === 0&&lerpToSub>=1.0)
+                mState = "mainMenu";
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*1.0 );
+            gl.uniform1i(shaderStruct.strike, 2 );
+        }
+        var camPos = vec3.create();
+        vec3.lerp(camPos,currPos,vec3.add(vec3.create(),currPos,vec3.fromValues(0,-SubDepth,-10)), lerpToSub);
+        camera.lookAtFrom( vec3.add(vec3.create(), camPos,vec3.fromValues(0,0,-1)),camPos);
+
+    }
+    function injectHighscore()
+    {
+        var helpTipStartPos = vec3.fromValues(0,0,-50);
+        if(foundHighScoreListP===true)
+        {
+            for(var i=0; i<highScoreListP.length; i++)
+            {
+                highScoreElements[i+1] = new gui3DElement(drawObjs, plane, shaderStruct, helpTipStartPos);
+                highScoreElements[i+1].setText(highScoreListP[i]);
+            }
+            highScoreList = new MenuAnimator(highScoreElements,vec3.fromValues(0,-SubDepth,-3.0),-2.5-SubDepth,-10,2.0);
+            foundHighScoreListP = false;
+        }
+    }
+    var highScoreList = null;
+    function initHighscoreList()
+    {
+        var helpTipStartPos = vec3.fromValues(0,0,-50);
+        highScoreElements[0] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
+        highScoreElements[0].setText("Back"); 
+        getTopTen();
+    }
+    function switchState()
+    {
+        switch(aMenu.getSelected())
+        {
+            case 0: endScene = true; break;
+            case 1: mState = "highScore"; break;
+            case 2:/* mState = "credits"*/; break;
         }
     }
     function handleTime()

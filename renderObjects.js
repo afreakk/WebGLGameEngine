@@ -84,6 +84,17 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
             loadTextures(url,generateTextureBuffers);
         }
     }
+    this.setText=function(text)
+    {
+        if(text in textureBuffers)
+        {
+            currentTexture = text;
+            return;
+        }
+        textureBuffers[text] = textToTexture(text);
+        currentTexture = text;
+
+    }
     function loadTextures(url, completionCallback)
     {
         guiTextures[url] = new Image();

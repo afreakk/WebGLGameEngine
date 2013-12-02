@@ -79,17 +79,17 @@ function AudiManager()
         }
         else
         {
-            console.log("id request is not loaded,load them in initfunction");
         }
     }
     this.rewindSpec=function(id)
     {
         dancers[id].audio.currentTime=0;
     }
-    this.getDB=function()
+    this.getDB=function(id)
     {
-        if(dancers[currentID].isPlaying())
-            return dancers[currentID].getFrequency(0,500);
+        if(id in dancers)
+            if(dancers[id].isPlaying())
+                return dancers[id].getFrequency(0,500);
         return 0;
 
     }

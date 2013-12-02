@@ -12,31 +12,21 @@
 
   <script type="text/javascript">
    Parse.initialize("2RjawbvEzCfQouhgNIeonN2RRBAQ3UbzhDCrIYLo", "qT0fnDQuvD3cTseb2P9yWqmT0DN5McqUu1rKCCrD"); 
-    var TestObject = Parse.Object.extend("TestObject");
-    var testObject = new TestObject();
-      testObject.save({foo: "bar"}, {
-      success: function(object) {
-        $(".success").show();
-      },
-      error: function(model, error) {
-        $(".error").show();
-      }
-    });
-
-var GameScore = Parse.Object.extend("GameScore");
-var query = new Parse.Query(GameScore);
-query.ascending("score");
-query.find({
-  success: function(results) {
-    alert("Successfully retrieved " + results.length + " scores.");
-    // Do something with the returned Parse.Object values
-    for (var i = 0; i < results.length; i++) { 
-      var object = results[i];
-      alert(object.id + ' - ' + object.get('playerName'));
-    }
+   var GameScore = Parse.Object.extend("bowl");
+var gameScore = new GameScore();
+ 
+gameScore.set("score", 132);
+gameScore.set("playerName", "Gracken");
+ 
+gameScore.save(null, {
+  success: function(gameScore) {
+    // Execute any logic that should take place after the object is saved.
+    alert('New object created with objectId: ' + gameScore.id);
   },
-  error: function(error) {
-    alert("Error: " + error.code + " " + error.message);
+  error: function(gameScore, error) {
+    // Execute any logic that should take place if the save fails.
+    // error is a Parse.Error with an error code and description.
+    alert('Failed to create new object, with error code: ' + error.description);
   }
 });
     </script>

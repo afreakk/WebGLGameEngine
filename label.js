@@ -34,7 +34,6 @@ multicrew.Label.prototype.init = function()
 		this.width		= Number(this.parent.context.measureText(this.text).width);
 		this.height		= Number(this.parent.context.font.replace(/px[^0-9]*$/, ""));
 		this.lastText	= this.text;
-		this.draw();
 	}
 }
 
@@ -46,7 +45,9 @@ multicrew.Label.prototype.draw = function()
 		return;
 	
 	if(this.text != this.lastText)
+    {
 		this.init();
+    }
     if(this.crazyMode === true)
     {
         if(Math.random()>0.5)

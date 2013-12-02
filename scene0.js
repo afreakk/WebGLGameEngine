@@ -44,6 +44,7 @@ function SceneOne(Objs,Plane)
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
         panel = new multicrew.Panel("panel");
+        panel.noDraw= true;
         pWorld = new PhysicsWorld();
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
@@ -113,6 +114,8 @@ function SceneOne(Objs,Plane)
             console.log(currPos);
             camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),-0.5,Math.cos(timeOut)),currPos),currPos);
         }
+        else
+            panel.noDraw= false;
     }
     this.update = function()
     {

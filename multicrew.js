@@ -30,11 +30,15 @@ multicrew.Panel.prototype.insert = function(element)
 	
 	this.elements.push(element);
 	element.init();
+    if(this.noDraw===false)
+        element.draw();
 	return element;
 }
 
 multicrew.Panel.prototype.draw = function()
 {
+    if(this.noDraw===true)
+        return;
 	for(var i = 0; i < this.elements.length; ++i)
 		this.elements[i].draw();
 }
