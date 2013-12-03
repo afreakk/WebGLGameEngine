@@ -1,6 +1,7 @@
 
-function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing)
+function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing,Quad)
 {
+    var quad = Quad;
     var items = Items;
     var animators = new Array();
     var endPos = EndPos;
@@ -12,23 +13,47 @@ function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing)
     var timeSinceKeyPress=0;
     var keyPressTimeTreshold = 0.2;
     var doesSwitchImage = false;
+    var noControls = false;
+    init();
+    this.setNoControl=function(val)
+    {
+        noControls= val;
+    }
     this.setSwitchImage=function(val)
     {
         doesSwitchImage=val;
     }
-    console.log(zStart);
-    init();
     function init()
     {
+        if(quad===true)
+            initQuadView()
+        else
+            for(var i=0; i<items.length; i++)
+            {
+                animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(i+0.5)-widthSpacing*(items.length/2),yStart,zStart),endPos);
+                isInFocus[i] = false;
+            }
+    }
+    function initQuadView()
+    {
+        var x=0,y=0;
         for(var i=0; i<items.length; i++)
         {
-            animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(i+0.5)-widthSpacing*(items.length/2),yStart,zStart),endPos);
+            if(x<4)
+                x++;
+            else
+            {
+                x=1;
+                y++;
+            }
+            animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(x+0.5)-widthSpacing*(4/2),yStart+y*(widthSpacing/1.2),zStart),endPos);
             isInFocus[i] = false;
         }
     }
     this.update=function(dt)
     {
-        controls(dt);
+        if(!noControls)
+            controls(dt);
         updateAnimators(dt);
     }
     this.getSelected=function()

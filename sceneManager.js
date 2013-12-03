@@ -1,25 +1,23 @@
-function SceneManager(Canvas)
+function SceneManager(Canvas,Meshes,Plane)
 {
     this.currentScene = null;
-    this.sceneArray = new Array();
     this.endGame = false;
     this.canvas = Canvas;
     this.resizeH = new resizeHandling(this.canvas); 
+    var meshes = Meshes;
+    var plane = Plane;
     this.run = function()
     {
         return !this.endGame;
     }
-    this.addScene = function(whatScene)
-    {
-        this.sceneArray.push(whatScene);
-    }
     this.setLvl = function(index)
     {
         console.log("setLvlIndex: "+index);
-        if(index<this.sceneArray.length && index>=0)
+        if(index<2 && index>=0)
         {
-            this.currentScene = this.sceneArray[index];
+            this.currentScene = (index===1)?new SceneOne(meshes,plane):new SceneTwo(meshes,plane);
             this.resizeH.setScene(this.currentScene);
+            this.currentScene.endScene = false;
             this.currentScene.GLSettings();
             this.currentScene.init();
         }
@@ -37,14 +35,14 @@ function SceneManager(Canvas)
             this.setLvl(this.currentScene.nextLvl);
     }
 }
-function Manager(Canvas)
+function Manager(Canvas,Meshes,Plane)
 {
-    this.sceneMgr=new SceneManager(Canvas);
+    this.sceneMgr=new SceneManager(Canvas,Meshes,Plane);
     this.addScene = function(whatScene)
     {
         this.sceneMgr.addScene(whatScene);
     }
-    this.init = function(startLvlIndex,sceneArr)
+    this.init = function(startLvlIndex)
     {
         this.sceneMgr.setLvl(startLvlIndex);
     }

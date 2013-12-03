@@ -31,14 +31,10 @@ function webGLStart(document)
 }
 function startApp(meshes, canvas)
 {
-    var mgr = new Manager(canvas);
+    var plane = meshes['plane'].generateBuffers();
+    var mgr = new Manager(canvas,meshes, plane);
     var startLvl = 0;
-    var plane = meshes['plane'].generateBuffers()
-    var lvlOne = new SceneOne(meshes, plane);
-    var lvlTwo = new SceneTwo(meshes, plane);
     removeLoading();
-    mgr.addScene(lvlTwo);
-    mgr.addScene(lvlOne);
     mgr.init(startLvl);
     mgr.animFrame();
 }

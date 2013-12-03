@@ -9,6 +9,7 @@ function key()
     this.E=new Boolean();
     this.SPACE = new Boolean();
     this.H = new Boolean();
+    this.ENTER = new Boolean();
 }
 key.Left=false;
 key.Right=false;
@@ -18,6 +19,7 @@ key.Q=false;
 key.E=false;
 key.SPACE=false;
 key.H=false;
+key.ENTER=false;
 function onKeyDown(event)
 {
     if(event.keyCode == 37||event.keyCode == 65) 
@@ -36,6 +38,8 @@ function onKeyDown(event)
         key.SPACE=true;
     if(event.keyCode == 72)
         key.H=true;
+    if(event.keyCode == 13)
+        key.ENTER=true;
 }
 function onKeyUp(event)
 {    
@@ -55,4 +59,31 @@ function onKeyUp(event)
         key.SPACE=false;
     if(event.keyCode == 72)
         key.H=false;
+    if(event.keyCode == 13)
+        key.ENTER=false;
+    if(textOutput !== null)
+    {
+        textOutput.add(String.fromCharCode(event.keyCode));
+        if(event.keyCode == 8)
+            textOutput.backspace()
+    }
+    
+}
+var textOutput = null;
+function TextOutput()
+{
+    var str = "";
+    this.add=function(inp)
+    {
+        str += inp;
+    }
+    this.backspace=function()
+    {
+        str = str.slice(0,str.length-2);
+    }
+    this.getString=function()
+    {
+        return str;
+    }
+
 }

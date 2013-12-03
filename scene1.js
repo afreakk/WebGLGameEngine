@@ -1,4 +1,4 @@
-
+var insertHighScoreMode = false;
 function SceneTwo(Objs,Plane)
 {
     this.endScene=false;
@@ -21,7 +21,15 @@ function SceneTwo(Objs,Plane)
     var lastTime=0;
     var time=0;
     var startTime = new Date().getTime();
-    var mState = "mainMenu";
+    var mState = insertHighScoreMode?"insertHighScore":"mainMenu";
+    var insertHighScoreElements = new Array();
+    var highScoreList = null;
+    var lerpToSub = insertHighScoreMode?1:0;
+    var SubDepth = 12.0;
+    var insertHighScoreMenu = null;
+    var loadingAnim = null;
+    var waitTime = 0;
+    var currentDB = 0;
     this.init = function()
     {
         var lightColor = vec3.fromValues(1.0,0.95,0.9);
@@ -35,11 +43,12 @@ function SceneTwo(Objs,Plane)
         var cLookAt = vec3.fromValues(0.0,0.0,10.0);
         camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
         audioMgr.playSpec("robb");
-        initHighscoreList();
+        if(insertHighScoreMode===false)
+            initHighscoreList();
     }
     function setupMenu()
     {
-        var helpTipStartPos = vec3.fromValues(0,0,-10);
+        var helpTipStartPos = vec3.fromValues(0,0,-400);
 
         menuElements[0] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         menuElements[0].useTexture('sPlay.png');
@@ -56,8 +65,8 @@ function SceneTwo(Objs,Plane)
     this.GLSettings= function()   //being run automatically by sceneManager
     {
         var guiShader = getShader(gl,"vs/guiShader","fs/guiShader");
+        setShader(guiShader);
         shaderStruct = new getShaderStruct(guiShader);
-        setShader(shaderStruct.shader);
         gl.uniform1f(shaderStruct.alpha, 1.0 );
         setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex,shaderStruct.diffColor, 
         shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
@@ -65,11 +74,10 @@ function SceneTwo(Objs,Plane)
         gl.enable (gl.BLEND);
         gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
-    var currentDB = 0;
     this.update = function()
     {
         audioMgr.playSpec("robb");
-        currentDB = audioMgr.getDB("robb")*.50+audioMgr.getDB("roboTrans")*.50;
+        currentDB = Math.max(audioMgr.getDB("robb")*4.0+audioMgr.getDB("roboTrans")*.8,0.001);
         handleTime();
         updateMenu();
         this.endScene= endingScene(cameraPos);
@@ -89,8 +97,6 @@ function SceneTwo(Objs,Plane)
             return true;
         return false;
     }
-    var lerpToSub = 0;
-    var SubDepth = 10.0;
     function updateMenu()
     {
         injectHighscore();
@@ -98,38 +104,98 @@ function SceneTwo(Objs,Plane)
         var mDB = currentDB*500;
         if(mState === "mainMenu")
         {
+            mDB /= 5.0;
             aMenu.update(deltaTime);
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
-            if(key.SPACE&&aMenu.getSelected() !== null)
+            if(key.SPACE&&aMenu.getSelected() !== null&&lerpToSub<=0.0)
                 switchState()
             if(lerpToSub>0.0)
                 lerpToSub -= deltaTime; 
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB );
+            else if(lerpToSub < 0.2)
+                lerpToSub += deltaTime/10000.0;
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
             gl.uniform1i(shaderStruct.strike, 1 );
         }
-        if(mState === "highScore")
+        else if(mState === "highScore")
         {
-            mDB /= 2.0;
+            mDB /= 20.0;
             if(highScoreList !== null)
                 highScoreList.update(deltaTime);
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(lerpToSub<1.0)
                 lerpToSub += deltaTime; 
+            else if(lerpToSub > 1.1)
+                lerpToSub -= deltaTime/1000.0;
 
-            console.log(highScoreList.getSelected());
             if(key.SPACE&&highScoreList.getSelected() === 0&&lerpToSub>=1.0)
                 mState = "mainMenu";
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*1.0 );
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
             gl.uniform1i(shaderStruct.strike, 2 );
+        }
+        else if(mState === "insertHighScore")
+        {
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB );
+            gl.uniform1i(shaderStruct.strike, 1 );
+            mDB/= 20.0;
+            if(insertHighScoreMenu === null)
+                injectInsertHighScore();
+            insertHighScoreMenu.update(deltaTime);
+            insertHighScoreElements[1].setText(textOutput.getString(),true);
+            vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
+            if(key.ENTER===true)
+            {
+                insertToHighscoreDatabase(textOutput.getString());
+                mState = "wait";
+                waitTime = 0;
+                hideAll(insertHighScoreElements);
+            }
+        }
+        else if(mState === "wait")
+        {
+            lerpToSub += deltaTime/10.0;
+            mDB/= 20.0;
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
+            gl.uniform1i(shaderStruct.strike, 1 );
+            waitTime += deltaTime;
+            vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
+            if(loadingAnim===null)
+                loadingAnim = new gui3DElement(drawObjs, plane, shaderStruct, vec3.fromValues(0,-SubDepth-0.5,-SubDepth/4.0));
+            loadingAnim.global.translate(vec3.fromValues(0,-deltaTime*1.5,-deltaTime));
+            loadingAnim.setText("Please wait, time elapsed: "+waitTime.toFixed(4));
+            if(highScoreUploaded === true)
+            {
+                if(queryFound === true)
+                {
+                    loadingAnim.setHidden(true);
+                    initHighscoreList();
+                    highScoreUploaded = false;
+                    mState = "highScore";
+                }
+                else
+                {
+                    queryEntry();
+                }
+            }
         }
         var camPos = vec3.create();
         vec3.lerp(camPos,currPos,vec3.add(vec3.create(),currPos,vec3.fromValues(0,-SubDepth,-10)), lerpToSub);
         camera.lookAtFrom( vec3.add(vec3.create(), camPos,vec3.fromValues(0,0,-1)),camPos);
 
     }
+    function injectInsertHighScore()
+    {
+        var helpTipStartPos = vec3.fromValues(0,0,-400);
+        insertHighScoreElements[0] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
+        insertHighScoreElements[0].setText("Nick:"); 
+        insertHighScoreElements[1] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
+        insertHighScoreElements[1].setText("exampleNick"); 
+        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-SubDepth,-3),-0.1-SubDepth-0.1,-1.1,2.0);
+        insertHighScoreMenu.setNoControl(true);
+        textOutput = new TextOutput();
+    }
     function injectHighscore()
     {
-        var helpTipStartPos = vec3.fromValues(0,0,-50);
+        var helpTipStartPos = vec3.fromValues(0,0,-400);
         if(foundHighScoreListP===true)
         {
             for(var i=0; i<highScoreListP.length; i++)
@@ -137,14 +203,13 @@ function SceneTwo(Objs,Plane)
                 highScoreElements[i+1] = new gui3DElement(drawObjs, plane, shaderStruct, helpTipStartPos);
                 highScoreElements[i+1].setText(highScoreListP[i]);
             }
-            highScoreList = new MenuAnimator(highScoreElements,vec3.fromValues(0,-SubDepth,-3.0),-2.5-SubDepth,-10,2.0);
+            highScoreList = new MenuAnimator(highScoreElements,vec3.fromValues(-2.5,-SubDepth,-3.0),-2.75-SubDepth,-6,1.4,true);
             foundHighScoreListP = false;
         }
     }
-    var highScoreList = null;
     function initHighscoreList()
     {
-        var helpTipStartPos = vec3.fromValues(0,0,-50);
+        var helpTipStartPos = vec3.fromValues(0,0,-400);
         highScoreElements[0] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         highScoreElements[0].setText("Back"); 
         getTopTen();
@@ -164,5 +229,12 @@ function SceneTwo(Objs,Plane)
         deltaTime = (now - lastTime)/1000;
         time += deltaTime;
         lastTime = now;
+    }
+}
+function hideAll(elements)
+{
+    for(var i=0; i<elements.length; i++)
+    {
+        elements[i].setHidden(true)
     }
 }

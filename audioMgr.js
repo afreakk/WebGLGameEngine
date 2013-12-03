@@ -1,3 +1,4 @@
+var noFckingSound = false;
 function AudiManager()
 {
     var currentID = null;
@@ -36,11 +37,13 @@ function AudiManager()
     }
     this.playSpec=function(str,force)
     {
-        playSomething(str,force);
+        if(!noFckingSound)
+            playSomething(str,force);
     }
     this.play=function(str,forceRestart)
     {
-        audioFiles[str].play();
+        if(!noFckingSound)
+            audioFiles[str].play();
     }
     this.playSequential=function(str,volume)
     {

@@ -1,7 +1,8 @@
+var lastActualScore = 0;
 function SceneOne(Objs,Plane)
 {
     this.endScene=false;
-    this.nextLvl=1;           //public variables to show when and what nextlvl is
+    this.nextLvl=0;           //public variables to show when and what nextlvl is
     this.canvas=null;        //size and stuff set each frame by resizeHandling
 
     var shaderStruct=null; //shaderstruct to keep the shader variable and all the attributes and uniform variables
@@ -107,15 +108,34 @@ function SceneOne(Objs,Plane)
     var timeOut = 0.0;
     function opening(currPos)
     {
-        if(timeOut >= -Math.PI)
-        {
-            console.log(timeOut);
-            timeOut -= Math.min(deltaTime/1.0,0.1);
-            console.log(currPos);
-            camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),-0.5,Math.cos(timeOut)),currPos),currPos);
-        }
+        if(timeOut >= -Math.PI&& !insertHighScoreMode)
+            moveCam(currPos);
         else
             panel.noDraw= false;
+    }
+    function moveCam(currPos,reverseTimeOut)
+    {
+        if(!reverseTimeOut)
+            timeOut -= Math.min(deltaTime/1.0,0.1);
+        else
+            timeOut += Math.min(deltaTime/1.0,0.1);
+        camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),-0.5,Math.cos(timeOut)),currPos),currPos);
+    }
+    this.goToHighScore=function(currPos)
+    {
+        if(castle.getRoundCount() === 13/*||key.Q===true*/)
+            insertHighScoreMode=true;
+        if(insertHighScoreMode===true)
+        {
+            panel.noDraw=true;
+            moveCam(currPos,true);
+            if(timeOut >= 0)
+            {
+                lastActualScore = castle.getTotalScore();
+                audioMgr.pauseSpec("brothers");
+                this.endScene = true;
+            }
+        }
     }
     this.update = function()
     {
@@ -136,11 +156,12 @@ function SceneOne(Objs,Plane)
         if((!cannon.getRollsLeft()||castle.getTypeShotStr()==="Strike!"||castle.getTypeShotStr()==="Spare!")&&cannon.getMode() == "aimingMode")
         {
             castle.reset();
-            cannon.setRollsLeft(2);
+            cannon.setRollsLeft(castle.getRollsLeft());
         }
         castle.setBrickhit(cannon.isBirdPerspective());
         generalUpdate();//
         opening(camera0.getPos());
+        this.goToHighScore(camera0.getPos());
         camera0.update(); //needs to be called each update for each camera
         camera0.draw();
     }

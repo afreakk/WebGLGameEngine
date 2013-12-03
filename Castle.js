@@ -42,6 +42,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var lastThrow=0;
     var scoreMultiplier=0;
     var bricksFallenRealValue=0;
+    var rollsLeft = 2;
     this.getBrickHit=function()
     {
         return brickHit;
@@ -60,7 +61,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         if(scoreMultiplier > 0)
         {
-            musicPower += audioMgr.getDB()*20.0;
+            musicPower += audioMgr.getDB("brothers")*20.0;
             gl.uniform1f(shaderStruct.iGlobalTime, musicPower );
             gl.uniform1i(shaderStruct.strike, 1 );
             audioMgr.pauseSpec("robb");
@@ -198,6 +199,14 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         return roundCountStr;
     }
+    this.getRoundCount=function()
+    {
+        return roundCount();
+    }
+    this.getTotalScore=function()
+    {
+        return totalScore();
+    }
     function totalScore()
     {
         return totalScoreStr;
@@ -264,6 +273,21 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         hasNormalPositions = false;
         RoundTimer = 0;
     }
+    function resetVarsLastRound()
+    {
+        for(var i=0; i<bricks.length; i++)
+        {
+            hasHit[i] = false;
+            unCertainPins[i] = false;
+            timeSinceLastPlong[i] = 0;
+        }
+        typeShotString = " ";
+        totalScoreStr += bricksFallen;
+        bricksFallen = 0;
+        bricksFallenRealValue = 0;
+        hasNormalPositions = false;
+        RoundTimer = 0;
+    }
     function reset()
     {
         trans.setIdentity();
@@ -293,7 +317,17 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             smx -=1;
         }
         console.log(" cubes initialized");
-        resetVars();
+        if(scoreMultiplier > 0 && roundCount()===12)
+        {
+            rollsLeft = scoreMultiplier;
+            resetVarsLastRound();
+        }
+        else
+            resetVars();
+    }
+    this.getRollsLeft=function()
+    {
+        return rollsLeft;
     }
     this.reset= function()
     {
@@ -318,7 +352,6 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         var distanceDistance = (thisDist-dist[index])*(thisDist-dist[index]);
         if( distanceDistance > suddenChangeTreshold && timeSinceLastPlong[index] > plongTimeTreshold)
         {
-            console.log(distanceDistance);
             timeSinceLastPlong[index]=0.0;
             audioMgr.playSequential('pin',distanceDistance/20);
         }

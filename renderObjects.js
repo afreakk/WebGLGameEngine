@@ -84,14 +84,14 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
             loadTextures(url,generateTextureBuffers);
         }
     }
-    this.setText=function(text)
+    this.setText=function(text,ActualString)
     {
         if(text in textureBuffers)
         {
             currentTexture = text;
             return;
         }
-        textureBuffers[text] = textToTexture(text);
+        textureBuffers[text] = textToTexture(text,ActualString);
         currentTexture = text;
 
     }

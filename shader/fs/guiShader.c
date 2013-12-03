@@ -136,7 +136,7 @@ void main(void) {
     else if(strike == 2)
     {
         frClr = hFrac();
-        float minVal = 0.5; 
+        float minVal = 0.1; 
         endColor *= vec3(max(minVal,frClr.r),max(minVal,frClr.g),max(minVal,frClr.b));
     }
     gl_FragColor = vec4(endColor,texture.a*alpha*((min(frClr.r,1.0)+min(frClr.g,1.0)+min(frClr.b,1.0))/3.0));

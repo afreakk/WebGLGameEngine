@@ -1,5 +1,5 @@
 
-function textToTexture(stringToWrite)
+function textToTexture(stringToWrite, ActualString)
 {
     var workCanvas = document.getElementById("textureCanvas");
     var ctx = workCanvas.getContext('2d');
@@ -11,14 +11,24 @@ function textToTexture(stringToWrite)
     var textHeight = 32;
     var maxWidth = 128;
     var canvasTexture;
+    var actualString = ActualString;
     // Omitted: Set up the canvas and get the context
     function makeCanvasText()
     {
 
         ctx.font = textHeight+"px monospace";
-        maxWidth = createMultilineText(ctx, textToWrite, maxWidth, text);
-        var canvasX = getPowerOfTwo(maxWidth);
-        var canvasY = getPowerOfTwo(textHeight*(text.length+1));
+        if(actualString !== true)
+        {
+            maxWidth = createMultilineText(ctx, textToWrite, maxWidth, text);
+            var canvasX = getPowerOfTwo(maxWidth);
+            var canvasY = getPowerOfTwo(textHeight*(text.length+1));
+        }
+        else
+        {
+            text = textToWrite;
+            var canvasX = 512;
+            var canvasY = 512;
+        }
         workCanvas.width = canvasX;
         workCanvas.height = canvasY;
 
@@ -28,9 +38,19 @@ function textToTexture(stringToWrite)
         textX = canvasX/2;
         var offset = (canvasY - textHeight*(text.length+1)) * 0.5;
 
-        for(var i = 0; i < text.length; i++) {
-            textY = (i+1)*(textHeight*0.5) + offset*0.5;
-            ctx.fillText(text[i], textX,  textY+20.0);
+        if(actualString !== true)
+        {
+            for(var i = 0; i < text.length; i++) {
+                textY = (i+1)*(textHeight*0.5) + offset*0.5;
+                ctx.fillText(text[i], textX,  textY+20.0);
+            }
+        }
+        else
+        {
+            for(var i = 0; i < text.length; i++) {
+                textY = (i+1)*(textHeight*0.2) + offset*0.2;
+                ctx.fillText(text[i], textY+100,  textX+20.0);
+            }
         }
     }
 
@@ -49,6 +69,7 @@ function textToTexture(stringToWrite)
         gl.generateMipmap(gl.TEXTURE_2D);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
+
     }
     makeCanvasText();
     makeTexture();

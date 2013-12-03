@@ -201,6 +201,7 @@ function ModelHolder()
     this.textures= new Array();
     this.textureBuffers = new Array();
     this.textureGLSLLocations = new Array();
+    var BufferedModel = null;
     this.generateDiffColor=function()
     {
         var currentMat = 0;
@@ -288,17 +289,20 @@ function ModelHolder()
     }
     this.generateBuffers=function()
     {
+        if(BufferedModel !== null)
+            return BufferedModel;
         this.generateDiffColor();
         this.generateTextureBuffers();
-        return new iModel(this); 
+        BufferedModel = new iModel(this);
+        return BufferedModel; 
     }
 }
 
 function iModel(bufferData)
 {
-    this.tB =               bufferData.textureBuffers;
-    this.numMeshes=         bufferData.meshes.length;
-    this.texGLSLlocs =      bufferData.textureGLSLLocations;
+    this.tB =               bufferData.textureBuffers;  //textureBuffers ( gl.createTexture() )
+    this.numMeshes=         bufferData.meshes.length; //numMeshes 1 i ditt tilfelle, en mesh bare
+    this.texGLSLlocs =      bufferData.textureGLSLLocations; 
     this.vertexPoints =     bufferData.vertexes;
     this.tIndex =       bufferData.totalIndexes;
     this.vB=            gl.createBuffer();
