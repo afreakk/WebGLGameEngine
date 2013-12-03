@@ -94,7 +94,10 @@ function SceneTwo(Objs,Plane)
         timeOut -= deltaTime/1.0;
         camera.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),0,Math.cos(timeOut)),currPos),currPos);
         if(timeOut <=Math.PI/4.0)
+        {
+            insertHighScoreMode = false;
             return true;
+        }
         return false;
     }
     function updateMenu()
@@ -134,7 +137,7 @@ function SceneTwo(Objs,Plane)
         }
         else if(mState === "insertHighScore")
         {
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB );
+            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
             gl.uniform1i(shaderStruct.strike, 1 );
             mDB/= 20.0;
             if(insertHighScoreMenu === null)
@@ -189,7 +192,7 @@ function SceneTwo(Objs,Plane)
         insertHighScoreElements[0].setText("Nick:"); 
         insertHighScoreElements[1] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         insertHighScoreElements[1].setText("exampleNick"); 
-        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-SubDepth,-3),-0.1-SubDepth-0.1,-1.1,2.0);
+        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-SubDepth,-3),-0.2-SubDepth-0.1,-1.1,2.0);
         insertHighScoreMenu.setNoControl(true);
         textOutput = new TextOutput();
     }
