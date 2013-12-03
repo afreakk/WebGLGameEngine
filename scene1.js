@@ -151,7 +151,6 @@ function SceneTwo(Objs,Plane)
         }
         else if(mState === "wait")
         {
-            lerpToSub += deltaTime/10.0;
             mDB/= 20.0;
             gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
             gl.uniform1i(shaderStruct.strike, 1 );
@@ -159,7 +158,7 @@ function SceneTwo(Objs,Plane)
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(loadingAnim===null)
                 loadingAnim = new gui3DElement(drawObjs, plane, shaderStruct, vec3.fromValues(0,-SubDepth-0.5,-SubDepth/4.0));
-            loadingAnim.global.translate(vec3.fromValues(0,-deltaTime*1.5,-deltaTime));
+            loadingAnim.global.translate(vec3.fromValues(0,-deltaTime,-deltaTime));
             loadingAnim.setText("Please wait, time elapsed: "+waitTime.toFixed(4));
             if(highScoreUploaded === true)
             {
@@ -193,7 +192,6 @@ function SceneTwo(Objs,Plane)
         insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-(SubDepth+0.5),-3),-SubDepth*1.01,-1,2.0,false,0.8);
         insertHighScoreMenu.setNoControl(true);
         textOutput = new TextOutput();
-        lastActualScore = 0;
     }
     function injectHighscore()
     {

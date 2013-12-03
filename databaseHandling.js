@@ -4,9 +4,10 @@ var highScoreUploaded = false;
 var lastUploadID = null;
 var foundHighScoreListP = false;
 var highScoreListP = new Array();
+var session = "bwl";
 function queryEntry()
 {
-    var GameScore = Parse.Object.extend("liveBowling");
+    var GameScore = Parse.Object.extend(session);
     var query = new Parse.Query(GameScore);
     query.equalTo("mID", lastUploadID);
     query.find({
@@ -22,7 +23,7 @@ function queryEntry()
 }
 function getTopTen()
 {
-    var GameScore = Parse.Object.extend("liveBowling");
+    var GameScore = Parse.Object.extend(session);
     var query = new Parse.Query(GameScore);
     query.descending("score");
     query.find({
@@ -44,10 +45,11 @@ function getTopTen()
 function insertToHighscoreDatabase(name)
 {
     highScoreUploaded = false;
-    var GameScore = Parse.Object.extend("liveBowling");
+    var GameScore = Parse.Object.extend(session);
     var gameScore = new GameScore();
      
     gameScore.set("score", lastActualScore);
+    lastActualScore = 0;
     gameScore.set("playerName", name);
     gameScore.set("mID", gameScore.id);
     lastUploadID = gameScore.id;

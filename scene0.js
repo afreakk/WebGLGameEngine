@@ -123,7 +123,7 @@ function SceneOne(Objs,Plane)
     }
     this.goToHighScore=function(currPos)
     {
-        if(castle.getRoundCount() === 13||key.Q===true)
+        if(castle.getRoundCount() === 13/*||key.Q===true*/)
             insertHighScoreMode=true;
         if(insertHighScoreMode===true)
         {
