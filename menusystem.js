@@ -1,19 +1,20 @@
 
-function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing,Quad)
+function MenuAnimator(Items,EndPos,YStart,ZStart,xwidthSpacing,Quad,XOffset)
 {
     var quad = Quad;
     var items = Items;
     var animators = new Array();
     var endPos = EndPos;
-    var widthSpacing = (xwidthSpacing === undefined)?20:xwidthSpacing;
-    var yStart = (xyStart === undefined)?-7.5:xyStart;
-    var zStart = (xzStart === undefined)?-10:xzStart;
+    var widthSpacing = (xwidthSpacing === undefined)?15:xwidthSpacing;
+    var yStart = (YStart === undefined)?-7.5:YStart;
+    var zStart = (ZStart === undefined)?-10:ZStart;
     var selected = 0;
     var isInFocus = new Array();
     var timeSinceKeyPress=0;
     var keyPressTimeTreshold = 0.2;
     var doesSwitchImage = false;
     var noControls = false;
+    var xOffset = (XOffset!==undefined)?XOffset:0;
     init();
     this.setNoControl=function(val)
     {
@@ -30,7 +31,7 @@ function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing,Quad)
         else
             for(var i=0; i<items.length; i++)
             {
-                animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(i+0.5)-widthSpacing*(items.length/2),yStart,zStart),endPos);
+                animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(i+0.5)-widthSpacing*(items.length/2)-xOffset,yStart,zStart),endPos);
                 isInFocus[i] = false;
             }
     }
@@ -46,7 +47,7 @@ function MenuAnimator(Items,EndPos,xyStart,xzStart,xwidthSpacing,Quad)
                 x=1;
                 y++;
             }
-            animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(x+0.5)-widthSpacing*(4/2),yStart+y*(widthSpacing/1.2),zStart),endPos);
+            animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(x+0.5)-widthSpacing*(4/2)-xOffset,yStart+y*(widthSpacing/1.2),zStart),endPos);
             isInFocus[i] = false;
         }
     }

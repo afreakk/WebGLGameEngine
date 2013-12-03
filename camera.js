@@ -1,4 +1,4 @@
-function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY)
+function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vportSizeX, vportSizeY, vportOffsetX, vportOffsetY,LockedAspect)
 {
     this.pos    = position;
     this.rot    = quat.create();
@@ -15,11 +15,12 @@ function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vpo
     this.vprtOffY = vportOffsetY;
     this.drawObjs = drawObjects;
     this.mtrx = mat4.create();
+    var lockedAspect = LockedAspect;
     this.setPerspective = function()
     {
         var pMatrix = mat4.create();
         mat4.identity(pMatrix);
-        pMatrix = mat4.perspective(pMatrix, this.fov, (this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), this.near, this.far);
+        pMatrix = mat4.perspective(pMatrix, this.fov, lockedAspect?16/9:(this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), this.near, this.far);
         setMatrix(pMatrix,this.pMatL);
     }
     this.lookAt = function(center)

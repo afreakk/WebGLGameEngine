@@ -41,7 +41,7 @@ function SceneTwo(Objs,Plane)
         setupMenu();
         var cPos0    = vec3.fromValues(0.0,0.0,-10.0);
         var cLookAt = vec3.fromValues(0.0,0.0,10.0);
-        camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
+        camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0,true);
         audioMgr.playSpec("robb");
         if(insertHighScoreMode===false)
             initHighscoreList();
@@ -114,8 +114,6 @@ function SceneTwo(Objs,Plane)
                 switchState()
             if(lerpToSub>0.0)
                 lerpToSub -= deltaTime; 
-            else if(lerpToSub < 0.2)
-                lerpToSub += deltaTime/10000.0;
             gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
             gl.uniform1i(shaderStruct.strike, 1 );
         }
@@ -127,8 +125,6 @@ function SceneTwo(Objs,Plane)
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(lerpToSub<1.0)
                 lerpToSub += deltaTime; 
-            else if(lerpToSub > 1.1)
-                lerpToSub -= deltaTime/1000.0;
 
             if(key.SPACE&&highScoreList.getSelected() === 0&&lerpToSub>=1.0)
                 mState = "mainMenu";
@@ -143,7 +139,7 @@ function SceneTwo(Objs,Plane)
             if(insertHighScoreMenu === null)
                 injectInsertHighScore();
             insertHighScoreMenu.update(deltaTime);
-            insertHighScoreElements[1].setText(textOutput.getString(),true);
+            insertHighScoreElements[2].setText(textOutput.getString(),true);
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(key.ENTER===true)
             {
@@ -189,12 +185,15 @@ function SceneTwo(Objs,Plane)
     {
         var helpTipStartPos = vec3.fromValues(0,0,-400);
         insertHighScoreElements[0] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
-        insertHighScoreElements[0].setText("Nick:"); 
+        insertHighScoreElements[0].setText("Your Score:"+lastActualScore); 
         insertHighScoreElements[1] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
-        insertHighScoreElements[1].setText("exampleNick"); 
-        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-SubDepth,-3),-0.2-SubDepth-0.1,-1.1,2.0);
+        insertHighScoreElements[1].setText("Nick:"); 
+        insertHighScoreElements[2] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
+        insertHighScoreElements[2].setText("exampleNick"); 
+        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-(SubDepth+0.5),-3),-SubDepth*1.01,-1,2.0,false,0.8);
         insertHighScoreMenu.setNoControl(true);
         textOutput = new TextOutput();
+        lastActualScore = 0;
     }
     function injectHighscore()
     {
