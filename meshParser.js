@@ -300,8 +300,8 @@ function ModelHolder()
 
 function iModel(bufferData)
 {
-    this.tB =               bufferData.textureBuffers;  //textureBuffers ( gl.createTexture() )
-    this.numMeshes=         bufferData.meshes.length; //numMeshes 1 i ditt tilfelle, en mesh bare
+    this.tB =               bufferData.textureBuffers;  
+    this.numMeshes=         bufferData.meshes.length; 
     this.texGLSLlocs =      bufferData.textureGLSLLocations; 
     this.vertexPoints =     bufferData.vertexes;
     this.tIndex =       bufferData.totalIndexes;
