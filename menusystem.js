@@ -5,9 +5,9 @@ function MenuAnimator(Items,EndPos,YStart,ZStart,xwidthSpacing,Quad,XOffset)
     var items = Items;
     var animators = new Array();
     var endPos = EndPos;
-    var widthSpacing = (xwidthSpacing === undefined)?15:xwidthSpacing;
-    var yStart = (YStart === undefined)?-7.5:YStart;
-    var zStart = (ZStart === undefined)?-10:ZStart;
+    var widthSpacing = (xwidthSpacing === undefined)?7.5:xwidthSpacing;
+    var yStart = (YStart === undefined)?-5:YStart;
+    var zStart = (ZStart === undefined)?-5:ZStart;
     var selected = 0;
     var isInFocus = new Array();
     var timeSinceKeyPress=0;
@@ -47,7 +47,8 @@ function MenuAnimator(Items,EndPos,YStart,ZStart,xwidthSpacing,Quad,XOffset)
                 x=1;
                 y++;
             }
-            animators[i] = new ItemAnimator(items[i],vec3.fromValues(widthSpacing*(x+0.5)-widthSpacing*(4/2)-xOffset,yStart+y*(widthSpacing/1.2),zStart),endPos);
+            animators[i] = new ItemAnimator(items[i],vec3.fromValues
+            ( widthSpacing*(x+0.5)-widthSpacing*(4/2)-xOffset, yStart+y*(widthSpacing ), zStart),endPos);
             isInFocus[i] = false;
         }
     }

@@ -22,6 +22,7 @@ function baseBind(model,shader)
     gl.bindBuffer(gl.ARRAY_BUFFER, model.matIndex)
     gl.vertexAttribPointer(shader.materialIndex, model.matIndex.itemSize, gl.FLOAT, false , 0,0);
 }
+var strikeCount = 0;
 function gui3DElement(drawObjects, product, shaderProgram, pos)
 {
     this.global = new Translations();
@@ -32,6 +33,7 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
     var guiTextures = new Array();
     var textureBuffers = new Array();
     var currentTexture = null;
+    var drawSecond = true;
     this.draw = function() 
 	{
         if(isHidden===true)
@@ -44,6 +46,21 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
 
         if(this.alpha != -1)
             gl.uniform1f(this.shader.alpha, this.alpha );
+        if(drawSecond===true)
+        {
+            var dist = 0.04;
+            this.global.translate(vec3.fromValues(0,0,dist));
+            gl.uniform1i(this.shader.strike, 50 );
+            setMatrix(this.global.calcMatrix(),this.shader.mMat);
+            for(var i=0; i<this.model.numMeshes; i++)
+            {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
+                gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
+            }
+            gl.uniform1i(this.shader.strike, strikeCount );
+            this.global.translate(vec3.fromValues(-0,-0,-dist));
+            setMatrix(this.global.calcMatrix(),this.shader.mMat);
+        }
         for(var i=0; i<this.model.numMeshes; i++)
         {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
@@ -132,7 +149,7 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
         isHidden = hidden;
     }
 }
-
+var haxStrike = false;
 function rObject(drawObjects, product,shaderProgram,pos)
 {
     this.global = new Translations();
@@ -142,6 +159,8 @@ function rObject(drawObjects, product,shaderProgram,pos)
     this.alpha = -1;
     this.draw = function() 
 	{
+        if(haxStrike)
+            gl.uniform1i(this.shader.strike, 0 );
         if(this.alpha != -1)
             gl.uniform1f(this.shader.alpha, this.alpha );
         setShader(this.shader.shader);
@@ -160,6 +179,8 @@ function rObject(drawObjects, product,shaderProgram,pos)
             gl.uniform1f(this.shader.alpha, 1.0  ); //revert back to normal
        // debugDraw.global.setPosition(this.global.getPos());
        // debugDraw.draw();
+        if(haxStrike)
+            gl.uniform1i(this.shader.strike, 1 );
 	}
     var drawIndex = drawObjects.add(this);
     var drawObjs = drawObjects;

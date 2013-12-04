@@ -2,6 +2,9 @@
 var doc;
 var panelCanvas;
 
+var SRED = 0.05;
+var SBLUE = 0.05;
+var SGREEN = 0.001;
 //////////
 var audioMgr = null;
 function webGLStart(document)
@@ -14,7 +17,7 @@ function webGLStart(document)
     if(gl = initGL(canvas))
     {
         showLoading();
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(SRED, SGREEN, SBLUE, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         audioMgr = new AudiManager();
         glMatrix.setMatrixArrayType(Float32Array);

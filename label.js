@@ -50,14 +50,11 @@ multicrew.Label.prototype.draw = function()
     }
     if(this.crazyMode === true)
     {
-        if(Math.random()>0.5)
-        {
-            var r = Math.random()*this.db*255;
-            var g = Math.random()*this.db*255;
-            var b = Math.random()*this.db*255;
+        var r = Math.random()*this.db*180;
+        var g = Math.random()*this.db*160;
+        var b = Math.random()*this.db*170;
 
-            this.color = RGBToHex(r.clamp(0,255),g.clamp(0,255),b.clamp(0,255));
-        }
+        this.color = RGBToHex(r.clamp(0,255),g.clamp(0,255),b.clamp(0,255));
     }
 	var style = this.parent.context.fillStyle;
 	this.parent.context.clearRect(this.x*(scaleW), (this.y)*(scaleH) - this.height*scaleH, this.width*scaleW,

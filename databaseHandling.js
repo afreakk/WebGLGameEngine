@@ -4,7 +4,7 @@ var highScoreUploaded = false;
 var lastUploadID = null;
 var foundHighScoreListP = false;
 var highScoreListP = new Array();
-var session = "bwl";
+var session = "bbw";
 function queryEntry()
 {
     var GameScore = Parse.Object.extend(session);

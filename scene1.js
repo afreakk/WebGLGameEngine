@@ -77,11 +77,11 @@ function SceneTwo(Objs,Plane)
     this.update = function()
     {
         audioMgr.playSpec("robb");
-        currentDB = Math.max(audioMgr.getDB("robb")*4.0+audioMgr.getDB("roboTrans")*.8,0.001);
+        currentDB = Math.max(audioMgr.getDB("robb")*.8+audioMgr.getDB("roboTrans")*.8,0.001);
         handleTime();
         updateMenu();
         this.endScene= endingScene(cameraPos);
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(SRED, SGREEN, SBLUE, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         camera.update(); //needs to be called each update for each camera
         camera.draw();
@@ -100,22 +100,26 @@ function SceneTwo(Objs,Plane)
         }
         return false;
     }
+    var countingDB = 0;
+    var tickType = "|";
     function updateMenu()
     {
         injectHighscore();
         var currPos = vec3.fromValues(cameraPos[0],cameraPos[1],cameraPos[2]);
+        countingDB += currentDB*50.0;
         var mDB = currentDB*500;
         if(mState === "mainMenu")
         {
-            mDB /= 5.0;
+            mDB /= 10.0;
             aMenu.update(deltaTime);
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(key.SPACE&&aMenu.getSelected() !== null&&lerpToSub<=0.0)
                 switchState()
             if(lerpToSub>0.0)
                 lerpToSub -= deltaTime; 
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
-            gl.uniform1i(shaderStruct.strike, 1 );
+            gl.uniform1f(shaderStruct.iGlobalTime, countingDB );
+            gl.uniform1i(shaderStruct.strike, 3 );
+            strikeCount = 3;
         }
         else if(mState === "highScore")
         {
@@ -128,18 +132,20 @@ function SceneTwo(Objs,Plane)
 
             if(key.SPACE&&highScoreList.getSelected() === 0&&lerpToSub>=1.0)
                 mState = "mainMenu";
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
-            gl.uniform1i(shaderStruct.strike, 2 );
+            gl.uniform1f(shaderStruct.iGlobalTime, countingDB );
+            gl.uniform1i(shaderStruct.strike, 9 );
+            strikeCount = 9;
         }
         else if(mState === "insertHighScore")
         {
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
-            gl.uniform1i(shaderStruct.strike, 1 );
-            mDB/= 20.0;
+            gl.uniform1f(shaderStruct.iGlobalTime, countingDB );
+            gl.uniform1i(shaderStruct.strike, 6 );
+            strikeCount = 6;
+            mDB/= 140.0;
             if(insertHighScoreMenu === null)
                 injectInsertHighScore();
             insertHighScoreMenu.update(deltaTime);
-            insertHighScoreElements[2].setText(textOutput.getString(),true);
+            insertHighScoreElements[2].setText(textOutput.getString()+tickType,true);
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(key.ENTER===true)
             {
@@ -152,8 +158,9 @@ function SceneTwo(Objs,Plane)
         else if(mState === "wait")
         {
             mDB/= 20.0;
-            gl.uniform1f(shaderStruct.iGlobalTime, currentDB*2000.0 );
-            gl.uniform1i(shaderStruct.strike, 1 );
+            gl.uniform1f(shaderStruct.iGlobalTime, countingDB );
+            gl.uniform1i(shaderStruct.strike, 6 );
+            strikeCount = 6;
             waitTime += deltaTime;
             vec3.add(currPos,currPos,vec3.fromValues((Math.random()/2.0)*mDB, (Math.random()/2.0)*mDB,(Math.random()/2.0)*mDB  ));
             if(loadingAnim===null)

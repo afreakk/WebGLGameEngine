@@ -245,10 +245,9 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     this.isBirdPerspective=function()
     {
-        if(mode === "birdPerspectiveMode")
+        if(mode === "aimingMode")
             return true;
-        else
-            return false;
+        return false;
     }
     var cannonPos=0;
     var parentAllowsShooting=false;

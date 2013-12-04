@@ -1,3 +1,4 @@
+
 function Castle(objs,drawObjs,shaderStructX,panel,zPos)
 {
     var zPosition = zPos;
@@ -37,23 +38,30 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var pinWobbling=false;
     var firstThrowScore=0;
     var secondThrowScore=0;
-    var firstThrow=null;
-    var lastThrowRealValue = 0;
-    var lastThrow=0;
+    var fallenDiff = 0;
     var scoreMultiplier=0;
     var bricksFallenRealValue=0;
     var rollsLeft = 2;
+    var cMode = null;
     this.getBrickHit=function()
     {
         return brickHit;
     }
-    this.setBrickhit=function(inBrickhit)
+    var haxval = 0;
+    this.setCannonMode=function(inMode)
     {
-        if(brickHit !== inBrickhit)
+        if(cMode != inMode)
         {
-            brickHit = inBrickhit;
-            if(scoreMultiplier>0)
-                scoreMultiplier --;
+            brickHit = false;
+            cMode = inMode;
+            if(scoreMultiplier>0&& cMode == "aimingMode")
+            {
+                scoreMultiplier -= haxval;
+                if(haxval === 1)
+                    haxval = 0;
+                else if( haxval === 0)
+                    haxval = 1;
+            }
         }
     }
     var musicPower=0;
@@ -64,6 +72,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             musicPower += audioMgr.getDB("brothers")*20.0;
             gl.uniform1f(shaderStruct.iGlobalTime, musicPower );
             gl.uniform1i(shaderStruct.strike, 1 );
+            haxStrike = true;
             audioMgr.pauseSpec("robb");
             audioMgr.playSpec("brothers");
             labelMultiplier.db = musicPower/2.0;
@@ -72,6 +81,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         }
         else
         {
+            haxStrike = false;
             gl.uniform1i(shaderStruct.strike, 0 );
             audioMgr.pauseSpec("brothers");
             audioMgr.playSpec("robb");
@@ -95,16 +105,25 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         removeUnusedPins();
         RoundTimer += deltaTime;
     }
+    var valueCurrentThrow=0;
     function handleScoring(dt)
     {
         var fallenCount = checkCastle(dt);
-        if(fallenCount !== bricksFallenRealValue)
+        if( (fallenCount-bricksFallenRealValue) !== fallenDiff) // bug: fallenDiff = 1 || 0 alltid
         {
-            lastThrowRealValue = fallenCount-bricksFallenRealValue;
-            lastThrow = lastThrowRealValue * ((scoreMultiplier>0)?2:1);
-            bricksFallen += lastThrow;
-            bricksFallenRealValue += lastThrowRealValue;
+            fallenDiff = fallenCount-bricksFallenRealValue;
+            var diffMultiplied = fallenDiff * ((scoreMultiplier>0)?2:1);
+            console.log(scoreMultiplier);
+            console.log(diffMultiplied);
+            valueCurrentThrow += fallenDiff;
+            bricksFallen += diffMultiplied;
+            bricksFallenRealValue += fallenDiff;
         }
+    }
+    this.resetTypeShot=function()
+    {
+        typeShotString = "";
+        valueCurrentThrow= 0;
     }
     function removeUnusedPins()
     {
@@ -135,28 +154,31 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         if(rollCount !== inRollCount)
         {
+            valueCurrentThrow = 0;
             rollCount = inRollCount;
-            firstThrow = (rollCount%2)?true:false;
         }
     }
     function updateTypeShot()
     {
-        if(bricksFallenRealValue == 10)
+        if(valueCurrentThrow == 10)
         {
-            if(firstThrow && typeShotString!=="Strike!")
+            if(typeShotString!=="Strike!")
             {
                 typeShotString = "Strike!";
-                while(scoreMultiplier<3)
-                    scoreMultiplier ++;
-            }
-            else if(!firstThrow && typeShotString !== "Spare!")
-            {
-                typeShotString = "Spare!";
                 while(scoreMultiplier<2)
                     scoreMultiplier ++;
             }
         }
-        else if(lastThrowRealValue == 0)
+        else if(bricksFallenRealValue == 10)
+        {
+            if(typeShotString !== "Spare!")
+            {
+                typeShotString = "Spare!";
+                while(scoreMultiplier<1)
+                    scoreMultiplier ++;
+            }
+        }
+        else if(valueCurrentThrow == 0)
         {
             typeShotString = "GutterBall";
         }
@@ -232,11 +254,8 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             {
                 for(var y=0; y<yElements; y++)
                 {
-                    var xP= x*(sX*1.5)-(smx*(sX*1))/2.0;
-                    var yP= y*(sY*1.0)-yOff;
-                    var zP= z*(sZ*2.5)-zOff+zPosition;
-
-                    var pos = vec3.fromValues(xP, yP, zP);
+                    var pinPos = getPinPos(x,y,z,smx)
+                    var pos = vec3.fromValues(pinPos[0], pinPos[1], pinPos[2]);
                     bricks[i] = new gObject(drawObjs,buffer,shaderStruct,pos,brickMass,brickShape);
                     bricks[i].rigidBody.setRestitution(0.0);
                     bricks[i].rigidBody.setFriction(0.5);
@@ -273,8 +292,10 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         hasNormalPositions = false;
         RoundTimer = 0;
     }
+    var onlyOneExtraRound = true;
     function resetVarsLastRound()
     {
+        console.log("extraround");
         for(var i=0; i<bricks.length; i++)
         {
             hasHit[i] = false;
@@ -299,13 +320,10 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             {
                 for(var y=0; y<yElements; y++)
                 {
-                    var xP= x*(sX*1.5)-(smx*(sX*1))/2.0;
-                    var yP= y*(sY*1.0)-yOff;
-                    var zP= z*(sZ*2.5)-zOff+zPosition;
-
-                    vec.setX(xP);
-                    vec.setY(yP);
-                    vec.setZ(zP);
+                    var pinPos = getPinPos(x,y,z,smx);
+                    vec.setX(pinPos[0]);
+                    vec.setY(pinPos[1]);
+                    vec.setZ(pinPos[2]);
                     trans.setOrigin(vec);
                     bricks[i].rigidBody.setCenterOfMassTransform(trans);
                     bricks[i].rigidBody.clearForces();
@@ -317,13 +335,22 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             smx -=1;
         }
         console.log(" cubes initialized");
-        if(scoreMultiplier > 0 && roundCount()===12)
+        if(scoreMultiplier > 0 && roundCount()===howManyRoundsToPlay&&onlyOneExtraRound===true)
         {
             rollsLeft = scoreMultiplier;
             resetVarsLastRound();
+            onlyOneExtraRound = false;
         }
         else
             resetVars();
+    }
+    function getPinPos(x,y,z,smx)
+    {
+        var pinWidthSpacing = 1.7684210526;
+        var xP= (x+1)*(sX*pinWidthSpacing)-(smx*(sX*pinWidthSpacing))/2.0;
+        var yP= y*(sY*1.0)-yOff;
+        var zP= z*(sZ*pinWidthSpacing)-zOff+zPosition;
+        return [xP, yP, zP];
     }
     this.getRollsLeft=function()
     {

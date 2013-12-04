@@ -1,4 +1,5 @@
 var lastActualScore = 0;
+var howManyRoundsToPlay = 10;
 function SceneOne(Objs,Plane)
 {
     this.endScene=false;
@@ -30,7 +31,7 @@ function SceneOne(Objs,Plane)
         gl.uniform1f(shaderStruct.alpha, 1.0 );
         setAttribs([shaderStruct.vPos,shaderStruct.uvMap,shaderStruct.normals, shaderStruct.materialIndex,shaderStruct.diffColor, 
         shaderStruct.ambColor, shaderStruct.specColor]); /*testing this seems to be working*/
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(SRED, SGREEN, SBLUE, 1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.enable (gl.BLEND);
         gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -55,14 +56,14 @@ function SceneOne(Objs,Plane)
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
         light = new PointLight(shaderStruct, 50.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,2.5);
-        console.log("sceneOne initiated");
+        dirLight = new DirectionalLight(shaderStruct,direction,4.0);
         initGroundPlane();
         var pinDistance = 150;
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,pinDistance);
         castle = new Castle(objs,drawObjs,shaderStruct, panel,pinDistance);
         guiPlane = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         guiUpd(0);
+        console.log("sceneOne initiated");
     }   
     var helpTipStartPos = vec3.fromValues(0,-6,175);
     var toggleHelp = true;
@@ -123,7 +124,7 @@ function SceneOne(Objs,Plane)
     }
     this.goToHighScore=function(currPos)
     {
-        if(castle.getRoundCount() === 13/*||key.Q===true*/)
+        if(castle.getRoundCount() === howManyRoundsToPlay+1/*||key.Q===true*/)
             insertHighScoreMode=true;
         if(insertHighScoreMode===true)
         {
@@ -155,10 +156,14 @@ function SceneOne(Objs,Plane)
         cannon.update(vec3.fromValues(0.0, 0.0, 0.0),deltaTime,castle.getBrickHit());
         if((!cannon.getRollsLeft()||castle.getTypeShotStr()==="Strike!"||castle.getTypeShotStr()==="Spare!")&&cannon.getMode() == "aimingMode")
         {
-            castle.reset();
-            cannon.setRollsLeft(castle.getRollsLeft());
+            if(insertHighScoreMode !== true)
+            {
+                castle.reset();
+                cannon.setRollsLeft(castle.getRollsLeft());
+                castle.resetTypeShot();
+            }
         }
-        castle.setBrickhit(cannon.isBirdPerspective());
+        castle.setCannonMode(cannon.getMode());
         generalUpdate();//
         opening(camera0.getPos());
         this.goToHighScore(camera0.getPos());
@@ -184,7 +189,7 @@ function SceneOne(Objs,Plane)
     }
     function glClear()
     {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(SRED, SGREEN, SBLUE, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 }
