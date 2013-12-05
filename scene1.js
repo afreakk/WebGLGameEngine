@@ -198,7 +198,7 @@ function SceneTwo(Objs,Plane)
         insertHighScoreElements[1].setText("Nick:"); 
         insertHighScoreElements[2] = new gui3DElement(drawObjs,plane,shaderStruct,helpTipStartPos);
         insertHighScoreElements[2].setText("exampleNick"); 
-        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-(SubDepth+0.5),-3),-SubDepth*1.01,-1,2.0,false,0.8);
+        insertHighScoreMenu = new MenuAnimator(insertHighScoreElements,vec3.fromValues(0,-(12),-3),-SubDepth*1.01,-2,2.0,false,0.8);
         insertHighScoreMenu.setNoControl(true);
         textOutput = new TextOutput();
     }

@@ -82,7 +82,6 @@ vec3 fractal()
      return vec3( color, color * 0.5, sin( color + iGlobalTime / 3.0 ) * 0.75 );
 
 }
-#define ANIMATE
 
 float hash( float n )
 {
@@ -95,7 +94,7 @@ vec2 hash( vec2 p )
 	return fract(sin(p)*43758.5453);
 }
 
-vec3 voronoi( in vec2 x )
+vec3 voronoi( in vec2 x ,float scale)
 {
     vec2 n = floor(x);
     vec2 f = fract(x);
@@ -110,10 +109,8 @@ vec3 voronoi( in vec2 x )
     for( int i=-1; i<=1; i++ )
     {
         vec2 g = vec2(float(i),float(j));
-		vec2 o = hash( n + g );
-		#ifdef ANIMATE
-        o = 0.5 + 0.5*sin( iGlobalTime + 6.2831*o );
-        #endif	
+		vec2 o = hash( n + g  );
+        o = 0.5 + 0.5*sin( iGlobalTime + 6.2831*o +scale*2.0);
         vec2 r = g + o - f;
         float d = dot(r,r);
 
@@ -134,18 +131,16 @@ vec3 voronoi( in vec2 x )
     {
         vec2 g = mg + vec2(float(i),float(j));
 		vec2 o = hash( n + g );
-		#ifdef ANIMATE
-        o = 0.5 + 0.5*sin( iGlobalTime + 6.2831*o );
-        #endif	
+        o = 0.5 + 0.5*sin( iGlobalTime + 6.2831*o+scale*2.0 );
         vec2 r = g + o - f;
 
 		
         if( dot(mr-r,mr-r)>0.000001 )
 		{
-        // distance to line		
-        float d = dot( 0.5*(mr+r), normalize(r-mr) );
+            // distance to line		
+            float d = dot( 0.5*(mr+r), normalize(r-mr) );
 
-        md = min( md, d );
+            md = min( md, d );
 		}
     }
 
@@ -154,9 +149,9 @@ vec3 voronoi( in vec2 x )
 
 vec3 voro(float scale )
 {
-    vec2 p = uvCoords*scale;
+    vec2 p = uvCoords;
 
-    vec3 c = voronoi( 8.0*p );
+    vec3 c = voronoi(8.0*p,scale );
 
 	// isolines
     vec3 col = c.x*(0.5 + 0.5*sin(64.0*c.x))*vec3(1.0);
@@ -188,7 +183,9 @@ vec4 pixColor(void)
 	
 	return vec4(pix(uv));
 }
-void main(void) {
+void main(void) 
+{
+    vec4 result;
     if(strike != 1337)
     {
         highp int matIndex = int(matIndexF);
@@ -208,21 +205,21 @@ void main(void) {
         if(strike == 1)
         {
             endColor = ambientColor+pointLight*2.0+directionLight*2.0;
-            endColor = voro(1.0)*endColor;
+            endColor = voro(sqrt(distance))*endColor;
         }
         else
         {
             endColor = ambientColor+pointLight+directionLight;
         }
-        vec4 result = vec4(endColor,texture.a*alpha);
+        result = vec4(endColor,texture.a*alpha);
 
         if(result.a<0.2)
             discard;
-        gl_FragColor = result;
     }
     else
     {
-        gl_FragColor = texture2D(texSampler0,uvCoords);
+        result = texture2D(texSampler0,uvCoords);
     }
+    gl_FragColor = result;
 
 }

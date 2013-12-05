@@ -118,6 +118,7 @@ function SceneOne(Objs,Plane)
     }
     function moveCam(currPos,reverseTimeOut)
     {
+        gl.uniform1f(shaderStruct.alpha, -timeOut/(Math.PI) );
         if(!reverseTimeOut)
             timeOut -= Math.min(deltaTime/1.0,0.1);
         else
@@ -126,7 +127,7 @@ function SceneOne(Objs,Plane)
     }
     this.goToHighScore=function(currPos)
     {
-        if(castle.getRoundCount() === howManyRoundsToPlay+1||key.Q===true)
+        if(castle.getRoundCount() === howManyRoundsToPlay+1/*||key.Q===true*/)
             insertHighScoreMode=true;
         if(insertHighScoreMode===true)
         {
@@ -144,9 +145,7 @@ function SceneOne(Objs,Plane)
     {
         var lDistance = 20.0;
         if(cannon.getBulletPos() !== null)
-        {
             light.setPosition(cannon.getBulletPos()[0],cannon.getBulletPos()[1],cannon.getBulletPos()[2]);
-        }
         glClear(); //clears the screen
         handleTime();
         guiUpd(deltaTime);
