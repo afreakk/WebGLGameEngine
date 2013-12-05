@@ -19,7 +19,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     var str = 30.0;
     var wall = null;
     var xCamDistance = 15.0;
-    var yCamDistance = 8.4;
+    var yCamDistance = 5.4;
     var zCamDistance = 15.0;
     var explosion = null;
     var mode = "aimingMode";

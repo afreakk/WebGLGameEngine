@@ -108,7 +108,6 @@ vec3 hFrac()
 	
     return str;
 }
-
 // Created by inigo quilez - iq/2013
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
@@ -210,29 +209,55 @@ vec3 voro(float scale )
 	return col;
 }
 
+float pix(vec2 p)
+{
+    p=abs(p);
+    vec2 q;
+    q.x=float(int(p.x+0.5));
+    q.y=float(int(p.y+0.5));
+    vec2 r=p-q;
+    if(max(abs(r.x),abs(r.y))>0.45) return 1.0;
+	float v = sin(length(q)*0.5-iGlobalTime*5.0);
+	if(v>0.0) return 1.0;
+	else return 0.0;
+}
+
+vec4 pixColor(void)
+{
+	vec2 uv = ( uvCoords.xy-0.5 ) * 400.0;
+	
+	return vec4(pix(uv));
+}
 void main(void) {
-    highp int matIndex = int(matIndexF);
-    vec4 texture = vec4(1.0, 1.0, 1.0, 1.0);
-    if(matIndex == samplerCount[0])
-        texture = texture2D(texSampler0,uvCoords);
-    else if(matIndex == samplerCount[1])
-        texture = texture2D(texSampler1,uvCoords);
-    else if(matIndex == samplerCount[2])
-        texture = texture2D(texSampler2,uvCoords);
-    else if(matIndex == samplerCount[3])
-        texture = texture2D(texSampler3,uvCoords);
-    if(texture.a<0.2)
-        discard;
-    texture = vec4(1.0, 1.0, 1.0, texture.a);
-    float distance = lightVertDistance*lightVertDistance;
-    vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,pow(distance,2.0));
-    vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
-    vec3 endColor = ambientColor+pointLight+directionLight;
-    vec3 frClr;
-    float multiPlier = floor(float(strike));
-    frClr= voro(multiPlier)*multiPlier/3.0;
-    float minVal = 0.1; 
-    endColor *= frClr;
-    gl_FragColor = vec4(endColor,texture.a*alpha*((min(frClr.r,1.0)+min(frClr.g,1.0)+min(frClr.b,1.0))/1.0));
+    if(strike != 1337)
+    {
+        highp int matIndex = int(matIndexF);
+        vec4 texture = vec4(1.0, 1.0, 1.0, 1.0);
+        if(matIndex == samplerCount[0])
+            texture = texture2D(texSampler0,uvCoords);
+        else if(matIndex == samplerCount[1])
+            texture = texture2D(texSampler1,uvCoords);
+        else if(matIndex == samplerCount[2])
+            texture = texture2D(texSampler2,uvCoords);
+        else if(matIndex == samplerCount[3])
+            texture = texture2D(texSampler3,uvCoords);
+        if(texture.a<0.2)
+            discard;
+        texture = vec4(1.0, 1.0, 1.0, texture.a);
+        float distance = lightVertDistance*lightVertDistance;
+        vec3 pointLight = DiffuseSpecPoint(Normal_cameraspace,LightDirection_cameraspace,EyeDirection_cameraspace,texture.rgb,pow(distance,2.0));
+        vec3 directionLight = DiffuseSpecDirection(Normal_cameraspace,DirectionalLight,EyeDirection_cameraspace,texture.rgb);
+        vec3 endColor = ambientColor+pointLight+directionLight;
+        vec3 frClr;
+        float multiPlier = floor(float(strike));
+        frClr= voro(multiPlier)*multiPlier/3.0;
+        float minVal = 0.1; 
+        endColor *= frClr;
+        gl_FragColor = vec4(endColor,texture.a*alpha*((min(frClr.r,1.0)+min(frClr.g,1.0)+min(frClr.b,1.0))/1.0));
+    }
+    else
+    {
+        gl_FragColor = texture2D(texSampler0,uvCoords);
+    }
 
 }

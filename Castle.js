@@ -7,7 +7,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var bricks = new Array();
     var shaderStruct = shaderStructX;
     var brickShape = null;
-    var brickMass = 1.0;
+    var brickMass = 0.6;
     var buffer = objs['bowlingPin'].generateBuffers();
     var timeBeforeShot= 2.0; //time before we snap up the normal position of new pins
     var trans = new Ammo.btTransform();
@@ -20,7 +20,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     var zElements = 5;
     var sX=1.0,sY=2.75,sZ=1.0;
     var xOff = sX*xElements/2.0;
-    var yOff = yElements*(sY*2.0)+4.4; 
+    var yOff = yElements*(sY*2.0)+3.4; 
     var zOff = sZ*zElements/2.0+10.0;
     var bricksFallen = 0; 
     var labelScore = null;
@@ -47,21 +47,17 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
     {
         return brickHit;
     }
-    var haxval = 0;
     this.setCannonMode=function(inMode)
     {
         if(cMode != inMode)
         {
-            brickHit = false;
-            cMode = inMode;
-            if(scoreMultiplier>0&& cMode == "aimingMode")
+            if(inMode === "aimingMode")
+                scoreMultiplier --;
+            if(brickHit !== false)
             {
-                scoreMultiplier -= haxval;
-                if(haxval === 1)
-                    haxval = 0;
-                else if( haxval === 0)
-                    haxval = 1;
+                brickHit = false;
             }
+            cMode = inMode;
         }
     }
     var musicPower=0;
@@ -72,6 +68,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             musicPower += audioMgr.getDB("brothers")*20.0;
             gl.uniform1f(shaderStruct.iGlobalTime, musicPower );
             gl.uniform1i(shaderStruct.strike, 1 );
+            strikeCount = 1;
             haxStrike = true;
             audioMgr.pauseSpec("robb");
             audioMgr.playSpec("brothers");
@@ -82,7 +79,10 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         else
         {
             haxStrike = false;
+            musicPower += audioMgr.getDB("robb")*20.0;
             gl.uniform1i(shaderStruct.strike, 0 );
+            strikeCount = 0;
+            gl.uniform1f(shaderStruct.iGlobalTime, musicPower );
             audioMgr.pauseSpec("brothers");
             audioMgr.playSpec("robb");
             if(labelMultiplier.crazyMode !== false)
@@ -165,7 +165,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             if(typeShotString!=="Strike!")
             {
                 typeShotString = "Strike!";
-                while(scoreMultiplier<2)
+                while(scoreMultiplier<3)
                     scoreMultiplier ++;
             }
         }
@@ -174,7 +174,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             if(typeShotString !== "Spare!")
             {
                 typeShotString = "Spare!";
-                while(scoreMultiplier<1)
+                while(scoreMultiplier<2)
                     scoreMultiplier ++;
             }
         }
@@ -302,6 +302,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
             unCertainPins[i] = false;
             timeSinceLastPlong[i] = 0;
         }
+        labelRoundCount.color = RGBToHex(255,0,0);
         typeShotString = " ";
         totalScoreStr += bricksFallen;
         bricksFallen = 0;
@@ -337,7 +338,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         console.log(" cubes initialized");
         if(scoreMultiplier > 0 && roundCount()===howManyRoundsToPlay&&onlyOneExtraRound===true)
         {
-            rollsLeft = scoreMultiplier;
+            rollsLeft = scoreMultiplier-1;
             resetVarsLastRound();
             onlyOneExtraRound = false;
         }

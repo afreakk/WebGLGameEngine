@@ -38,6 +38,7 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
 	{
         if(isHidden===true)
             return;
+        gl.uniform1iv(this.shader.samplerCount,  [0,0,0,0]  );
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         baseBind(this.model,this.shader);

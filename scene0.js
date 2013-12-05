@@ -39,18 +39,20 @@ function SceneOne(Objs,Plane)
     var guiPlane = null;
     function initGroundPlane()
     {
-        var pos = vec3.fromValues(0,-4,0);
+        var pos = vec3.fromValues(0,-4,30);
         groundPlane = new gObject(drawObjs,objs['ground'].generateBuffers(),shaderStruct,pos,0,"triMesh");
         groundPlane.rigidBody.setFriction(10.0);
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
+        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,180),2);
+        skyBox.useTexture("sky2.jpg");
         panel = new multicrew.Panel("panel");
         panel.noDraw= true;
         pWorld = new PhysicsWorld();
         var cPos0    = vec3.fromValues(5.0,0.0,0.0);
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
-        camera0 = new Camera(drawObjs, cPos0,cLookAt,shaderStruct,  45.0,   0.1,  300.0,this.canvas,1.0,1.0,0.0,0.0);
+        camera0 = new Camera(drawObjs, cPos0,cLookAt,shaderStruct,  45.0,   0.1,  20000.0,this.canvas,1.0,1.0,0.0,0.0);
 //        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
         var lightColor = vec3.fromValues(1.0,0.95,0.9);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
@@ -120,11 +122,11 @@ function SceneOne(Objs,Plane)
             timeOut -= Math.min(deltaTime/1.0,0.1);
         else
             timeOut += Math.min(deltaTime/1.0,0.1);
-        camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),-0.5,Math.cos(timeOut)),currPos),currPos);
+        camera0.lookAtFrom(vec3.add(vec3.create(),vec3.fromValues(Math.sin(timeOut),0.2+timeOut/10.0,Math.cos(timeOut)),currPos),currPos);
     }
     this.goToHighScore=function(currPos)
     {
-        if(castle.getRoundCount() === howManyRoundsToPlay+1/*||key.Q===true*/)
+        if(castle.getRoundCount() === howManyRoundsToPlay+1||key.Q===true)
             insertHighScoreMode=true;
         if(insertHighScoreMode===true)
         {
