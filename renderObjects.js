@@ -151,6 +151,7 @@ function gui3DElement(drawObjects, product, shaderProgram, pos)
     }
 }
 var haxStrike = false;
+
 function rObject(drawObjects, product,shaderProgram,pos)
 {
     this.global = new Translations();
@@ -164,6 +165,10 @@ function rObject(drawObjects, product,shaderProgram,pos)
             gl.uniform1i(this.shader.strike, 0 );
         if(this.alpha != -1)
             gl.uniform1f(this.shader.alpha, this.alpha );
+
+
+
+
         setShader(this.shader.shader);
         setMatrix(this.global.calcMatrix(),this.shader.mMat);
         baseBind(this.model,this.shader);
@@ -176,10 +181,12 @@ function rObject(drawObjects, product,shaderProgram,pos)
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.iB[i]);
             gl.drawElements(gl.TRIANGLES, this.model.iB[i].numItems, gl.UNSIGNED_SHORT, 0);
         }
+
+
+
+
         if(this.alpha != -1)
             gl.uniform1f(this.shader.alpha, 1.0  ); //revert back to normal
-       // debugDraw.global.setPosition(this.global.getPos());
-       // debugDraw.draw();
         if(haxStrike)
             gl.uniform1i(this.shader.strike, 1 );
 	}

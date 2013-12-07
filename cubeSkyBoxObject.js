@@ -75,10 +75,10 @@ function obligDraw(vB,uvB,nB,diffColor,ambColor,specColor,shader,matIdx,iB)
 }
 function makeCubeSkyBox(makeColors,vB,uvB,nB,iB,matIdx, diffColor,ambColor,specColor,size)
 {
-//    cubeSideSize = size;
+    var skyBoxGeometry = skyboxContainer(size);
     var vectors = skyBoxGeometry.skyVerts;
     var indices = skyBoxGeometry.skyIndices;
-    var normals = makeSphereNormals(vectors,cubeSideSize);
+    var normals = makeSphereNormals(vectors,size);
     var diffuseColor = makeColors(indices.length);
     var specularColor = makeColors(indices.length);
     var ambientColor = makeColors(indices.length);

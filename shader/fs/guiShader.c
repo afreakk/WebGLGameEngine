@@ -257,7 +257,7 @@ void main(void) {
     }
     else
     {
-        gl_FragColor = texture2D(texSampler0,uvCoords);
+        gl_FragColor = texture2D(texSampler0,uvCoords+vec2(iGlobalTime/100.0,0.0));
     }
 
 }

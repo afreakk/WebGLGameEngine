@@ -45,7 +45,7 @@ function SceneTwo(Objs,Plane)
         audioMgr.playSpec("robb");
         if(insertHighScoreMode===false)
             initHighscoreList();
-        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,0),300);
+        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,0),3000);
         skyBox.useTexture("sky2.jpg");
     }
     function setupMenu()

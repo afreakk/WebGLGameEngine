@@ -45,7 +45,7 @@ function SceneOne(Objs,Plane)
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
-        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,180),2);
+        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,180),3000);
         skyBox.useTexture("sky2.jpg");
         panel = new multicrew.Panel("panel");
         panel.noDraw= true;

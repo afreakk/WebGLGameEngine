@@ -17,17 +17,18 @@ function textToTexture(stringToWrite, ActualString)
     {
 
         ctx.font = textHeight+"px monospace";
+        var canvasX,canvasY;
         if(actualString !== true)
         {
             maxWidth = createMultilineText(ctx, textToWrite, maxWidth, text);
-            var canvasX = getPowerOfTwo(maxWidth);
-            var canvasY = getPowerOfTwo(textHeight*(text.length+1));
+            canvasX = getPowerOfTwo(maxWidth);
+            canvasY = getPowerOfTwo(textHeight*(text.length+1));
         }
         else
         {
             text = textToWrite;
-            var canvasX = 512;
-            var canvasY = 512;
+            canvasX = 512;
+            canvasY = 512;
         }
         workCanvas.width = canvasX;
         workCanvas.height = canvasY;
@@ -54,12 +55,14 @@ function textToTexture(stringToWrite, ActualString)
         }
     }
 
-    function makeTexture() {
+    function makeTexture() 
+    {
         canvasTexture = gl.createTexture();
         handleLoadedTexture();
     }
 
-    function handleLoadedTexture() {
+    function handleLoadedTexture() 
+    {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         gl.bindTexture(gl.TEXTURE_2D, canvasTexture);
@@ -76,7 +79,8 @@ function textToTexture(stringToWrite, ActualString)
     return canvasTexture;
 }
 
-function createMultilineText(ctx, textToWrite, maxWidth, text) {
+function createMultilineText(ctx, textToWrite, maxWidth, text) 
+{
     textToWrite = textToWrite.replace("\n"," ");
     var currentText = textToWrite;
     var futureText;
