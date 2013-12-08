@@ -1,4 +1,4 @@
-precision mediump float;
+precision lowp float;
 varying vec2 uvCoords;
 varying vec3 Normal_cameraspace;
 varying vec3 LightDirection_cameraspace;
@@ -218,7 +218,7 @@ void main(void)
     }
     else
     {
-        result = texture2D(texSampler0,uvCoords);
+        result = texture2D(texSampler0,uvCoords+vec2(iGlobalTime/500.0,0.0));
     }
     gl_FragColor = result;
 

@@ -1,4 +1,4 @@
-precision mediump float;
+precision lowp float;
 attribute vec3 vPos;
 attribute vec2 uvMap;
 attribute vec3 normals;

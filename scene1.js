@@ -41,11 +41,11 @@ function SceneTwo(Objs,Plane)
         setupMenu();
         var cPos0    = vec3.fromValues(0.0,0.0,-10.0);
         var cLookAt = vec3.fromValues(0.0,0.0,10.0);
-        camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  10000.0,this.canvas,1.0,1.0,0.0,0.0,true);
+        camera = new Camera(drawObjs, cLookAt,cPos0,shaderStruct,  45.0,   0.1,  13000.0,this.canvas,1.0,1.0,0.0,0.0,true);
         audioMgr.playSpec("robb");
-        if(insertHighScoreMode===false)
+        if(mState === "mainMenu")
             initHighscoreList();
-        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,0),3000);
+        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,300,0),9000);
         skyBox.useTexture("sky2.jpg");
     }
     function setupMenu()

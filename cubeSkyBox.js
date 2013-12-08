@@ -1,8 +1,6 @@
-function skyboxContainer(size)
+function skyboxContainer(cubeSideSize)
 {
     var skyBoxGeometry = {};
-    var cubeSideSize = size;
-
     //    0 _______3_
     //    /|      /|  
     //   / |     / |   WOW	

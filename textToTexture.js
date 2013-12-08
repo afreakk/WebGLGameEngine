@@ -55,14 +55,9 @@ function textToTexture(stringToWrite, ActualString)
         }
     }
 
-    function makeTexture() 
-    {
-        canvasTexture = gl.createTexture();
-        handleLoadedTexture();
-    }
-
     function handleLoadedTexture() 
     {
+        canvasTexture = gl.createTexture();
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         gl.bindTexture(gl.TEXTURE_2D, canvasTexture);
@@ -75,7 +70,7 @@ function textToTexture(stringToWrite, ActualString)
 
     }
     makeCanvasText();
-    makeTexture();
+    handleLoadedTexture();
     return canvasTexture;
 }
 

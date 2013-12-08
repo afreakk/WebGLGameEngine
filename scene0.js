@@ -45,7 +45,7 @@ function SceneOne(Objs,Plane)
     }
     this.init = function()      // this function gets run automatically by scenemanager each time the scene gets "loaded"
     {
-        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,0,180),3000);
+        var skyBox = new rCubeSkyBox(drawObjs,shaderStruct, vec3.fromValues(0,300,180),9000);
         skyBox.useTexture("sky2.jpg");
         panel = new multicrew.Panel("panel");
         panel.noDraw= true;
@@ -54,11 +54,11 @@ function SceneOne(Objs,Plane)
         var cLookAt = vec3.fromValues(0.0,0.0,-5.0);
         camera0 = new Camera(drawObjs, cPos0,cLookAt,shaderStruct,  45.0,   0.1,  20000.0,this.canvas,1.0,1.0,0.0,0.0);
 //        debugDraw = new DebugDraw(drawObjs,new ObligTerning(1.0),shaderStruct,vec3.fromValues(0.0, 10.0, -5.0, 137)); //global object without physics
-        var lightColor = vec3.fromValues(1.0,0.95,0.9);
+        var lightColor = vec3.fromValues(1.0, 1.0, 1.0);
         var lightPos = vec3.fromValues(1.0, 1.0, -10.0);
-        light = new PointLight(shaderStruct, 50.0,lightColor, lightPos);
+        light = new PointLight(shaderStruct, 1.0,lightColor, lightPos);
         var direction = vec3.fromValues(1.0,1.0,1.0);
-        dirLight = new DirectionalLight(shaderStruct,direction,4.0);
+        dirLight = new DirectionalLight(shaderStruct,direction,3.5);
         initGroundPlane();
         var pinDistance = 150;
         cannon = new CannonControl(drawObjs,objs,shaderStruct,camera0,panel,pinDistance);

@@ -242,7 +242,7 @@ function Castle(objs,drawObjs,shaderStructX,panel,zPos)
         labelScore.text = bricksFallen;
         labelTotalScore.text = totalScore();
         labelRoundCount.text = roundCount();
-        labelMultiplier.text = (scoreMultiplier>0)?"2X":"1X";
+        labelMultiplier.text = (scoreMultiplier>0)?"x2":"x1";
     }
     function initCastle(drawObjs,shaderStruct)
     {

@@ -53,6 +53,7 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
     }
     function init(drawObjs,objs,shaderStruct)
     {
+        explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),3,vec3.fromValues(0.1,0.1,0.1));
         var cannPos = vec3.fromValues(0,-10.5,180.5);
         var wallPos = vec3.fromValues(0,-11.3,180);
         cannon = new rObject(drawObjs,objs['cannon'].generateBuffers(),shaderStruct,cannPos);
@@ -60,7 +61,6 @@ function CannonControl(drawObjs,objs,shaderStruct,Camera,panel,castleZposition)
         var pOffset= vec3.fromValues(0.40,0.0,0.0);
         cannon.global.setPosOffset(pOffset);
         initCannonBallShape(objs);
-        explosion = new Explosion(drawObjs,objs['particle'].generateBuffers(),shaderStruct,vec3.fromValues(0,-9.5,178),3,vec3.fromValues(0.1,0.1,0.1));
     }
     this.setCanShoot = function(canIt)
     {

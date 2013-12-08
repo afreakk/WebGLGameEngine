@@ -20,7 +20,8 @@ function Camera(drawObjects, position, look,shader , Fov, Near, Far, Canvas, vpo
     {
         var pMatrix = mat4.create();
         mat4.identity(pMatrix);
-        pMatrix = mat4.perspective(pMatrix, this.fov, lockedAspect?16/9:(this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), this.near, this.far);
+        pMatrix = mat4.perspective(pMatrix, this.fov, lockedAspect?16/9:(this.canvas.width*this.vprtSizeX)/(this.canvas.height*this.vprtSizeY), 
+        this.near, this.far);
         setMatrix(pMatrix,this.pMatL);
     }
     this.lookAt = function(center)
